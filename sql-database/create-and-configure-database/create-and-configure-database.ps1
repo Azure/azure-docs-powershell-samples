@@ -16,7 +16,7 @@ New-AzureRmSqlServer -ResourceGroupName "SampleResourceGroup" `
 # Create or update server firewall rule that allows access from a small IP range
 New-AzureRmSqlServerFirewallRule -ResourceGroupName "SampleResourceGroup" `
     -ServerName "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)" `
-    -FirewallRuleName "AllowSome" -StartIpAddress "192.1.123.15" -EndIpAddress "192.1.123.19"
+    -FirewallRuleName "AllowSome" -StartIpAddress "0.0.0.0" -EndIpAddress "255.255.255.255"
 
 
 # Create a blank database with S0 performance level
