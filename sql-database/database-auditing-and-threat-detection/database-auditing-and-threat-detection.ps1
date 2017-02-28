@@ -1,47 +1,44 @@
-﻿# Sign in
-# Login-AzureRmAccount
-
+﻿# Set an admin login and password for your database
+$adminlogin = "ServerAdmin"
+$password = "ChangeYourAdminPassword1"
+# The logical server name has to be unique in the system
+$servername = "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)"
+# The storage account name has to be unique in the system
+$storageaccountname = $("sql$($(Get-AzureRMContext).Subscription.SubscriptionId)").substring(0,23).replace("-", "")
+# Specify the email receipeients for the threat decition alerts
+$notificationemailreceipient = "changeto@your.email;changeto@your.email"
 
 # Creat a new resource group
-New-AzureRmResourceGroup -Name "SampleResourceGroup" -Location "northcentralus"
-
+New-AzureRmResourceGroup -Name "myResourceGroup" -Location "northcentralus"
 
 # Create a new server with a system wide unique server-name
-New-AzureRmSqlServer -ResourceGroupName "SampleResourceGroup" `
-    -ServerName "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)" `
+New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
+    -ServerName $servername `
     -Location "northcentralus" `
-    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "ServerAdmin", $(ConvertTo-SecureString -String "ASecureP@assw0rd" -AsPlainText -Force))
-
+    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 
 # Create a blank database with S0 performance level
-New-AzureRmSqlDatabase  -ResourceGroupName "SampleResourceGroup" `
-    -ServerName "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)" `
+New-AzureRmSqlDatabase  -ResourceGroupName "myResourceGroup" `
+    -ServerName $servername `
     -DatabaseName "MySampleDatabase" `
     -RequestedServiceObjectiveName "S0"
 
-
 # Create a new Storage Account 
-New-AzureRmStorageAccount -ResourceGroupName "SampleResourceGroup" `
-    -AccountName $("sql$($(Get-AzureRMContext).Subscription.SubscriptionId)").substring(0,23).replace("-", "") `
+New-AzureRmStorageAccount -ResourceGroupName "myResourceGroup" `
+    -AccountName $storageaccountname `
     -Location "northcentralus" `
     -Type "Standard_LRS"
 
-
 # Set an auditing policy
-Set-AzureRmSqlDatabaseAuditingPolicy -ResourceGroupName "SampleResourceGroup" `
-    -ServerName "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)" `
+Set-AzureRmSqlDatabaseAuditingPolicy -ResourceGroupName "myResourceGroup" `
+    -ServerName $servername `
     -DatabaseName "MySampleDatabase" `
-    -StorageAccountName $("sql$($(Get-AzureRMContext).Subscription.SubscriptionId)").substring(0,23).replace("-", "") `
-
+    -StorageAccountName $storageaccountname `
 
 # Set a threat detection policy
-Set-AzureRmSqlDatabaseThreatDetectionPolicy -ResourceGroupName "SampleResourceGroup" `
-    -ServerName "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)" `
+Set-AzureRmSqlDatabaseThreatDetectionPolicy -ResourceGroupName "myResourceGroup" `
+    -ServerName $servername `
     -DatabaseName "MySampleDatabase" `
-    -StorageAccountName $("sql$($(Get-AzureRMContext).Subscription.SubscriptionId)").substring(0,23).replace("-", "") `
-    -NotificationRecipientsEmails "admin@contoso.com;securityadmin@contoso.com" `
+    -StorageAccountName $storageaccountname `
+    -NotificationRecipientsEmails $notificationemailreceipient `
     -EmailAdmins $False
-
-
-# Cleanup: Delete the resource group and ALL resources in it
-# Remove-AzureRmResourceGroup -ResourceGroupName "SampleResourceGroup"

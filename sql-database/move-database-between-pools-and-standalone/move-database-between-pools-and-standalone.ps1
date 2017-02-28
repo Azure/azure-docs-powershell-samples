@@ -1,54 +1,52 @@
-﻿# Sign in
-# Login-AzureRmAccount
-
+﻿# Set an admin login and password for your database
+$adminlogin = "ServerAdmin"
+$password = "ChangeYourAdminPassword1"
+# The logical server name has to be unique in the system
+$servername = "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)"
 
 # Creat a new resource group
-New-AzureRmResourceGroup -Name "SampleResourceGroup" -Location "northcentralus"
-
+New-AzureRmResourceGroup -Name "myResourceGroup" -Location "northcentralus"
 
 # Create a new server with a system wide unique server-name
-New-AzureRmSqlServer -ResourceGroupName "SampleResourceGroup" `
-    -ServerName "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)" `
+New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
+    -ServerName $servername `
     -Location "northcentralus" `
-    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "ServerAdmin", $(ConvertTo-SecureString -String "ASecureP@assw0rd" -AsPlainText -Force))
-
+    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 
 # Create two elastic database pools
-New-AzureRmSqlElasticPool -ResourceGroupName "SampleResourceGroup" `
-    -ServerName "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)" `
+New-AzureRmSqlElasticPool -ResourceGroupName "myResourceGroup" `
+    -ServerName $servername `
     -ElasticPoolName "MyFirstPool" `
     -Edition "Standard" `
     -Dtu 50 `
     -DatabaseDtuMin 10 `
     -DatabaseDtuMax 20
-New-AzureRmSqlElasticPool -ResourceGroupName "SampleResourceGroup" `
-    -ServerName "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)" `
+New-AzureRmSqlElasticPool -ResourceGroupName "myResourceGroup" `
+    -ServerName $servername `
     -ElasticPoolName "MySecondPool" `
     -Edition "Standard" `
     -Dtu 50 `
     -DatabaseDtuMin 10 `
     -DatabaseDtuMax 50
 
-
-# Create a blank database in the first pool
-New-AzureRmSqlDatabase  -ResourceGroupName "SampleResourceGroup" `
-    -ServerName "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)" `
+# Create two blank databases in the first pool
+New-AzureRmSqlDatabase  -ResourceGroupName "myResourceGroup" `
+    -ServerName $servername `
     -DatabaseName "MySampleDatabase" `
     -ElasticPoolName "MyFirstPool"
-
+New-AzureRmSqlDatabase  -ResourceGroupName "myResourceGroup" `
+    -ServerName $servername `
+    -DatabaseName "MySecondSampleDatabase" `
+    -ElasticPoolName "SamplePool"
 
 # Move the database to the second pool
-Set-AzureRmSqlDatabase -ResourceGroupName "SampleResourceGroup" `
-    -ServerName "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)" `
+Set-AzureRmSqlDatabase -ResourceGroupName "myResourceGroup" `
+    -ServerName $servername `
     -DatabaseName "MySampleDatabase" `
     -ElasticPoolName "MySecondPool"
 
-
 # Move the database into a standalone performance level
-Set-AzureRmSqlDatabase -ResourceGroupName "SampleResourceGroup" `
-    -ServerName "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)" `
+Set-AzureRmSqlDatabase -ResourceGroupName "myResourceGroup" `
+    -ServerName $servername `
     -DatabaseName "MySampleDatabase" `
     -RequestedServiceObjectiveName "S0"
-
-# Cleanup: Delete the resource group and ALL resources in it
-# Remove-AzureRmResourceGroup -ResourceGroupName "SampleResourceGroup"
