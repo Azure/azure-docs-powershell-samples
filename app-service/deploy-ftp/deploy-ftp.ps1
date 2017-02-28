@@ -3,19 +3,19 @@ $webappname="mywebapp$(Get-Random)"
 $location="West Europe"
 
 # Create a resource group.
-New-AzureRmResourceGroup -Name $webappname -Location $location
+New-AzureRmResourceGroup -Name myResourceGroup -Location $location
 
 # Create an App Service plan in `Free` tier.
 New-AzureRmAppServicePlan -Name $webappname -Location $location `
--ResourceGroupName $webappname -Tier Free
+-ResourceGroupName myResourceGroup -Tier Free
 
 # Create a web app.
 New-AzureRmWebApp -Name $webappname -Location $location -AppServicePlan $webappname `
--ResourceGroupName $webappname
+-ResourceGroupName myResourceGroup
 
 # Get publishing profile for the web app
 $xml = (Get-AzureRmWebAppPublishingProfile -Name $webappname `
--ResourceGroupName $webappname `
+-ResourceGroupName myResourceGroup `
 -OutputFile null)
 
 # Extract connection information from publishing profile
