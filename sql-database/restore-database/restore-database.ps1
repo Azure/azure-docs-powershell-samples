@@ -4,7 +4,7 @@ $password = "ChangeYourAdminPassword1"
 # The logical server name has to be unique in the system
 $servername = "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)"
 
-# Creat a new resource group
+# Create a new resource group
 New-AzureRmResourceGroup -Name "myResourceGroup" -Location "northcentralus"
 
 # Create a new server with a system wide unique tmp-name
