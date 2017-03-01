@@ -7,7 +7,7 @@ $servername = "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)"
 $startip = "0.0.0.0"
 $endip = "255.255.255.255"
 
-# Creat a new resource group
+# Create a new resource group
 New-AzureRmResourceGroup -Name "myResourceGroup" -Location "northcentralus"
 
 # Create a new server with a system wide unique server-name
