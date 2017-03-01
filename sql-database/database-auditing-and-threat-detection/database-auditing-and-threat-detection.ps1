@@ -8,7 +8,7 @@ $storageaccountname = $("sql$($(Get-AzureRMContext).Subscription.SubscriptionId)
 # Specify the email receipeients for the threat decition alerts
 $notificationemailreceipient = "changeto@your.email;changeto@your.email"
 
-# Creat a new resource group
+# Create a new resource group
 New-AzureRmResourceGroup -Name "myResourceGroup" -Location "northcentralus"
 
 # Create a new server with a system wide unique server-name
