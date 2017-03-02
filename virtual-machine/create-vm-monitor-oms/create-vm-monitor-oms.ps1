@@ -1,3 +1,7 @@
+# OMS Id and OMS key
+$omsid=<Replace with your OMS Id>
+$omskey=<Replace with your OMS key>
+
 # Variables for common values
 $resourceGroup = "myResourceGroup"
 $location = "westeurope"
@@ -20,11 +24,6 @@ $vnet = New-AzureRmVirtualNetwork -ResourceGroupName $resourceGroup -Location $l
 # Create a public IP address and specify a DNS name.
 $pip = New-AzureRmPublicIpAddress -ResourceGroupName $resourceGroup -Location $location `
   -Name "mypublicdns$(Get-Random)" -AllocationMethod Static -IdleTimeoutInMinutes 4
-
-# Create an inbound network security group rule for port 22
-$nsgrule = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRuleSSH  -Protocol Tcp `
-  -Direction Inbound -Priority 1000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
-  -DestinationPortRange 22 -Access Allow
 
 # Create a network security group
 $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroup -Location $location `
@@ -49,3 +48,12 @@ Add-AzureRmVMSshPublicKey -VM $vmconfig -KeyData $sshpubickey -Path "/home/azure
 
 # Create a virtual machine
 New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vmconfig
+
+# Install and configure the OMS agent
+$PublicSettings = New-Object psobject | Add-Member -PassThru NoteProperty workspaceId $omsid | ConvertTo-Json
+$protectedsettings = New-Object psobject | Add-Member -PassThru NoteProperty workspaceKey $omskey | ConvertTo-Json
+
+Set-AzureRmVMExtension -ExtensionName "OMS" -ResourceGroupName $resourceGroup -VMName $vmName `
+  -Publisher "Microsoft.EnterpriseCloud.Monitoring" -ExtensionType "OmsAgentForLinux" `
+  -TypeHandlerVersion 1.0 -SettingString $PublicSettings ` -ProtectedSettingString $protectedsettings `
+  -Location $location

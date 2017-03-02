@@ -1,5 +1,5 @@
 # Variables for common values
-$resourceGroup = "myResourceGroup"
+$resourceGroup = "myResourceGroupnginx"
 $location = "westeurope"
 $vmName = "myVM"
 
@@ -26,6 +26,11 @@ $nsgrule = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRule
   -Direction Inbound -Priority 1000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
   -DestinationPortRange 22 -Access Allow
 
+# Create an inbound network security group rule for port 80
+$nsgrule = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRuleHTTP  -Protocol Tcp `
+  -Direction Inbound -Priority 1000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
+  -DestinationPortRange 80 -Access Allow
+
 # Create a network security group
 $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroup -Location $location `
   -Name myNetworkSecurityGroup -SecurityRules $nsgrule
@@ -49,3 +54,13 @@ Add-AzureRmVMSshPublicKey -VM $vmconfig -KeyData $sshpubickey -Path "/home/azure
 
 # Create a virtual machine
 New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vmconfig
+
+# Install NGINX.
+$PublicSettings = '{"commandToExecute":"apt-get -y update && apt-get -y install nginx"}'
+
+Set-AzureRmVMExtension -ExtensionName "NGINX" -ResourceGroupName $resourceGroup -VMName $vmName `
+  -Publisher "Microsoft.Azure.Extensions" `
+  -ExtensionType "CustomScript" `
+  -TypeHandlerVersion 2.0 `
+  -SettingString $PublicSettings `
+  -Location $location
