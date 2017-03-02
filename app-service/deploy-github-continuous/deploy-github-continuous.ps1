@@ -16,7 +16,7 @@ New-AzureRmWebApp -Name $webappname -Location $location -AppServicePlan $webappn
 
 # SET GitHub
 $PropertiesObject = @{
-	#Property = $token;
+	token = $token;
 }
 Set-AzureRmResource -PropertyObject $PropertiesObject `
 -ResourceId /providers/Microsoft.Web/sourcecontrols/GitHub -ApiVersion 2015-08-01 -Force
