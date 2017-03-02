@@ -11,11 +11,11 @@ $cred = New-Object System.Management.Automation.PSCredential ("azureuser", $secu
 New-AzureRmResourceGroup -Name $resourceGroup -Location $location
 
 # Create a subnet configuration
-$subnetconfig = New-AzureRmVirtualNetworkSubnetConfig -Name mySubnet -AddressPrefix 192.168.1.0/24
+$subnetConfig = New-AzureRmVirtualNetworkSubnetConfig -Name mySubnet -AddressPrefix 192.168.1.0/24
 
 # Create a virtual network
 $vnet = New-AzureRmVirtualNetwork -ResourceGroupName $resourceGroup -Location $location `
-  -Name MYvNET -AddressPrefix 192.168.0.0/16 -Subnet $subnetconfig
+  -Name MYvNET -AddressPrefix 192.168.0.0/16 -Subnet $subnetConfig
 
 # Create a public IP address and specify a DNS name
 $pip = New-AzureRmPublicIpAddress -ResourceGroupName $resourceGroup -Location $location `
@@ -43,17 +43,17 @@ $nic = New-AzureRmNetworkInterface -ResourceGroupName $resourceGroup -Location $
   -Subnet $subnet -NetworkSecurityGroup $nsg -PublicIpAddress $pip
 
 # Create a virtual machine configuration
-$vmconfig = New-AzureRmVMConfig -VMName $vmname -VMSize Standard_D1 | `
-Set-AzureRmVMOperatingSystem -Linux -ComputerName $vmname -Credential $cred -DisablePasswordAuthentication | `
+$vmConfig = New-AzureRmVMConfig -VMName $vmName -VMSize Standard_D1 | `
+Set-AzureRmVMOperatingSystem -Linux -ComputerName $vmName -Credential $cred -DisablePasswordAuthentication | `
 Set-AzureRmVMSourceImage -PublisherName Canonical -Offer UbuntuServer -Skus 14.04.2-LTS -Version latest | `
 Add-AzureRmVMNetworkInterface -Id $nic.Id
 
 # Configure SSH Keys
-$sshpubickey = Get-Content "$env:USERPROFILE\.ssh\id_rsa.pub"
-Add-AzureRmVMSshPublicKey -VM $vmconfig -KeyData $sshpubickey -Path "/home/azureuser/.ssh/authorized_keys"
+$sshPublicKey = Get-Content "$env:USERPROFILE\.ssh\id_rsa.pub"
+Add-AzureRmVMSshPublicKey -VM $vmConfig -KeyData $sshPublicKey -Path "/home/azureuser/.ssh/authorized_keys"
 
 # Create a virtual machine
-New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vmconfig
+New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vmConfig
 
 # Install Docker and run container
 $PublicSettings = '{"docker": {"port": "2375"},"compose": {"web": {"image": "nginx","ports": ["80:80"]}}}'
