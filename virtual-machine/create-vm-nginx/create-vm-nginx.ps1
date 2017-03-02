@@ -1,5 +1,5 @@
 # Variables for common values
-$resourceGroup = "myResourceGroupnginx"
+$resourceGroup = "myResourceGroup"
 $location = "westeurope"
 $vmName = "myVM"
 
@@ -7,7 +7,7 @@ $vmName = "myVM"
 $securePassword = ConvertTo-SecureString ' ' -AsPlainText -Force
 $cred = New-Object System.Management.Automation.PSCredential ("azureuser", $securePassword)
 
-# Create a resource group.
+# Create a resource group
 New-AzureRmResourceGroup -Name $resourceGroup -Location $location
 
 # Create a subnet configuration
@@ -17,23 +17,23 @@ $subnetconfig = New-AzureRmVirtualNetworkSubnetConfig -Name mySubnet -AddressPre
 $vnet = New-AzureRmVirtualNetwork -ResourceGroupName $resourceGroup -Location $location `
   -Name MYvNET -AddressPrefix 192.168.0.0/16 -Subnet $subnetconfig
 
-# Create a public IP address and specify a DNS name.
+# Create a public IP address and specify a DNS name
 $pip = New-AzureRmPublicIpAddress -ResourceGroupName $resourceGroup -Location $location `
   -Name "mypublicdns$(Get-Random)" -AllocationMethod Static -IdleTimeoutInMinutes 4
 
 # Create an inbound network security group rule for port 22
-$nsgrule = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRuleSSH  -Protocol Tcp `
+$nsgRuleSSH = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRuleSSH  -Protocol Tcp `
   -Direction Inbound -Priority 1000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
   -DestinationPortRange 22 -Access Allow
 
 # Create an inbound network security group rule for port 80
-$nsgrule = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRuleHTTP  -Protocol Tcp `
-  -Direction Inbound -Priority 1000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
+$nsgRuleHTTP = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRuleHTTP  -Protocol Tcp `
+  -Direction Inbound -Priority 2000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
   -DestinationPortRange 80 -Access Allow
 
 # Create a network security group
 $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroup -Location $location `
-  -Name myNetworkSecurityGroup -SecurityRules $nsgrule
+  -Name myNetworkSecurityGroup -SecurityRules $nsgRuleSSH,$nsgRuleHTTP
 
 # Get subnet object
 $subnet = Get-AzureRmVirtualNetworkSubnetConfig -Name $subnetName -VirtualNetwork $vnet
@@ -59,8 +59,5 @@ New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vmconfi
 $PublicSettings = '{"commandToExecute":"apt-get -y update && apt-get -y install nginx"}'
 
 Set-AzureRmVMExtension -ExtensionName "NGINX" -ResourceGroupName $resourceGroup -VMName $vmName `
-  -Publisher "Microsoft.Azure.Extensions" `
-  -ExtensionType "CustomScript" `
-  -TypeHandlerVersion 2.0 `
-  -SettingString $PublicSettings `
-  -Location $location
+  -Publisher "Microsoft.Azure.Extensions" -ExtensionType "CustomScript" -TypeHandlerVersion 2.0 `
+  -SettingString $PublicSettings -Location $location

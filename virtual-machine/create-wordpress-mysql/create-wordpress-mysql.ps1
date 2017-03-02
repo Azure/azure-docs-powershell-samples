@@ -1,5 +1,5 @@
 # Variables for common values
-$resourceGroup = "myResourceGroup"
+$resourceGroup = "myResourceGroup3"
 $location = "westeurope"
 $vmName = "myVM"
 
@@ -26,9 +26,14 @@ $nsgRuleSSH = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupR
   -Direction Inbound -Priority 1000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
   -DestinationPortRange 22 -Access Allow
 
+# Create an inbound network security group rule for port 80
+$nsgRuleHTTP = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRuleHTTP  -Protocol Tcp `
+  -Direction Inbound -Priority 2000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
+  -DestinationPortRange 80 -Access Allow
+
 # Create a network security group
 $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroup -Location $location `
-  -Name myNetworkSecurityGroup -SecurityRules $nsgRuleSSH
+  -Name myNetworkSecurityGroup -SecurityRules $nsgRuleSSH,$nsgRuleHTTP
 
 # Get subnet object
 $subnet = Get-AzureRmVirtualNetworkSubnetConfig -Name $subnetName -VirtualNetwork $vnet
@@ -49,3 +54,11 @@ Add-AzureRmVMSshPublicKey -VM $vmconfig -KeyData $sshpubickey -Path "/home/azure
 
 # Create a virtual machine
 New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vmconfig
+
+# Start a CustomScript extension to use a simple bash script to update, download and install WordPress and MySQL 
+$PublicSettings = '{"fileUris":["https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/wordpress-single-vm-ubuntu/install_wordpress.sh"],"commandToExecute":"sh install_wordpress.sh"}'
+
+Set-AzureRmVMExtension -ExtensionName "WordPress" -ResourceGroupName $resourceGroup -VMName $vmName `
+  -Publisher "Microsoft.Azure.Extensions" -ExtensionType "CustomScript" -TypeHandlerVersion 2.0 `
+  -SettingString $PublicSettings `
+  -Location $location
