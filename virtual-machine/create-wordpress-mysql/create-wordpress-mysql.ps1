@@ -1,5 +1,5 @@
 # Variables for common values
-$resourceGroup = "myResourceGroup"
+$resourceGroup = "myResourceGroup3"
 $location = "westeurope"
 $vmName = "myVM"
 
@@ -26,9 +26,14 @@ $nsgRuleSSH = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupR
   -Direction Inbound -Priority 1000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
   -DestinationPortRange 22 -Access Allow
 
+# Create an inbound network security group rule for port 80
+$nsgRuleHTTP = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRuleHTTP  -Protocol Tcp `
+  -Direction Inbound -Priority 2000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
+  -DestinationPortRange 80 -Access Allow
+
 # Create a network security group
 $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroup -Location $location `
-  -Name myNetworkSecurityGroup -SecurityRules $nsgRuleSSH
+  -Name myNetworkSecurityGroup -SecurityRules $nsgRuleSSH,$nsgRuleHTTP
 
 # Get subnet object
 $subnet = Get-AzureRmVirtualNetworkSubnetConfig -Name $subnetName -VirtualNetwork $vnet
@@ -38,7 +43,7 @@ $nic = New-AzureRmNetworkInterface -ResourceGroupName $resourceGroup -Location $
   -Subnet $subnet -NetworkSecurityGroup $nsg -PublicIpAddress $pip
 
 # Create a virtual machine configuration
-$vmConfig = New-AzureRmVMConfig -VMName $vmName -VMSize Standard_D1 | `
+$vmConfig = New-AzureRmVMConfig -VMName $vmname -VMSize Standard_D1 | `
 Set-AzureRmVMOperatingSystem -Linux -ComputerName $vmName -Credential $cred -DisablePasswordAuthentication | `
 Set-AzureRmVMSourceImage -PublisherName Canonical -Offer UbuntuServer -Skus 14.04.2-LTS -Version latest | `
 Add-AzureRmVMNetworkInterface -Id $nic.Id
@@ -49,3 +54,11 @@ Add-AzureRmVMSshPublicKey -VM $vmconfig -KeyData $sshPublicKey -Path "/home/azur
 
 # Create a virtual machine
 New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vmConfig
+
+# Start a CustomScript extension to use a simple bash script to update, download and install WordPress and MySQL 
+$PublicSettings = '{"fileUris":["https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/wordpress-single-vm-ubuntu/install_wordpress.sh"],"commandToExecute":"sh install_wordpress.sh"}'
+
+Set-AzureRmVMExtension -ExtensionName "WordPress" -ResourceGroupName $resourceGroup -VMName $vmName `
+  -Publisher "Microsoft.Azure.Extensions" -ExtensionType "CustomScript" -TypeHandlerVersion 2.0 `
+  -SettingString $PublicSettings `
+  -Location $location
