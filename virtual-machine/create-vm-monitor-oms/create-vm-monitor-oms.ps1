@@ -1,6 +1,6 @@
 # OMS Id and OMS key
-$omsId=<Replace with your OMS Id>
-$omsKey=<Replace with your OMS key>
+$omsId = "<Replace with your OMS Id>"
+$omsKey = "<Replace with your OMS key>"
 
 # Variables for common values
 $resourceGroup = "myResourceGroup"
