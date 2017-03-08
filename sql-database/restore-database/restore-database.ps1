@@ -7,7 +7,7 @@ $servername = "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)"
 # Create a new resource group
 New-AzureRmResourceGroup -Name "myResourceGroup" -Location "northcentralus"
 
-# Create a new server with a system wide unique tmp-name
+# Create a new server with a system wide unique server name
 New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
     -ServerName $servername `
     -Location "northcentralus" `
