@@ -1,4 +1,6 @@
 $fqdn="<Replace with your custom domain name>"
+$pfxPath="<Replace with path to your .PFX file>"
+$pfxPassword="<Replace with your .PFX password>"
 $webappname="mywebapp$(Get-Random)"
 $location="West Europe"
 
@@ -20,10 +22,14 @@ Read-Host "Press [Enter] key when ready ..."
 # instructions at https://aka.ms/appservicecustomdns to configure a CNAME record for the 
 # hostname "www" and point it your web app's default domain name.
 
-# Upgrade App Service plan to Shared tier (minimum required by custom domains)
+# Upgrade App Service plan to Basic tier (minimum required by custom SSL certificates)
 Set-AzureRmAppServicePlan -Name $webappname -ResourceGroupName $webappname `
--Tier Shared
+-Tier Basic
 
 # Add a custom domain name to the web app. 
 Set-AzureRmWebApp -Name $webappname -ResourceGroupName $webappname `
 -HostNames @($fqdn,"$webappname.azurewebsites.net")
+
+# Upload and bind the SSL certificate to the web app.
+New-AzureRmWebAppSSLBinding -WebAppName $webappname -ResourceGroupName $webappname -Name $fqdn `
+-CertificateFilePath $pfxPath -CertificatePassword $pfxPassword -SslState SniEnabled
