@@ -5,7 +5,7 @@ $password = "ChangeYourAdminPassword1"
 $servername = "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)"
 # The storage account name has to be unique in the system
 $storageaccountname = $("sql$($(Get-AzureRMContext).Subscription.SubscriptionId)").substring(0,23).replace("-", "")
-# Specify the email receipeients for the threat decition alerts
+# Specify the email recipients for the threat detectioon alerts
 $notificationemailreceipient = "changeto@your.email;changeto@your.email"
 
 # Create a new resource group
