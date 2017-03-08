@@ -9,7 +9,7 @@ $targetserver = "target-server-$($(Get-AzureRMContext).Subscription.Subscription
 New-AzureRmResourceGroup -Name "myResourceGroup" -Location "northcentralus"
 
 
-# Create a new server with a system wide unique server-name
+# Create a new server with a system wide unique server name
 New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
     -ServerName $sourceserver `
     -Location "northcentralus" `
