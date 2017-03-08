@@ -32,7 +32,7 @@ Set-AzureStorageBlobContent -Container "importsample" `
     -Context $(New-AzureStorageContext -StorageAccountName $storageaccountname `
         -StorageAccountKey $(Get-AzureRmStorageAccountKey -ResourceGroupName "myResourceGroup" -StorageAccountName $storageaccountname).Value[0])
 
-# Create a new server with a system wide unique server-name
+# Create a new server with a system wide unique server name
 New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
     -ServerName $servername `
     -Location "northcentralus" `
