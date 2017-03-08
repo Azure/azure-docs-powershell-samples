@@ -11,7 +11,7 @@ $notificationemailreceipient = "changeto@your.email;changeto@your.email"
 # Create a new resource group
 New-AzureRmResourceGroup -Name "myResourceGroup" -Location "northcentralus"
 
-# Create a new server with a system wide unique server-name
+# Create a new server with a system wide unique server name
 New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
     -ServerName $servername `
     -Location "northcentralus" `
