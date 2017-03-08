@@ -9,7 +9,7 @@ $sercondaryservername = "secondary-server-$($(Get-AzureRMContext).Subscription.S
 New-AzureRmResourceGroup -Name "myPrimaryResourceGroup" -Location "northcentralus"
 New-AzureRmResourceGroup -Name "mySecondaryResourceGroup" -Location "southcentralus"
 
-# Create two new logical servers with a system wide unique server-name
+# Create two new logical servers with a system wide unique server name
 New-AzureRmSqlServer -ResourceGroupName "myPrimaryResourceGroup" `
     -ServerName $primaryservername `
     -Location "northcentralus" `
