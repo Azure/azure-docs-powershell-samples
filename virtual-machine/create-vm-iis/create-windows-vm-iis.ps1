@@ -1,5 +1,5 @@
 # Variables for common values
-$resourceGroup = "myResourceGroup3"
+$resourceGroup = "myResourceGroup"
 $location = "westeurope"
 $vmName = "myVM"
 
