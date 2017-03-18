@@ -30,7 +30,7 @@ $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroup -Locati
   -Name myNetworkSecurityGroup -SecurityRules $nsgRuleSSH
 
 # Get subnet object
-$subnet = Get-AzureRmVirtualNetworkSubnetConfig -Name $subnetName -VirtualNetwork $vnet
+$subnet = Get-AzureRmVirtualNetworkSubnetConfig -Name mySubnet -VirtualNetwork $vnet
 
 # Create a virtual network card and associate with public IP address and NSG
 $nic = New-AzureRmNetworkInterface -ResourceGroupName $resourceGroup -Location $location -Name myNic `
