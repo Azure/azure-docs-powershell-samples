@@ -29,12 +29,9 @@ $nsgRuleSSH = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupR
 $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroup -Location $location `
   -Name myNetworkSecurityGroup -SecurityRules $nsgRuleSSH
 
-# Get subnet object
-$subnet = Get-AzureRmVirtualNetworkSubnetConfig -Name $subnetName -VirtualNetwork $vnet
-
 # Create a virtual network card and associate with public IP address and NSG
-$nic = New-AzureRmNetworkInterface -ResourceGroupName $resourceGroup -Location $location -Name myNic `
-  -Subnet $subnet -NetworkSecurityGroup $nsg -PublicIpAddress $pip
+$nic = New-AzureRmNetworkInterface -Name myNic -ResourceGroupName $resourceGroup -Location $location `
+  -SubnetId $vnet.Subnets[0].Id -PublicIpAddressId $pip.Id -NetworkSecurityGroupId $nsg.Id
 
 # Create a virtual machine configuration
 $vmConfig = New-AzureRmVMConfig -VMName $vmName -VMSize Standard_D1 | `

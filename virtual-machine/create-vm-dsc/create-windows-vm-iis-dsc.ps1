@@ -1,15 +1,10 @@
-# OMS Id and OMS key
-$omsId = "<Replace with your OMS Id>"
-$omsKey = "<Replace with your OMS key>"
-
 # Variables for common values
 $resourceGroup = "myResourceGroup"
 $location = "westeurope"
 $vmName = "myVM"
 
-# Definer user name and blank password
-$securePassword = ConvertTo-SecureString ' ' -AsPlainText -Force
-$cred = New-Object System.Management.Automation.PSCredential ("azureuser", $securePassword)
+# Create user object
+$cred = Get-Credential -Message "Enter a username and password for the virtual machine."
 
 # Create a resource group
 New-AzureRmResourceGroup -Name $resourceGroup -Location $location
@@ -25,10 +20,10 @@ $vnet = New-AzureRmVirtualNetwork -ResourceGroupName $resourceGroup -Location $l
 $pip = New-AzureRmPublicIpAddress -ResourceGroupName $resourceGroup -Location $location `
   -Name "mypublicdns$(Get-Random)" -AllocationMethod Static -IdleTimeoutInMinutes 4
 
-# Create an inbound network security group rule for port 22
-$nsgRuleSSH = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRuleSSH  -Protocol Tcp `
+# Create an inbound network security group rule for port 80
+$nsgRuleSSH = New-AzureRmNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRuleHTTP  -Protocol Tcp `
   -Direction Inbound -Priority 1000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
-  -DestinationPortRange 22 -Access Allow
+  -DestinationPortRange 80 -Access Allow
 
 # Create a network security group
 $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroup -Location $location `
@@ -40,22 +35,16 @@ $nic = New-AzureRmNetworkInterface -Name myNic -ResourceGroupName $resourceGroup
 
 # Create a virtual machine configuration
 $vmConfig = New-AzureRmVMConfig -VMName $vmName -VMSize Standard_D1 | `
-Set-AzureRmVMOperatingSystem -Linux -ComputerName $vmName -Credential $cred -DisablePasswordAuthentication | `
-Set-AzureRmVMSourceImage -PublisherName Canonical -Offer UbuntuServer -Skus 14.04.2-LTS -Version latest | `
+Set-AzureRmVMOperatingSystem -Windows -ComputerName $vmName -Credential $cred | `
+Set-AzureRmVMSourceImage -PublisherName MicrosoftWindowsServer -Offer WindowsServer -Skus 2016-Datacenter -Version latest | `
 Add-AzureRmVMNetworkInterface -Id $nic.Id
-
-# Configure SSH Keys
-$sshPublicKey = Get-Content "$env:USERPROFILE\.ssh\id_rsa.pub"
-Add-AzureRmVMSshPublicKey -VM $vmConfig -KeyData $sshPublicKey -Path "/home/azureuser/.ssh/authorized_keys"
 
 # Create a virtual machine
 New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vmConfig
 
-# Install and configure the OMS agent
-$PublicSettings = New-Object psobject | Add-Member -PassThru NoteProperty workspaceId $omsId | ConvertTo-Json
-$protectedSettings = New-Object psobject | Add-Member -PassThru NoteProperty workspaceKey $omsKey | ConvertTo-Json
+# Install IIS
+$PublicSettings = '{"ModulesURL":"https://github.com/Azure/azure-quickstart-templates/raw/master/dsc-extension-iis-server-windows-vm/ContosoWebsite.ps1.zip", "configurationFunction": "ContosoWebsite.ps1\\ContosoWebsite", "Properties": {"MachineName": "myVM"} }'
 
-Set-AzureRmVMExtension -ExtensionName "OMS" -ResourceGroupName $resourceGroup -VMName $vmName `
-  -Publisher "Microsoft.EnterpriseCloud.Monitoring" -ExtensionType "OmsAgentForLinux" `
-  -TypeHandlerVersion 1.0 -SettingString $PublicSettings ` -ProtectedSettingString $protectedSettings `
-  -Location $location
+Set-AzureRmVMExtension -ExtensionName "DSC" -ResourceGroupName $resourceGroup -VMName $vmName `
+  -Publisher "Microsoft.Powershell" -ExtensionType "DSC" -TypeHandlerVersion 2.19 `
+  -SettingString $PublicSettings -Location $location
