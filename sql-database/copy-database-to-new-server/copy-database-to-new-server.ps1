@@ -2,20 +2,20 @@
 $adminlogin = "ServerAdmin"
 $password = "ChangeYourAdminPassword1"
 # The logical server names have to be unique in the system
-$sourceserver = "source-server-$($(Get-AzureRMContext).Subscription.SubscriptionId)"
-$targetserver = "target-server-$($(Get-AzureRMContext).Subscription.SubscriptionId)"
+$sourceserver = "source-server-$(Get-Random)"
+$targetserver = "target-server-$(Get-Random)"
 
 # Create new, or get existing resource group
-New-AzureRmResourceGroup -Name "myResourceGroup" -Location "northcentralus"
+New-AzureRmResourceGroup -Name "myResourceGroup" -Location "westeurope"
 
 
 # Create a new server with a system wide unique server name
 New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
     -ServerName $sourceserver `
-    -Location "northcentralus" `
+    -Location "westeurope" `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
-    -ServerName "target-server-$($(Get-AzureRMContext).Subscription.SubscriptionId)" `
+    -ServerName $targetserver `
     -Location "southcentralus" `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 
