@@ -2,21 +2,29 @@
 $adminlogin = "ServerAdmin"
 $password = "ChangeYourAdminPassword1"
 # The logical server name has to be unique in the system
-$servername = "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)"
+$servername = "server-$(Get-Random)"
+$startip = "0.0.0.0"
+$endip = "255.255.255.255"
+
 
 # Create a new resource group
-New-AzureRmResourceGroup -Name "myResourceGroup" -Location "northcentralus"
+New-AzureRmResourceGroup -Name "myResourceGroup" -Location "westeurope"
 
 # Create a new server with a system wide unique server name
 New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
     -ServerName $servername `
-    -Location "northcentralus" `
+    -Location "westeurope" `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
+
+# Create a server firewall rule that allows access from the specified IP range
+New-AzureRmSqlServerFirewallRule -ResourceGroupName "myResourceGroup" `
+    -ServerName $servername `
+    -FirewallRuleName "AllowedIPs" -StartIpAddress $startip -EndIpAddress $endip    
 
 # Create two elastic database pools
 New-AzureRmSqlElasticPool -ResourceGroupName "myResourceGroup" `
     -ServerName $servername `
-    -ElasticPoolName "SamplePool" `
+    -ElasticPoolName "mySamplePool" `
     -Edition "Standard" `
     -Dtu 50 `
     -DatabaseDtuMin 10 `
@@ -25,16 +33,16 @@ New-AzureRmSqlElasticPool -ResourceGroupName "myResourceGroup" `
 # Create two blank database in the pool
 New-AzureRmSqlDatabase  -ResourceGroupName "myResourceGroup" `
     -ServerName $servername `
-    -DatabaseName "MyFirstSampleDatabase" `
-    -ElasticPoolName "SamplePool"
+    -DatabaseName "myFirstSampleDatabase" `
+    -ElasticPoolName "mySamplePool"
 New-AzureRmSqlDatabase  -ResourceGroupName "myResourceGroup" `
     -ServerName $servername `
-    -DatabaseName "MySecondSampleDatabase" `
-    -ElasticPoolName "SamplePool"
+    -DatabaseName "mySecondSampleDatabase" `
+    -ElasticPoolName "mySamplePool"
 
 # Monitor the pool
 $MonitorParameters = @{
-  ResourceId = "/subscriptions/$($(Get-AzureRMContext).Subscription.SubscriptionId)/resourceGroups/myResourceGroup/providers/Microsoft.Sql/servers/server-$($(Get-AzureRMContext).Subscription.SubscriptionId)/elasticPools/SamplePool"
+  ResourceId = "/subscriptions/$($(Get-AzureRMContext).Subscription.SubscriptionId)/resourceGroups/myResourceGroup/providers/Microsoft.Sql/servers/$servername/elasticPools/mySamplePool"
   TimeGrain = [TimeSpan]::Parse("00:05:00")
   MetricNames = "dtu_consumption_percent"
 }
@@ -43,7 +51,7 @@ $MonitorParameters = @{
 # Scale the pool
 Set-AzureRmSqlElasticPool -ResourceGroupName "myResourceGroup" `
     -ServerName $servername `
-    -ElasticPoolName "SamplePool" `
+    -ElasticPoolName "mySamplePool" `
     -Edition "Standard" `
     -Dtu 100 `
     -DatabaseDtuMin 20 `
@@ -51,9 +59,9 @@ Set-AzureRmSqlElasticPool -ResourceGroupName "myResourceGroup" `
 
 # Add an alert that fires when the pool utilization reaches 90%
 Add-AzureRMMetricAlertRule -ResourceGroup "myResourceGroup" `
-    -Name "MySampleAlertRule" `
-    -Location "northcentralus" `
-    -TargetResourceId "/subscriptions/$($(Get-AzureRMContext).Subscription.SubscriptionId)/resourceGroups/myResourceGroup/providers/Microsoft.Sql/servers/server-$($(Get-AzureRMContext).Subscription.SubscriptionId)/elasticPools/SamplePool" `
+    -Name "mySampleAlertRule" `
+    -Location "westeurope" `
+    -TargetResourceId "/subscriptions/$($(Get-AzureRMContext).Subscription.SubscriptionId)/resourceGroups/myResourceGroup/providers/Microsoft.Sql/servers/$servername/elasticPools/mySamplePool" `
     -MetricName "dtu_consumption_percent" `
     -Operator "GreaterThan" `
     -Threshold 90 `
