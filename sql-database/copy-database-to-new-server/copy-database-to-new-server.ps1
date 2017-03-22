@@ -4,12 +4,15 @@ $password = "ChangeYourAdminPassword1"
 # The logical server names have to be unique in the system
 $sourceserver = "source-server-$(Get-Random)"
 $targetserver = "target-server-$(Get-Random)"
+# The ip address range that you want to allow to access your DB
+$startip = "0.0.0.0"
+$endip = "255.255.255.255"
 
-# Create new, or get existing resource group
+# Create a resource group
 New-AzureRmResourceGroup -Name "myResourceGroup" -Location "westeurope"
 
 
-# Create a new server with a system wide unique server name
+# Create a server with a system wide unique server name
 New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
     -ServerName $sourceserver `
     -Location "westeurope" `
@@ -19,17 +22,23 @@ New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
     -Location "southcentralus" `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 
+# Create a server firewall rule that allows access from the specified IP range
+New-AzureRmSqlServerFirewallRule -ResourceGroupName "myResourceGroup" `
+    -ServerName $sourceserver `
+    -FirewallRuleName "AllowedIPs" -StartIpAddress $startip -EndIpAddress $endip
+New-AzureRmSqlServerFirewallRule -ResourceGroupName "myResourceGroup" `
+    -ServerName $targetserver `
+    -FirewallRuleName "AllowedIPs" -StartIpAddress $startip -EndIpAddress $endip
 
-# Create a blank database in the source-server
+# Create a blank database in the source-server with an S0 performance level
 New-AzureRmSqlDatabase  -ResourceGroupName "myResourceGroup" `
     -ServerName $sourceserver `
-    -DatabaseName "MySampleDatabase" -RequestedServiceObjectiveName "S0"
+    -DatabaseName "mySampleDatabase" -RequestedServiceObjectiveName "S0"
 
-
-# Copy source database to target server 
+# Copy source database to the target server 
 New-AzureRmSqlDatabaseCopy -ResourceGroupName "myResourceGroup" `
     -ServerName $sourceserver `
-    -DatabaseName "MySampleDatabase" `
+    -DatabaseName "mySampleDatabase" `
     -CopyResourceGroupName "myResourceGroup" `
     -CopyServerName $targetserver `
     -CopyDatabaseName "CopyOfMySampleDatabase"

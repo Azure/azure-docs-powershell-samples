@@ -7,22 +7,22 @@ $servername = "server-$(Get-Random)"
 $startip = "0.0.0.0"
 $endip = "255.255.255.255"
 
-# Create a new resource group
+# Create a resource group
 New-AzureRmResourceGroup -Name "myResourceGroup" -Location "westeurope"
 
-# Create a new server with a system wide unique server name
+# Create a server with a system wide unique server name
 New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
     -ServerName $servername `
     -Location "westeurope" `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 
-# Create or update server firewall rule that allows access from a small IP range
+# Create a server firewall rule that allows access from the specified IP range
 New-AzureRmSqlServerFirewallRule -ResourceGroupName "myResourceGroup" `
     -ServerName $servername `
-    -FirewallRuleName "AllowSome" -StartIpAddress $startip -EndIpAddress $endip
+    -FirewallRuleName "AllowedIPs" -StartIpAddress $startip -EndIpAddress $endip
 
-# Create a blank database with S0 performance level
+# Create a blank database with an S0 performance level
 New-AzureRmSqlDatabase  -ResourceGroupName "myResourceGroup" `
     -ServerName $servername `
-    -DatabaseName "MySampleDatabase" `
+    -DatabaseName "mySampleDatabase" `
     -RequestedServiceObjectiveName "S0"
