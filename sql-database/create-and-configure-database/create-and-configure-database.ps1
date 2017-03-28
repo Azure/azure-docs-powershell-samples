@@ -5,7 +5,7 @@ $password = "ChangeYourAdminPassword1"
 $servername = "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)"
 # The ip address range that you want to allow to access your DB
 $startip = "0.0.0.0"
-$endip = "255.255.255.255"
+$endip = "0.0.0.0"
 
 # Create a new resource group
 New-AzureRmResourceGroup -Name "myResourceGroup" -Location "northcentralus"
