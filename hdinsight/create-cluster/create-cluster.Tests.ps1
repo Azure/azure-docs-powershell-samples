@@ -58,4 +58,4 @@ Describe "hdinsight-hadoop-create-linux-clusters-azure-powershell" {
 }
 
 # Delete the resource group to get rid of test artifacts
-Remove-AzureRmResourceGroup -Name $resourceGroupName
+Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
