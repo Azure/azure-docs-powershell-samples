@@ -33,6 +33,7 @@ $clusterName = $baseName + "hdi" + $mills
 $storageAccountName = $basename + "store" + $mills
 $additionalStorageAccountName = $basename + "aux" + $mills
 
+write-host "Creating new resource group named: $resourceGroupName"
 Describe "hdinsight-hadoop-create-linux-clusters-azure-powershell" {
     It "Creates a Linux-based cluster using a config object" {
         # Mock data for the various read-hosts in the script
@@ -62,4 +63,4 @@ Describe "hdinsight-hadoop-create-linux-clusters-azure-powershell" {
 }
 
 # Delete the resource group to get rid of test artifacts
-Remove-AzureRmResourceGroup -Name $resourceGroupName -Force
+write-host "Please remember that YOU must manually delete the $resourceGroupName resource group created by this test!!!"
