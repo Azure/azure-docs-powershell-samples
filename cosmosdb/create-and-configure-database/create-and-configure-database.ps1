@@ -1,23 +1,26 @@
 # Set the Azure resource group name and location
-$resourceGroupName = "<resource-group-name>"
-$resourceGroupLocation = "<resource-group-location>"
+$resourceGroupName = "mydbresourcegroup"
+$resourceGroupLocation = "South Central US"
 
 # Create the resource group
 New-AzureRmResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
 
+# Database name
+$DBName = "testdb"
+
 # Write and read locations and priorities for the database
-$locations = @(@{"locationName"="<write-region-location>"; 
+$locations = @(@{"locationName"="South Central US"; 
                  "failoverPriority"=0}, 
-               @{"locationName"="<read-region-location>"; 
+               @{"locationName"="North Central US"; 
                   "failoverPriority"=1})
 
 # IP addresses that can access the database through the firewall
-$iprangefilter = "<ip-range-filter>"
+$iprangefilter = "10.0.0.1"
 
 # Consistency policy
-$consistencyPolicy = @{"defaultConsistencyLevel"="<default-consistency-level>"; 
-                       "maxIntervalInSeconds"="<max-interval>"; 
-                       "maxStalenessPrefix"="<max-staleness-prefix>"}
+$consistencyPolicy = @{"defaultConsistencyLevel"="BoundedStaleness";
+                       "maxIntervalInSeconds"="10"; 
+                       "maxStalenessPrefix"="200"}
 
 # DB properties
 $DBProperties = @{"databaseAccountOfferType"="Standard"; 
@@ -30,5 +33,5 @@ New-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
                     -ApiVersion "2015-04-08" `
                     -ResourceGroupName $resourceGroupName `
                     -Location $resourceGroupLocation `
-                    -Name "<database-account-name>" `
+                    -Name $DBName `
                     -PropertyObject $DBProperties
