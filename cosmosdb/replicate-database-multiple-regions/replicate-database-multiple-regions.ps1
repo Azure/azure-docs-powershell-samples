@@ -1,35 +1,55 @@
 # Set the Azure resource group name and location
-$resourceGroupName = "<resource-group-name>"
-$resourceGroupLocation = "<resource-group-location>"
+$resourceGroupName = "mydbresourcegroup"
+$resourceGroupLocation = "South Central US"
 
-# Write and read locations and priorities for the database
-$locations = @(@{"locationName"="<write-region-location>"; 
-                 "failoverPriority"=0}, 
-               @{"locationName"="<read-region-location-1>"; 
-                  "failoverPriority"=1},
-               @{"locationName"="<read-region-location-2";
-                  "failoverPriority"=2},
-               @{"locationName"="<read-region-location-3";
-                  "failoverPriority"=3})
+# Database name
+$DBName = "testdb"
+# Distribution locations
+$locations = @(@{"locationName"="East US"; 
+                 "failoverPriority"=2},
+               @{"locationName"="West US"; 
+                 "failoverPriority"=1},
+               @{"locationName"="South Central US"; 
+                 "failoverPriority"=0})
 
-# IP addresses that can access the database through the firewall
-$iprangefilter = "<ip-range-filter>"
+# Create the resource group
+New-AzureRmResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
 
 # Consistency policy
-$consistencyPolicy = @{"defaultConsistencyLevel"="<default-consistency-level>"; 
-                       "maxIntervalInSeconds"="<max-interval>"; 
-                       "maxStalenessPrefix"="<max-staleness-prefix>"}
+$consistencyPolicy = @{"maxIntervalInSeconds"="10"; 
+                       "maxStalenessPrefix"="200"}
 
 # DB properties
-$DBProperties = @{"databaseAccountOfferType"="Standard"; 
-                          "locations"=$locations; 
-                          "consistencyPolicy"=$consistencyPolicy; 
-                          "ipRangeFilter"=$iprangefilter}
+$DBProperties = @{"databaseAccountOfferType"="Standard";
+                  "Kind"="GlobalDocumentDB"; 
+                  "locations"=$locations; 
+                  "consistencyPolicy"=$consistencyPolicy;}
 
 # Create the database
 New-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
                     -ApiVersion "2015-04-08" `
                     -ResourceGroupName $resourceGroupName `
                     -Location $resourceGroupLocation `
-                    -Name "<database-account-name>" `
+                    -Name $DBName `
                     -PropertyObject $DBProperties
+
+# Modify locations/priorities
+$newLocations = @(@{"locationName"="West US"; 
+                 "failoverPriority"=0},
+               @{"locationName"="East US"; 
+                 "failoverPriority"=1},
+               @{"locationName"="South Central US"; 
+                 "failoverPriority"=2},
+               @{"locationName"="North Central US";
+                 "failoverPriority"=3})
+
+# Updated properties
+$updateDBProperties = @{"databaseAccountOfferType"="Standard";
+                        "locations"=$newLocations;}
+
+# Update the database with the properties
+Set-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
+    -ApiVersion "2015-04-08" `
+    -ResourceGroupName $resourceGroupName `
+    -Name $DBName `
+    -PropertyObject $UpdateDBProperties
