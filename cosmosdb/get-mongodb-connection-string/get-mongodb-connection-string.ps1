@@ -20,8 +20,7 @@ $consistencyPolicy = @{"defaultConsistencyLevel"="BoundedStaleness";
                        "maxStalenessPrefix"="200"}
 
 # DB properties
-$DBProperties = @{"databaseAccountOfferType"="Standard"; 
-                  "kind"="MongoDB";
+$DBProperties = @{"databaseAccountOfferType"="Standard";
                   "locations"=$locations; 
                   "consistencyPolicy"=$consistencyPolicy}
 
@@ -31,6 +30,7 @@ New-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
                     -ResourceGroupName $resourceGroupName `
                     -Location $resourceGroupLocation `
                     -Name $DBName `
+                    -Kind "MongoDB"
                     -PropertyObject $DBProperties
 
 # Retrieve a connection string that can be used by a MongoDB client
