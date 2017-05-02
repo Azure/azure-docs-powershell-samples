@@ -1,5 +1,5 @@
 # Set the Azure resource group name and location
-$resourceGroupName = "mydbresourcegroup"
+$resourceGroupName = "myResourceGroup"
 $resourceGroupLocation = "South Central US"
 
 # Database name
