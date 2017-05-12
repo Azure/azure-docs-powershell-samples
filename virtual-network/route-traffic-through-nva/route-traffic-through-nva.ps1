@@ -36,11 +36,6 @@ Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name MySubnet-Front
 # Create a public IP address for the firewall VM.
 $publicip = New-AzureRmPublicIpAddress -ResourceGroupName $rgName -Name MyPublicIP-Firewall -location $location -AllocationMethod Dynamic
 
-
-
-
-
-
 # Create a NIC for the firewall VM and enable IP forwarding.
 $nicVMFW = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $location -Name MyNic-Firewall -PublicIpAddress $publicip -Subnet $vnet.Subnets[2] -EnableIPForwarding
 
@@ -51,7 +46,6 @@ $vmConfig = New-AzureRmVMConfig -VMName MyVm-Firewall -VMSize Standard_DS2 | `
     -Skus 2016-Datacenter -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVMFW.Id
     
 $vm = New-AzureRmVM -ResourceGroupName $rgName -Location $location -VM $vmConfig
-
 
 # Get the private IP address from the VM for the user-defined route.
 $privateIP = (Get-AzureRmVM -ResourceGroupName $rgName -Name MyVm-Firewall).IpConfigurations[0].PrivateIPAddress
@@ -71,14 +65,11 @@ Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name MySubnet-Front
 # Create a route for traffic from the back-end subnet to the front-end subnet through the firewall VM.
 $route = New-AzureRmRouteConfig -Name RouteToFrontEnd -AddressPrefix 10.0.1.0/24 -NextHopType VirtualAppliance -NextHopIpAddress $nicVMFW.IpConfigurations[0].PrivateIPAddress
 
-
 # Create a route for traffic from the back-end subnet to the Internet through the firewall VM.
 $route2 = New-AzureRmRouteConfig -Name RouteToInternet -AddressPrefix 0.0.0.0/0 -NextHopType VirtualAppliance -NextHopIpAddress $nicVMFW.IpConfigurations[0].PrivateIPAddress
 
-
 # Create route table for the BackEnd subnet.
 $routeTableBE = New-AzureRmRouteTable -Name MyRouteTable-BackEnd -ResourceGroupName $rgName -location $location -Route $route, $route2
-
 
 # Associate the route table to the BackEnd subnet.
 Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name MySubnet-BackEnd -AddressPrefix 10.0.2.0/24 -RouteTable $routeTableBE

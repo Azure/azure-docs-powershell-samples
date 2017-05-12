@@ -27,7 +27,6 @@ $rule2 = New-AzureRmNetworkSecurityRuleConfig -Name Allow-SSH-All -Description "
 -SourceAddressPrefix Internet -SourcePortRange * `
 -DestinationAddressPrefix * -DestinationPortRange 22
 
-
 # Create a network security group for the front-end subnet.
 $nsgfe = New-AzureRmNetworkSecurityGroup -ResourceGroupName $RgName -Location $location `
 -Name "MyNsg-FrontEnd" -SecurityRules $rule1,$rule2
@@ -35,7 +34,6 @@ $nsgfe = New-AzureRmNetworkSecurityGroup -ResourceGroupName $RgName -Location $l
 # Associate the front-end NSG to the front-end subnet.
 Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name MySubnet-FrontEnd `
 -AddressPrefix 10.0.1.0/24 -NetworkSecurityGroup $nsgfe
-
 
 # Create an NSG rule to allow MySQL traffic from the front-end subnet to the back-end subnet.
 $rule1 = New-AzureRmNetworkSecurityRuleConfig -Name Allow-MySql-FrontEnd -Description "Allow MySQL" `
@@ -59,8 +57,6 @@ $rule3 = New-AzureRmNetworkSecurityRuleConfig -Name Deny-Internet-All -Descripti
 $nsgbe = New-AzureRmNetworkSecurityGroup -ResourceGroupName $RgName -Location $location `
 -Name "MyNsg-BackEnd" -SecurityRules $rule1,$rule2,$rule3
 
-
-
 # Associate the back-end NSG to the back-end subnet
 Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name MySubnet-BackEnd `
 -AddressPrefix 10.0.2.0/24 -NetworkSecurityGroup $nsgbe
@@ -68,8 +64,6 @@ Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name MySubnet-BackE
 # Create a public IP address for the web server VM.
 $publicipvm1 = New-AzureRmPublicIpAddress -ResourceGroupName $rgName -Name MyPublicIp-Web `
 -location $location -AllocationMethod Dynamic
-
-
 
 # Create a NIC for the web server VM.
 $nicVMweb = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $location `

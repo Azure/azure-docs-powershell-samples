@@ -5,7 +5,6 @@ $location='eastus'
 # Create a resource group.
 New-AzureRmResourceGroup -Name $rgName -Location $location
 
-
 # Create a virtual network, a front-end subnet, and a back-end subnet.
 $fesubnet = New-AzureRmVirtualNetworkSubnetConfig -Name MySubnet-FrontEnd -AddressPrefix 10.0.1.0/24
 $besubnet = New-AzureRmVirtualNetworkSubnetConfig -Name MySubnet-BackEnd -AddressPrefix 10.0.2.0/24
@@ -33,7 +32,6 @@ $rule3 = New-AzureRmNetworkSecurityRuleConfig -Name Allow-SSH-All -Description "
 $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $RgName -Location $location `
 -Name "MyNsg-FrontEnd" -SecurityRules $rule1,$rule2,$rule3
 
-
 # Associate the front-end NSG to the front-end subnet.
 Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name MySubnet-FrontEnd -AddressPrefix 10.0.1.0/24 -NetworkSecurityGroup $nsg
 
@@ -44,11 +42,9 @@ $rule1 = New-AzureRmNetworkSecurityRuleConfig -Name Deny-Internet-All -Descripti
 -SourceAddressPrefix Internet -SourcePortRange * `
 -DestinationAddressPrefix * -DestinationPortRange *
 
-
 # Create a network security group for the back-end subnet.
 $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $RgName -Location $location `
 -Name "MyNsg-BackEnd" -SecurityRules $rule1
-
 
 # Associate the back-end NSG to the back-end subnet.
 Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name MySubnet-backEnd -AddressPrefix 10.0.2.0/24 -NetworkSecurityGroup $nsg
@@ -57,7 +53,6 @@ Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name MySubnet-backE
 $publicipvm = New-AzureRmPublicIpAddress -ResourceGroupName $rgName -Name MyPublicIp-FrontEnd -location $location -AllocationMethod Dynamic
 
 # Create a network interface for the VM attached to the front-end subnet.
-
 $nicVMfe = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $location -Name MyNic-FrontEnd -PublicIpAddress $publicipvm -Subnet $vnet.Subnets[0]
 
 # Create a network interface for the VM attached to the back-end subnet.
