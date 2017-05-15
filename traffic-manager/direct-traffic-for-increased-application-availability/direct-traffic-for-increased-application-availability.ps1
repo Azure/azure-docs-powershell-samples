@@ -53,12 +53,16 @@ Set-AzureRmResource -PropertyObject $PropertiesObject -ResourceGroupName $rgname
 -ApiVersion 2015-08-01 -Force
 
 # Create a Traffic Manager profile.
-$tm = New-AzureRmTrafficManagerProfile -Name MyTrafficManagerProfile -ResourceGroupName $rgname1 -TrafficRoutingMethod Priority -RelativeDnsName $web.DefaultHostName -Ttl 60 -MonitorProtocol HTTP -MonitorPort 80 -MonitorPath /
+$tm = New-AzureRmTrafficManagerProfile -Name MyTrafficManagerProfile -ResourceGroupName $rgname1 `
+-TrafficRoutingMethod Priority -RelativeDnsName $web.DefaultHostName -Ttl 60 `
+-MonitorProtocol HTTP -MonitorPort 80 -MonitorPath /
 
 
 # Create an endpoint for the location one website deployment and set it as the priority target.
-$endpoint = New-AzureRmTrafficManagerEndpoint -Name MyEndPoint1 -ProfileName $tm.Name -ResourceGroupName $rgname1 -Type AzureEndpoints -Priority 1 -TargetResourceId $web1.Id -EndpointStatus Enabled
+$endpoint = New-AzureRmTrafficManagerEndpoint -Name MyEndPoint1 -ProfileName $tm.Name `
+-ResourceGroupName $rgname1 -Type AzureEndpoints -Priority 1 -TargetResourceId $web1.Id -EndpointStatus Enabled
 
 # Create an endpoint for the location two website deployment and set it as the secondary target.
-$endpoint2 = New-AzureRmTrafficManagerEndpoint -Name MyEndPoint2 -ProfileName $tm.Name -ResourceGroupName $rgname1 -Type AzureEndpoints -Priority 2 -TargetResourceId $web2.Id -EndpointStatus Enabled
+$endpoint2 = New-AzureRmTrafficManagerEndpoint -Name MyEndPoint2 -ProfileName $tm.Name `
+-ResourceGroupName $rgname1 -Type AzureEndpoints -Priority 2 -TargetResourceId $web2.Id -EndpointStatus Enabled
 

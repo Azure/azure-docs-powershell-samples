@@ -9,16 +9,21 @@ $cred = Get-Credential -Message "Enter a username and password for the virtual m
 New-AzureRmResourceGroup -Name $rgName -Location $location
 
 # Create an availability set for the two VMs that host both websites.
-$as = New-AzureRmAvailabilitySet -ResourceGroupName $rgName -Location $location -Name MyAvailabilitySet -Sku Aligned -PlatformFaultDomainCount 2 -PlatformUpdateDomainCount 2
+$as = New-AzureRmAvailabilitySet -ResourceGroupName $rgName -Location $location `
+  -Name MyAvailabilitySet -Sku Aligned -PlatformFaultDomainCount 2 -PlatformUpdateDomainCount 2
 
 # Create a virtual network and a subnet.
 $subnet = New-AzureRmVirtualNetworkSubnetConfig -Name MySubnet -AddressPrefix 10.0.0.0/24
-$vnet = New-AzureRmVirtualNetwork -ResourceGroupName $rgName -Name MyVnet -AddressPrefix 10.0.0.0/16 -Location $location -Subnet $subnet
+$vnet = New-AzureRmVirtualNetwork -ResourceGroupName $rgName -Name MyVnet `
+  -AddressPrefix 10.0.0.0/16 -Location $location -Subnet $subnet
 
 # Create three public IP addresses; one for the load balancer and two for the front-end IP configurations.
-$publicIpLB = New-AzureRmPublicIpAddress -ResourceGroupName $rgName -Name MyPublicIp-LoadBalancer -Location $location -AllocationMethod Dynamic
-$publicIpContoso = New-AzureRmPublicIpAddress -ResourceGroupName $rgName -Name MyPublicIp-Contoso -Location $location -AllocationMethod Dynamic
-$publicIpFabrikam = New-AzureRmPublicIpAddress -ResourceGroupName $rgName -Name MyPublicIp-Fabrikam -Location $location -AllocationMethod Dynamic
+$publicIpLB = New-AzureRmPublicIpAddress -ResourceGroupName $rgName -Name MyPublicIp-LoadBalancer `
+  -Location $location -AllocationMethod Dynamic
+$publicIpContoso = New-AzureRmPublicIpAddress -ResourceGroupName $rgName -Name MyPublicIp-Contoso `
+  -Location $location -AllocationMethod Dynamic
+$publicIpFabrikam = New-AzureRmPublicIpAddress -ResourceGroupName $rgName -Name MyPublicIp-Fabrikam `
+  -Location $location -AllocationMethod Dynamic
 
 # Create two front-end IP configurations for both web sites.
 $feipcontoso = New-AzureRmLoadBalancerFrontendIpConfig -Name FeContoso -PublicIpAddress $publicIpContoso
@@ -29,16 +34,22 @@ $bepoolContoso = New-AzureRmLoadBalancerBackendAddressPoolConfig -Name BeContoso
 $bepoolFabrikam = New-AzureRmLoadBalancerBackendAddressPoolConfig -Name BeFabrikam
 
 # Create a probe on port 80.
-$probe = New-AzureRmLoadBalancerProbeConfig -Name MyProbe -Protocol Http -Port 80 -RequestPath / -IntervalInSeconds 360 -ProbeCount 5
+$probe = New-AzureRmLoadBalancerProbeConfig -Name MyProbe -Protocol Http -Port 80 `
+  -RequestPath / -IntervalInSeconds 360 -ProbeCount 5
 
 # Create the load balancing rules.
-$contosorule = New-AzureRmLoadBalancerRuleConfig -Name LBRuleContoso -Protocol Tcp -Probe $probe -FrontendPort 5000 -BackendPort 5000 `
--FrontendIpConfiguration $feipContoso -BackendAddressPool $bePoolCOntoso
-$fabrikamrule = New-AzureRmLoadBalancerRuleConfig -Name LBRuleFabrikam -Protocol Tcp -Probe $probe -FrontendPort 5000 -BackendPort 5000 `
--FrontendIpConfiguration $feipFabrikam -BackendAddressPool $bePoolfabrikam
+$contosorule = New-AzureRmLoadBalancerRuleConfig -Name LBRuleContoso -Protocol Tcp `
+  -Probe $probe -FrontendPort 5000 -BackendPort 5000 `
+  -FrontendIpConfiguration $feipContoso -BackendAddressPool $bePoolContoso
+
+$fabrikamrule = New-AzureRmLoadBalancerRuleConfig -Name LBRuleFabrikam -Protocol Tcp `
+  -Probe $probe -FrontendPort 5000 -BackendPort 5000 `
+  -FrontendIpConfiguration $feipFabrikam -BackendAddressPool $bePoolfabrikam
 
 # Create a load balancer.
-$lb = New-AzureRmLoadBalancer -ResourceGroupName $rgName -Name 'MyLoadBalancer' -Location $location -FrontendIpConfiguration $feipcontoso,$feipfabrikam -BackendAddressPool $bepoolContoso,$bepoolfabrikam -Probe $probe -LoadBalancingRule $contosorule,$fabrikamrule
+$lb = New-AzureRmLoadBalancer -ResourceGroupName $rgName -Name 'MyLoadBalancer' -Location $location `
+-FrontendIpConfiguration $feipcontoso,$feipfabrikam -BackendAddressPool $bepoolContoso,$bepoolfabrikam `
+-Probe $probe -LoadBalancingRule $contosorule,$fabrikamrule
 
 # ############## VM1 ###############
 
@@ -51,7 +62,8 @@ $ipconfig2 = New-AzureRmNetworkInterfaceIpConfig -Name ipconfig2 -Subnet $vnet.S
 $ipconfig3 = New-AzureRmNetworkInterfaceIpConfig -Name ipconfig3 -Subnet $vnet.Subnets[0] -LoadBalancerBackendAddressPool $bepoolfabrikam 
 
 # Create a network interface for VM1.
-$nicVM1 = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $location -Name MyNic-VM1 -IpConfiguration $ipconfig1, $ipconfig2, $ipconfig3
+$nicVM1 = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $location `
+-Name MyNic-VM1 -IpConfiguration $ipconfig1, $ipconfig2, $ipconfig3
 
 # Create a virtual machine configuration
 $vmConfig = New-AzureRmVMConfig -VMName myVM -VMSize Standard_DS2 -AvailabilitySetId $as.Id | `
@@ -74,7 +86,8 @@ $ipconfig2 = New-AzureRmNetworkInterfaceIpConfig -Name ipconfig2 -Subnet $vnet.S
 $ipconfig3 = New-AzureRmNetworkInterfaceIpConfig -Name ipconfig3 -Subnet $vnet.Subnets[0] -LoadBalancerBackendAddressPool $bepoolfabrikam 
 
 # Create a network interface for VM2.
-$nicVM2 = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $location -Name MyNic-VM2 -IpConfiguration $ipconfig1, $ipconfig2, $ipconfig3
+$nicVM2 = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $location `
+-Name MyNic-VM2 -IpConfiguration $ipconfig1, $ipconfig2, $ipconfig3
 
 # Create a virtual machine configuration
 $vmConfig = New-AzureRmVMConfig -VMName myVM2 -VMSize Standard_DS2 -AvailabilitySetId $as.Id | `
