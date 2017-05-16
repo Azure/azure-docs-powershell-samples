@@ -21,9 +21,11 @@ $gitrepo="https://github.com/Azure-Samples/app-service-web-dotnet-get-started.gi
 
 # Create a hosting plan and website and deploy it in location one (requires Standard 1 minimum SKU).
 
-$appServicePlan = New-AzureRmAppServicePlan -Name $webappl1 -ResourceGroupName $rgName1 -Location $location1 -Tier Standard 
+$appServicePlan = New-AzureRmAppServicePlan -Name $webappl1 -ResourceGroupName $rgName1 `
+  -Location $location1 -Tier Standard 
 
-$web = New-AzureRmWebApp -ResourceGroupName $rgname1 -Name $webApp1 -Location $location1 -AppServicePlan $webappl1.Name
+$web1 = New-AzureRmWebApp -ResourceGroupName $rgname1 -Name $webApp1 -Location $location1 `
+  -AppServicePlan $webappl1.Name
 
 # Configure GitHub deployment from your GitHub repo and deploy once.
 $PropertiesObject = @{
@@ -38,9 +40,11 @@ Set-AzureRmResource -PropertyObject $PropertiesObject -ResourceGroupName $rgname
 
 # Create a hosting plan and website and deploy it in location two (requires Standard 1 minimum SKU).
 
-$appServicePlan = New-AzureRmAppServicePlan -Name $webappl2 -ResourceGroupName $rgName2 -Location $location2 -Tier Standard 
+$appServicePlan = New-AzureRmAppServicePlan -Name $webappl2 -ResourceGroupName $rgName2 `
+  -Location $location2 -Tier Standard 
 
-$web2 = New-AzureRmWebApp -ResourceGroupName $rgname2 -Name $webApp2 -Location $location2 -AppServicePlan $webappl2.Name
+$web2 = New-AzureRmWebApp -ResourceGroupName $rgname2 -Name $webApp2 `
+  -Location $location2 -AppServicePlan $webappl2.Name
 
 $PropertiesObject = @{
     repoUrl = "$gitrepo";
@@ -53,16 +57,18 @@ Set-AzureRmResource -PropertyObject $PropertiesObject -ResourceGroupName $rgname
 -ApiVersion 2015-08-01 -Force
 
 # Create a Traffic Manager profile.
-$tm = New-AzureRmTrafficManagerProfile -Name MyTrafficManagerProfile -ResourceGroupName $rgname1 `
+$tm = New-AzureRmTrafficManagerProfile -Name 'MyTrafficManagerProfile' -ResourceGroupName $rgname1 `
 -TrafficRoutingMethod Priority -RelativeDnsName $web.DefaultHostName -Ttl 60 `
 -MonitorProtocol HTTP -MonitorPort 80 -MonitorPath /
 
 
 # Create an endpoint for the location one website deployment and set it as the priority target.
-$endpoint = New-AzureRmTrafficManagerEndpoint -Name MyEndPoint1 -ProfileName $tm.Name `
--ResourceGroupName $rgname1 -Type AzureEndpoints -Priority 1 -TargetResourceId $web1.Id -EndpointStatus Enabled
+$endpoint = New-AzureRmTrafficManagerEndpoint -Name 'MyEndPoint1' -ProfileName $tm.Name `
+  -ResourceGroupName $rgname1 -Type AzureEndpoints -Priority 1 `
+  -TargetResourceId $web1.Id -EndpointStatus Enabled
 
 # Create an endpoint for the location two website deployment and set it as the secondary target.
-$endpoint2 = New-AzureRmTrafficManagerEndpoint -Name MyEndPoint2 -ProfileName $tm.Name `
--ResourceGroupName $rgname1 -Type AzureEndpoints -Priority 2 -TargetResourceId $web2.Id -EndpointStatus Enabled
+$endpoint2 = New-AzureRmTrafficManagerEndpoint -Name 'MyEndPoint2' -ProfileName $tm.Name `
+  -ResourceGroupName $rgname1 -Type AzureEndpoints -Priority 2 `
+  -TargetResourceId $web2.Id -EndpointStatus Enabled
 
