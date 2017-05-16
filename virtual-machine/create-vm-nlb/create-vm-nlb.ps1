@@ -3,7 +3,7 @@ $rgName='MyResourceGroup'
 $location='eastus'
 
 # Create user object
-$cred = Get-Credential -Message "Enter a username and password for the virtual machine."
+$cred = Get-Credential -Message 'Enter a username and password for the virtual machine.'
 
 # Create a resource group.
 New-AzureRmResourceGroup -Name $rgName -Location $location
@@ -11,7 +11,7 @@ New-AzureRmResourceGroup -Name $rgName -Location $location
 # Create a virtual network.
 $subnet = New-AzureRmVirtualNetworkSubnetConfig -Name 'MySubnet' -AddressPrefix 192.168.1.0/24
 
-$vnet = New-AzureRmVirtualNetwork -ResourceGroupName $rgName -Name MyVnet `
+$vnet = New-AzureRmVirtualNetwork -ResourceGroupName $rgName -Name 'MyVnet' `
   -AddressPrefix 192.168.0.0/16 -Location $location -Subnet $subnet
 
 # Create a public IP address.
@@ -84,7 +84,7 @@ $as = New-AzureRmAvailabilitySet -ResourceGroupName $rgName -Location $location 
 
 # Create a virtual machine configuration
 $vmConfig = New-AzureRmVMConfig -VMName 'myVM1' -VMSize Standard_DS2 -AvailabilitySetId $as.Id | `
-  Set-AzureRmVMOperatingSystem -Windows -ComputerName myVM -Credential $cred | `
+  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM' -Credential $cred | `
   Set-AzureRmVMSourceImage -PublisherName MicrosoftWindowsServer -Offer WindowsServer `
   -Skus 2016-Datacenter -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVM1.Id
 
@@ -95,7 +95,7 @@ $vm1 = New-AzureRmVM -ResourceGroupName $rgName -Location $location -VM $vmConfi
 
 # Create a virtual machine configuration
 $vmConfig = New-AzureRmVMConfig -VMName 'myVM2' -VMSize Standard_DS2 -AvailabilitySetId $as.Id | `
-  Set-AzureRmVMOperatingSystem -Windows -ComputerName myVM -Credential $cred | `
+  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM' -Credential $cred | `
   Set-AzureRmVMSourceImage -PublisherName MicrosoftWindowsServer -Offer WindowsServer `
   -Skus 2016-Datacenter -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVM2.Id
 
@@ -106,7 +106,7 @@ $vm2 = New-AzureRmVM -ResourceGroupName $rgName -Location $location -VM $vmConfi
 
 # Create a virtual machine configuration
 $vmConfig = New-AzureRmVMConfig -VMName 'myVM3' -VMSize Standard_DS2 -AvailabilitySetId $as.Id | `
-  Set-AzureRmVMOperatingSystem -Windows -ComputerName myVM -Credential $cred | `
+  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM' -Credential $cred | `
   Set-AzureRmVMSourceImage -PublisherName MicrosoftWindowsServer -Offer WindowsServer `
   -Skus 2016-Datacenter -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVM3.Id
 
