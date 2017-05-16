@@ -1,5 +1,5 @@
 # Variables for common values
-$rgName='MyResourceGroup6'
+$rgName='MyResourceGroup'
 $location='eastus'
 
 # Create user object
