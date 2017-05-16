@@ -58,7 +58,7 @@ Set-AzureRmResource -PropertyObject $PropertiesObject -ResourceGroupName $rgname
 
 # Create a Traffic Manager profile.
 $tm = New-AzureRmTrafficManagerProfile -Name 'MyTrafficManagerProfile' -ResourceGroupName $rgname1 `
--TrafficRoutingMethod Priority -RelativeDnsName $web.DefaultHostName -Ttl 60 `
+-TrafficRoutingMethod Priority -RelativeDnsName $web1.DefaultHostName -Ttl 60 `
 -MonitorProtocol HTTP -MonitorPort 80 -MonitorPath /
 
 
