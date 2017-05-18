@@ -3,9 +3,6 @@ $adminlogin = "ServerAdmin"
 $password = "ChangeYourAdminPassword1"
 # The logical server name has to be unique in the system
 $servername = "server-$(Get-Random)"
-$startip = "0.0.0.0"
-$endip = "255.255.255.255"
-
 
 # Create a new resource group
 New-AzureRmResourceGroup -Name "myResourceGroup" -Location "westeurope"
@@ -15,11 +12,6 @@ New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
     -ServerName $servername `
     -Location "westeurope" `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
-
-# Create a server firewall rule that allows access from the specified IP range
-New-AzureRmSqlServerFirewallRule -ResourceGroupName "myResourceGroup" `
-    -ServerName $servername `
-    -FirewallRuleName "AllowedIPs" -StartIpAddress $startip -EndIpAddress $endip    
 
 # Create two elastic database pools
 New-AzureRmSqlElasticPool -ResourceGroupName "myResourceGroup" `
