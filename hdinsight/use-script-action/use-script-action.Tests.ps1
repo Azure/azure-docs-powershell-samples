@@ -33,8 +33,8 @@ $clusterName = $baseName + "hdi" + $mills
 $storageAccountName = $basename + "store" + $mills
 
 write-host "Creating new resource group named: $resourceGroupName"
-Describe "hdinsight-hadoop-create-linux-clusters-azure-powershell" {
-    It "Creates a Linux-based cluster using PowerShell" {
+Describe "hdinsight-hadoop-customize-cluster-linux" {
+    It "Creates a Linux-based cluster with a script action" {
         # Mock data for the various read-hosts in the script
         Mock Read-Host { $resourceGroupName } -ParameterFilter {
             $Prompt -eq "Enter the resource group name"
@@ -48,13 +48,30 @@ Describe "hdinsight-hadoop-create-linux-clusters-azure-powershell" {
         Mock Read-Host { $clusterName } -ParameterFilter {
             $Prompt -eq "Enter the name of the HDInsight cluster"
         }
-
+        
         # Get the last object returned, which should be the cluster info.
-        $clusterInfo = New-Cluster
+        $clusterInfo = New-HDInsightWithScriptAction
         
         # Then look at the CluterState.
         $clusterInfo[-1].ClusterState | Should be "Running"
         $clusterInfo[-1].Name | Should be $clusterName
+
+        # Verify that the script action was applied
+        (get-azurermhdinsightscriptactionhistory -ClusterName $clusterName)[0].name | Should be "Install Giraph"
+    }
+
+    It "Can run a script action against an existing cluster" {
+        Mock Read-Host { $clusterName } -ParameterFilter {
+            $Prompt -eq "Enter the name of the HDInsight cluster"
+        }
+        Mock Read-Host { "Install Solr" } -ParameterFilter {
+            "Enter the name of the script action"
+        }
+        Mock Read-Host { "https://hdiconfigactions.blob.core.windows.net/linuxsolrconfigactionv01/solr-installer-v01.sh" } -ParameterFilter {
+            "Enter the URI of the script action"
+        }
+
+        (Use-ScriptActionWithCluster)[0].name | Should be "Install Solr"
     }
 }
 

@@ -1,7 +1,7 @@
-function New-Cluster {
+function New-ClusterWithConfig {
     # Script should stop on failures
     $ErrorActionPreference = "Stop"
-######Start snippet line 5
+
     # Login to your Azure subscription
     # Is there an active Azure subscription?
     $sub = Get-AzureRmSubscription -ErrorAction SilentlyContinue
@@ -53,21 +53,48 @@ function New-Cluster {
 
     # Create a blob container. This holds the default data store for the cluster.
     New-AzureStorageContainer `
-        -Name $clusterName -Context $defaultStorageContext 
+        -Name $clusterName -Context $defaultStorageContext
 
-    # Create the HDInsight cluster
-    New-AzureRmHDInsightCluster `
-        -ResourceGroupName $resourceGroupName `
-        -ClusterName $clusterName `
+######Start snippet line 59
+    $additionalStorageAccountName = Read-Host -Prompt "Enter the name of the additional storage account"
+
+    # Create the additional storage account
+    New-AzureRmStorageAccount -ResourceGroupName $resourceGroupName `
+        -StorageAccountName $additionalStorageAccountName `
         -Location $location `
-        -ClusterSizeInNodes $clusterSizeInNodes `
-        -ClusterType $clusterType `
-        -OSType $clusterOS `
-        -Version $clusterVersion `
+        -Type Standard_LRS
+    
+    # Get the additional storage account key
+    $additionalStorageAccountKey = (Get-AzureRmStorageAccountKey -Name $additionalStorageAccountName -ResourceGroupName $resourceGroupName)[0].Value
+
+    # Create a new configuration for RServer cluster type
+    # Use -EdgeNodeSize to set the size of the edge node for RServer clusters
+    # if you want a specific size. Otherwise, the default size is used.
+    $config = New-AzureRmHDInsightClusterConfig `
+        -ClusterType "RServer" `
+        -EdgeNodeSize "Standard_D12_v2"
+
+    # Add RStudio to the configuration
+    $rserverConfig = @{"RStudio"="true"}
+    $config = $config | Add-AzureRmHDInsightConfigValues `
+        -RServer $rserverConfig
+
+    # Add an additional storage account
+    Add-AzureRmHDInsightStorage -Config $config -StorageAccountName "$additionalStorageAccountName.blob.core.windows.net" -StorageAccountKey $additionalStorageAccountKey
+
+    # Create a new HDInsight cluster using -Config
+    New-AzureRmHDInsightCluster `
+        -ClusterName $clusterName `
+        -ResourceGroupName $resourceGroupName `
         -HttpCredential $httpCredential `
+        -Location $location `
         -DefaultStorageAccountName "$defaultStorageAccountName.blob.core.windows.net" `
         -DefaultStorageAccountKey $defaultStorageAccountKey `
-        -DefaultStorageContainer $clusterName `
-        -SshCredential $sshCredentials
-######End snippet line 71
+        -DefaultStorageContainer $defaultStorageContainerName  `
+        -ClusterSizeInNodes $clusterSizeInNodes `
+        -OSType $clusterOS `
+        -Version $clusterVersion `
+        -SshCredential $sshCredentials `
+        -Config $config
+######End snippet line 99
 }

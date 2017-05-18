@@ -31,10 +31,11 @@ $mills=Get-Date -Format ms
 $resourceGroupName = $baseName + "rg" + $mills
 $clusterName = $baseName + "hdi" + $mills
 $storageAccountName = $basename + "store" + $mills
+$additionalStorageAccountName = $basename + "aux" + $mills
 
 write-host "Creating new resource group named: $resourceGroupName"
 Describe "hdinsight-hadoop-create-linux-clusters-azure-powershell" {
-    It "Creates a Linux-based cluster using PowerShell" {
+    It "Creates a Linux-based cluster using a config object" {
         # Mock data for the various read-hosts in the script
         Mock Read-Host { $resourceGroupName } -ParameterFilter {
             $Prompt -eq "Enter the resource group name"
@@ -48,9 +49,12 @@ Describe "hdinsight-hadoop-create-linux-clusters-azure-powershell" {
         Mock Read-Host { $clusterName } -ParameterFilter {
             $Prompt -eq "Enter the name of the HDInsight cluster"
         }
+        Mock Read-Host { $additionalStorageAccountName } -ParameterFilter {
+            $Prompt -eq "Enter the name of the additional storage account"
+        }
 
         # Get the last object returned, which should be the cluster info.
-        $clusterInfo = New-Cluster
+        $clusterInfo = New-ClusterWithConfig
         
         # Then look at the CluterState.
         $clusterInfo[-1].ClusterState | Should be "Running"

@@ -1,7 +1,7 @@
-function New-Cluster {
+function New-ClusterWithZeppelin {
     # Script should stop on failures
     $ErrorActionPreference = "Stop"
-######Start snippet line 5
+
     # Login to your Azure subscription
     # Is there an active Azure subscription?
     $sub = Get-AzureRmSubscription -ErrorAction SilentlyContinue
@@ -46,28 +46,40 @@ function New-Cluster {
     # Default cluster size (# of worker nodes), version, type, and OS
     $clusterSizeInNodes = "4"
     $clusterVersion = "3.5"
-    $clusterType = "Hadoop"
+    $clusterType = "Spark"
     $clusterOS = "Linux"
     # Set the storage container name to the cluster name
     $defaultBlobContainerName = $clusterName
 
     # Create a blob container. This holds the default data store for the cluster.
     New-AzureStorageContainer `
-        -Name $clusterName -Context $defaultStorageContext 
+        -Name $clusterName -Context $defaultStorageContext
 
-    # Create the HDInsight cluster
-    New-AzureRmHDInsightCluster `
-        -ResourceGroupName $resourceGroupName `
-        -ClusterName $clusterName `
-        -Location $location `
-        -ClusterSizeInNodes $clusterSizeInNodes `
+######Start snippet line 59
+    # Create a new configuration object
+    $config = New-AzureRmHDInsightClusterConfig `
         -ClusterType $clusterType `
-        -OSType $clusterOS `
-        -Version $clusterVersion `
+
+    # Add Zeppelin script action
+    Add-AzureRMHDInsightScriptAction -Config $config `
+        -Name "Install Zeppelin" `
+        -NodeType HeadNode `
+        -Parameters "void" `
+        -Uri "https://hdiconfigactions.blob.core.windows.net/linuxincubatorzeppelinv01/install-zeppelin-spark151-v01.sh"
+
+    # Create a new HDInsight cluster using -Config
+    New-AzureRmHDInsightCluster `
+        -ClusterName $clusterName `
+        -ResourceGroupName $resourceGroupName `
         -HttpCredential $httpCredential `
+        -Location $location `
         -DefaultStorageAccountName "$defaultStorageAccountName.blob.core.windows.net" `
         -DefaultStorageAccountKey $defaultStorageAccountKey `
-        -DefaultStorageContainer $clusterName `
-        -SshCredential $sshCredentials
-######End snippet line 71
+        -DefaultStorageContainer $defaultStorageContainerName  `
+        -ClusterSizeInNodes $clusterSizeInNodes `
+        -OSType $clusterOS `
+        -Version $clusterVersion `
+        -SshCredential $sshCredentials `
+        -Config $config
+######End snippet line 84
 }

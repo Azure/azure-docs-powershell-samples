@@ -33,8 +33,8 @@ $clusterName = $baseName + "hdi" + $mills
 $storageAccountName = $basename + "store" + $mills
 
 write-host "Creating new resource group named: $resourceGroupName"
-Describe "hdinsight-hadoop-create-linux-clusters-azure-powershell" {
-    It "Creates a Linux-based cluster using PowerShell" {
+Describe "hdinsight-apache-spark-use-zeppelin-notebook" {
+    It "Creates a Spark cluster with Zeppelin" {
         # Mock data for the various read-hosts in the script
         Mock Read-Host { $resourceGroupName } -ParameterFilter {
             $Prompt -eq "Enter the resource group name"
@@ -50,7 +50,7 @@ Describe "hdinsight-hadoop-create-linux-clusters-azure-powershell" {
         }
 
         # Get the last object returned, which should be the cluster info.
-        $clusterInfo = New-Cluster
+        $clusterInfo = New-ClusterWithZeppelin
         
         # Then look at the CluterState.
         $clusterInfo[-1].ClusterState | Should be "Running"
