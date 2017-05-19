@@ -31,7 +31,7 @@ $probe = New-AzureRmLoadBalancerProbeConfig -Name 'myHealthProbe' -Protocol Http
 # Creates an NLB rule for port 80.
 $rule = New-AzureRmLoadBalancerRuleConfig -Name 'myLoadBalancerRuleWeb' -Protocol Tcp `
   -Probe $probe -FrontendPort 80 -BackendPort 80 `
-  -FrontendIpConfiguration $feipContoso -BackendAddressPool $bePoolContoso
+  -FrontendIpConfiguration $feip -BackendAddressPool $bePool
 
 # Create three NAT rules for port 3389.
 $natrule1 = New-AzureRmLoadBalancerInboundNatRuleConfig -Name 'myLoadBalancerRDP1' -FrontendIpConfiguration $feip `
@@ -41,7 +41,7 @@ $natrule2 = New-AzureRmLoadBalancerInboundNatRuleConfig -Name 'myLoadBalancerRDP
   -Protocol tcp -FrontendPort 4222 -BackendPort 3389
 
 $natrule3 = New-AzureRmLoadBalancerInboundNatRuleConfig -Name 'myLoadBalancerRDP3' -FrontendIpConfiguration $feip `
-  -Protocol tcp -FrontendPort 4222 -BackendPort 3389
+  -Protocol tcp -FrontendPort 4223 -BackendPort 3389
 
 # Create an Azure Network Load Balancer.
 $lb = New-AzureRmLoadBalancer -ResourceGroupName $rgName -Name 'MyLoadBalancer' -Location $location `
@@ -66,13 +66,16 @@ $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $RgName -Location $loc
 
 # Create three virtual network cards and associate with public IP address and NSG.
 $nicVM1 = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $location `
--Name 'MyNic1' LoadBalancerBackendAddressPool $bepool -NetworkSecurityGroup $nsg -LoadBalancerInboundNatRule $natrule2
+  -Name 'MyNic1' -LoadBalancerBackendAddressPool $bepool -NetworkSecurityGroup $nsg `
+  -LoadBalancerInboundNatRule $natrule1 -Subnet $vnet.Subnets[0]
 
 $nicVM2 = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $location `
--Name 'MyNic2' -LoadBalancerBackendAddressPool $bepool -NetworkSecurityGroup $nsg -LoadBalancerInboundNatRule $natrule2
+  -Name 'MyNic2' -LoadBalancerBackendAddressPool $bepool -NetworkSecurityGroup $nsg `
+  -LoadBalancerInboundNatRule $natrule2 -Subnet $vnet.Subnets[0]
 
 $nicVM3 = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $location `
--Name 'MyNic3' LoadBalancerBackendAddressPool $bepool -NetworkSecurityGroup $nsg -LoadBalancerInboundNatRule $natrule2
+  -Name 'MyNic3' -LoadBalancerBackendAddressPool $bepool -NetworkSecurityGroup $nsg `
+  -LoadBalancerInboundNatRule $natrule3 -Subnet $vnet.Subnets[0]
 
 # Create an availability set.
 $as = New-AzureRmAvailabilitySet -ResourceGroupName $rgName -Location $location `
@@ -84,7 +87,7 @@ $as = New-AzureRmAvailabilitySet -ResourceGroupName $rgName -Location $location 
 
 # Create a virtual machine configuration
 $vmConfig = New-AzureRmVMConfig -VMName 'myVM1' -VMSize Standard_DS2 -AvailabilitySetId $as.Id | `
-  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM' -Credential $cred | `
+  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM1' -Credential $cred | `
   Set-AzureRmVMSourceImage -PublisherName MicrosoftWindowsServer -Offer WindowsServer `
   -Skus 2016-Datacenter -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVM1.Id
 
@@ -95,7 +98,7 @@ $vm1 = New-AzureRmVM -ResourceGroupName $rgName -Location $location -VM $vmConfi
 
 # Create a virtual machine configuration
 $vmConfig = New-AzureRmVMConfig -VMName 'myVM2' -VMSize Standard_DS2 -AvailabilitySetId $as.Id | `
-  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM' -Credential $cred | `
+  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM2' -Credential $cred | `
   Set-AzureRmVMSourceImage -PublisherName MicrosoftWindowsServer -Offer WindowsServer `
   -Skus 2016-Datacenter -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVM2.Id
 
@@ -106,7 +109,7 @@ $vm2 = New-AzureRmVM -ResourceGroupName $rgName -Location $location -VM $vmConfi
 
 # Create a virtual machine configuration
 $vmConfig = New-AzureRmVMConfig -VMName 'myVM3' -VMSize Standard_DS2 -AvailabilitySetId $as.Id | `
-  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM' -Credential $cred | `
+  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM3' -Credential $cred | `
   Set-AzureRmVMSourceImage -PublisherName MicrosoftWindowsServer -Offer WindowsServer `
   -Skus 2016-Datacenter -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVM3.Id
 

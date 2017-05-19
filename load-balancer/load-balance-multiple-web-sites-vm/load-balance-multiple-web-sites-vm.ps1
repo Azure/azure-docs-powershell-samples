@@ -76,9 +76,9 @@ $nicVM1 = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $loca
 
 # Create a virtual machine configuration
 $vmConfig = New-AzureRmVMConfig -VMName 'myVM' -VMSize Standard_DS2 -AvailabilitySetId $as.Id | `
-  Set-AzureRmVMOperatingSystem -Windows -ComputerName myVM -Credential $cred | `
-  Set-AzureRmVMSourceImage -PublisherName MicrosoftWindowsServer -Offer WindowsServer `
-  -Skus 2016-Datacenter -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVM1.Id
+  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM' -Credential $cred | `
+  Set-AzureRmVMSourceImage -PublisherName 'MicrosoftWindowsServer' -Offer 'WindowsServer' `
+  -Skus '2016-Datacenter' -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVM1.Id
 
 # Create a virtual machine
 $vm = New-AzureRmVM -ResourceGroupName $rgName -Location $location -VM $vmConfig
@@ -107,8 +107,8 @@ $nicVM2 = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $loca
 # Create a virtual machine configuration
 $vmConfig = New-AzureRmVMConfig -VMName 'myVM2' -VMSize Standard_DS2 -AvailabilitySetId $as.Id | `
   Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM2' -Credential $cred | `
-  Set-AzureRmVMSourceImage -PublisherName MicrosoftWindowsServer -Offer WindowsServer `
-  -Skus 2016-Datacenter -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVM2.Id
+  Set-AzureRmVMSourceImage -PublisherName 'MicrosoftWindowsServer' -Offer 'WindowsServer' `
+  -Skus '2016-Datacenter' -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVM2.Id
 
 # Create a virtual machine
 $vm = New-AzureRmVM -ResourceGroupName $rgName -Location $location -VM $vmConfig

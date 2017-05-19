@@ -33,7 +33,7 @@ $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $RgName -Location $loc
 
 # Associate the front-end NSG to the front-end subnet.
 Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name 'MySubnet-FrontEnd' `
-  -AddressPrefix 10.0.1.0/24 -NetworkSecurityGroup $nsg
+  -AddressPrefix '10.0.1.0/24' -NetworkSecurityGroup $nsg
 
 # Create a public IP address for the firewall VM.
 $publicip = New-AzureRmPublicIpAddress -ResourceGroupName $rgName -Name 'MyPublicIP-Firewall' `
@@ -51,16 +51,13 @@ $vmConfig = New-AzureRmVMConfig -VMName 'MyVm-Firewall' -VMSize Standard_DS2 | `
     
 $vm = New-AzureRmVM -ResourceGroupName $rgName -Location $location -VM $vmConfig
 
-# Get the private IP address from the VM for the user-defined route.
-$privateIP = (Get-AzureRmVM -ResourceGroupName $rgName -Name 'MyVm-Firewall').IpConfigurations[0].PrivateIPAddress
-
 # Create a route for traffic from the front-end to the back-end subnet through the firewall VM.
 $route = New-AzureRmRouteConfig -Name 'RouteToBackEnd' -AddressPrefix 10.0.2.0/24 `
-  -NextHopType VirtualAppliance -NextHopIpAddress $privateIP 
+  -NextHopType VirtualAppliance -NextHopIpAddress $nicVMFW.IpConfigurations[0].PrivateIpAddress
 
 # Create a route for traffic from the front-end subnet to the Internet through the firewall VM.
 $route2 = New-AzureRmRouteConfig -Name 'RouteToInternet' -AddressPrefix 0.0.0.0/0 `
-  -NextHopType VirtualAppliance -NextHopIpAddress $privateIP 
+  -NextHopType VirtualAppliance -NextHopIpAddress $nicVMFW.IpConfigurations[0].PrivateIpAddress
 
 # Create route table for the FrontEnd subnet.
 $routeTableFEtoBE = New-AzureRmRouteTable -Name 'MyRouteTable-FrontEnd' -ResourceGroupName $rgName `
@@ -71,11 +68,11 @@ Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name 'MySubnet-Fron
   -NetworkSecurityGroup $nsg -RouteTable $routeTableFEtoBE
   
 # Create a route for traffic from the back-end subnet to the front-end subnet through the firewall VM.
-$route = New-AzureRmRouteConfig -Name 'RouteToFrontEnd' -AddressPrefix 10.0.1.0/24 -NextHopType VirtualAppliance `
+$route = New-AzureRmRouteConfig -Name 'RouteToFrontEnd' -AddressPrefix '10.0.1.0/24' -NextHopType VirtualAppliance `
   -NextHopIpAddress $nicVMFW.IpConfigurations[0].PrivateIPAddress
 
 # Create a route for traffic from the back-end subnet to the Internet through the firewall VM.
-$route2 = New-AzureRmRouteConfig -Name 'RouteToInternet' -AddressPrefix 0.0.0.0/0 -NextHopType VirtualAppliance `
+$route2 = New-AzureRmRouteConfig -Name 'RouteToInternet' -AddressPrefix '0.0.0.0/0' -NextHopType VirtualAppliance `
   -NextHopIpAddress $nicVMFW.IpConfigurations[0].PrivateIPAddress
 
 # Create route table for the BackEnd subnet.
@@ -84,4 +81,4 @@ $routeTableBE = New-AzureRmRouteTable -Name 'MyRouteTable-BackEnd' -ResourceGrou
 
 # Associate the route table to the BackEnd subnet.
 Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name 'MySubnet-BackEnd' `
-  -AddressPrefix 10.0.2.0/24 -RouteTable $routeTableBE
+  -AddressPrefix '10.0.2.0/24' -RouteTable $routeTableBE
