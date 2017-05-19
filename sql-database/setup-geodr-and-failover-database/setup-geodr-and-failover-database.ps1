@@ -26,22 +26,22 @@ New-AzureRmSqlServer -ResourceGroupName $secondaryresourcegroup `
 # Create a blank database with S0 performance level on the primary server
 New-AzureRmSqlDatabase  -ResourceGroupName $primaryresourcegroup `
     -ServerName $primaryservername `
-    -DatabaseName "MySampleDatabase" -RequestedServiceObjectiveName "S0"
+    -DatabaseName "mySampleDatabase" -RequestedServiceObjectiveName "S0"
 
 # Establish Active Geo-Replication
-$myDatabase = Get-AzureRmSqlDatabase -DatabaseName "MySampleDatabase" -ResourceGroupName $primaryresourcegroup -ServerName $primaryservername
+$myDatabase = Get-AzureRmSqlDatabase -DatabaseName "mySampleDatabase" -ResourceGroupName $primaryresourcegroup -ServerName $primaryservername
 $myDatabase | New-AzureRmSqlDatabaseSecondary -PartnerResourceGroupName $secondaryresourcegroup -PartnerServerName $secondaryservername -AllowConnections "All"
 
 # Initiate a planned failover
-$myDatabase = Get-AzureRmSqlDatabase -DatabaseName "MySampleDatabase" -ResourceGroupName $secondaryresourcegroup -ServerName $secondaryservername
+$myDatabase = Get-AzureRmSqlDatabase -DatabaseName "mySampleDatabase" -ResourceGroupName $secondaryresourcegroup -ServerName $secondaryservername
 $myDatabase | Set-AzureRmSqlDatabaseSecondary -PartnerResourceGroupName $primaryresourcegroup -Failover
 
 # Monitor Geo-Replication config and health after failover
-$myDatabase = Get-AzureRmSqlDatabase -DatabaseName "MySampleDatabase" -ResourceGroupName $secondaryresourcegroup -ServerName $secondaryservername
+$myDatabase = Get-AzureRmSqlDatabase -DatabaseName "mySampleDatabase" -ResourceGroupName $secondaryresourcegroup -ServerName $secondaryservername
 $myDatabase | Get-AzureRmSqlDatabaseReplicationLink -PartnerResourceGroupName $primaryresourcegroup -PartnerServerName $primaryservername
 
 # Remove the replication link after the failover
-$myDatabase = Get-AzureRmSqlDatabase -DatabaseName "MySampleDatabase" -ResourceGroupName $secondaryresourcegroup -ServerName $secondaryservername
+$myDatabase = Get-AzureRmSqlDatabase -DatabaseName "mySampleDatabase" -ResourceGroupName $secondaryresourcegroup -ServerName $secondaryservername
 $secondaryLink = $myDatabase | Get-AzureRmSqlDatabaseReplicationLink -PartnerResourceGroupName $primaryresourcegroup -PartnerServerName $primaryservername
 $secondaryLink | Remove-AzureRmSqlDatabaseSecondary
 
