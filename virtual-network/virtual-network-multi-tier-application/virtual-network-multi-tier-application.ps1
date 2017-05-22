@@ -15,7 +15,6 @@ $vnet = New-AzureRmVirtualNetwork -ResourceGroupName $rgName -Name 'MyVnet' -Add
 -Location $location -Subnet $fesubnet, $besubnet
 
 # Create an NSG rule to allow HTTP traffic in from the Internet to the front-end subnet.
-
 $rule1 = New-AzureRmNetworkSecurityRuleConfig -Name 'Allow-HTTP-All' -Description 'Allow HTTP' `
 -Access Allow -Protocol Tcp -Direction Inbound -Priority 100 `
 -SourceAddressPrefix Internet -SourcePortRange * `
@@ -42,12 +41,11 @@ $rule1 = New-AzureRmNetworkSecurityRuleConfig -Name 'Allow-SQL-FrontEnd' -Descri
 -SourceAddressPrefix '10.0.1.0/24' -SourcePortRange * `
 -DestinationAddressPrefix * -DestinationPortRange 1433
 
-
-# Create an NSG rule to block all outbound traffic from the back-end subnet to the Internet
-$rule2 = New-AzureRmNetworkSecurityRuleConfig -Name 'Deny-Internet-All' -Description "Deny Internet All" `
--Access Deny -Protocol Tcp -Direction Outbound -Priority 300 `
--SourceAddressPrefix * -SourcePortRange * `
--DestinationAddressPrefix * -DestinationPortRange *
+# Create an NSG rule to allow RDP traffic from the Internet to the back-end subnet.
+$rule2 = New-AzureRmNetworkSecurityRuleConfig -Name 'Allow-RDP-All' -Description "Allow RDP" `
+-Access Allow -Protocol Tcp -Direction Inbound -Priority 200 `
+-SourceAddressPrefix Internet -SourcePortRange * `
+-DestinationAddressPrefix * -DestinationPortRange 3389
 
 # Create a network security group for back-end subnet.
 $nsgbe = New-AzureRmNetworkSecurityGroup -ResourceGroupName $RgName -Location $location `
@@ -82,11 +80,19 @@ $nicVMsql = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $lo
 -Name MyNic-Sql -PublicIpAddress $publicipvm2 -NetworkSecurityGroup $nsgbe -Subnet $vnet.Subnets[1] 
 
 # Create a SQL VM in the back-end subnet.
-
-# Create a Web Server VM in the front-end subnet
 $vmConfig = New-AzureRmVMConfig -VMName 'MyVm-Sql' -VMSize 'Standard_DS2' | `
     Set-AzureRmVMOperatingSystem -Windows -ComputerName 'MyVm-Sql' -Credential $cred | `
     Set-AzureRmVMSourceImage -PublisherName 'MicrosoftSQLServer' -Offer 'SQL2016-WS2016' `
     -Skus 'Web' -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVMsql.Id
 
 $vmsql = New-AzureRmVM -ResourceGroupName $rgName -Location $location -VM $vmConfig
+
+# Create an NSG rule to block all outbound traffic from the back-end subnet to the Internet
+$rule3 = New-AzureRmNetworkSecurityRuleConfig -Name 'Deny-Internet-All' -Description "Deny Internet All" `
+-Access Deny -Protocol Tcp -Direction Outbound -Priority 300 `
+-SourceAddressPrefix * -SourcePortRange * `
+-DestinationAddressPrefix Internet -DestinationPortRange *
+
+$nsgbe.SecurityRules.add($rule3)
+
+Set-AzureRmNetworkSecurityGroup -NetworkSecurityGroup $nsgbe
