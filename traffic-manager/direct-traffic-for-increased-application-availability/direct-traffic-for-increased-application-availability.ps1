@@ -53,13 +53,13 @@ $PropertiesObject = @{
 }
 
 Set-AzureRmResource -PropertyObject $PropertiesObject -ResourceGroupName $rgname2 `
--ResourceType Microsoft.Web/sites/sourcecontrols -ResourceName $webapp2/web `
--ApiVersion 2015-08-01 -Force
+  -ResourceType Microsoft.Web/sites/sourcecontrols -ResourceName $webapp2/web `
+  -ApiVersion 2015-08-01 -Force
 
 # Create a Traffic Manager profile.
 $tm = New-AzureRmTrafficManagerProfile -Name 'MyTrafficManagerProfile' -ResourceGroupName $rgname1 `
--TrafficRoutingMethod Priority -RelativeDnsName $web1.SiteName -Ttl 60 `
--MonitorProtocol HTTP -MonitorPort 80 -MonitorPath /
+  -TrafficRoutingMethod Priority -RelativeDnsName $web1.SiteName -Ttl 60 `
+  -MonitorProtocol HTTP -MonitorPort 80 -MonitorPath /
 
 
 # Create an endpoint for the location one website deployment and set it as the priority target.
