@@ -1,62 +1,82 @@
-﻿# Set an admin login and password for your database
+﻿# Login-AzureRmAccount
+# Set the resource group name and location for your server
+$resourcegroupname = "myResourceGroup-$(Get-Random)"
+$location = "southcentralus"
+# Set elastic poool names
+$poolname = "MySamplePool"
+# Set an admin login and password for your database
 $adminlogin = "ServerAdmin"
 $password = "ChangeYourAdminPassword1"
 # The logical server name has to be unique in the system
 $servername = "server-$(Get-Random)"
+# The sample database names
+$firstdatabasename = "myFirstSampleDatabase"
+$seconddatabasename = "mySecondSampleDatabase"
+# The ip address range that you want to allow to access your server
+$startip = "0.0.0.0"
+$endip = "0.0.0.0"
 
 # Create a new resource group
-New-AzureRmResourceGroup -Name "myResourceGroup" -Location "westeurope"
+$resourcegroup = New-AzureRmResourceGroup -Name $resourcegroupname -Location $location
 
 # Create a new server with a system wide unique server name
-New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
+$server = New-AzureRmSqlServer -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
-    -Location "westeurope" `
+    -Location $location `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 
-# Create two elastic database pools
-New-AzureRmSqlElasticPool -ResourceGroupName "myResourceGroup" `
+# Create elastic database pool
+$elasticpool = -AzureRmSqlElasticPool -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
-    -ElasticPoolName "mySamplePool" `
+    -ElasticPoolName $poolname `
     -Edition "Standard" `
     -Dtu 50 `
     -DatabaseDtuMin 10 `
     -DatabaseDtuMax 50
 
+# Create a server firewall rule that allows access from the specified IP range
+$serverfirewallrule = New-AzureRmSqlServerFirewallRule -ResourceGroupName $resourcegroupname `
+    -ServerName $servername `
+    -FirewallRuleName "AllowedIPs" -StartIpAddress $startip -EndIpAddress $endip
+
 # Create two blank database in the pool
-New-AzureRmSqlDatabase  -ResourceGroupName "myResourceGroup" `
+$firstdatabase = New-AzureRmSqlDatabase  -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
-    -DatabaseName "myFirstSampleDatabase" `
-    -ElasticPoolName "mySamplePool"
-New-AzureRmSqlDatabase  -ResourceGroupName "myResourceGroup" `
+    -DatabaseName $firstdatabasename `
+    -ElasticPoolName $poolname
+$seconddatabase = New-AzureRmSqlDatabase  -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
-    -DatabaseName "mySecondSampleDatabase" `
-    -ElasticPoolName "mySamplePool"
+    -DatabaseName $seconddatabasename `
+    -ElasticPoolName $poolname
 
 # Monitor the pool
-$MonitorParameters = @{
-  ResourceId = "/subscriptions/$($(Get-AzureRMContext).Subscription.SubscriptionId)/resourceGroups/myResourceGroup/providers/Microsoft.Sql/servers/$servername/elasticPools/mySamplePool"
+$monitorparameters = @{
+  ResourceId = "/subscriptions/$($(Get-AzureRMContext).Subscription.Id)/resourceGroups/$resourcegroupname/providers/Microsoft.Sql/servers/$servername/elasticPools/$poolname"
   TimeGrain = [TimeSpan]::Parse("00:05:00")
   MetricNames = "dtu_consumption_percent"
 }
-(Get-AzureRmMetric @MonitorParameters -DetailedOutput).MetricValues
+(Get-AzureRmMetric @monitorparameters -DetailedOutput).MetricValues
 
 # Scale the pool
-Set-AzureRmSqlElasticPool -ResourceGroupName "myResourceGroup" `
+$elasticpool = Set-AzureRmSqlElasticPool -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
-    -ElasticPoolName "mySamplePool" `
+    -ElasticPoolName $poolname `
     -Edition "Standard" `
     -Dtu 100 `
     -DatabaseDtuMin 20 `
     -DatabaseDtuMax 100
 
 # Add an alert that fires when the pool utilization reaches 90%
-Add-AzureRMMetricAlertRule -ResourceGroup "myResourceGroup" `
+Add-AzureRMMetricAlertRule -ResourceGroup $resourcegroupname `
     -Name "mySampleAlertRule" `
-    -Location "westeurope" `
-    -TargetResourceId "/subscriptions/$($(Get-AzureRMContext).Subscription.SubscriptionId)/resourceGroups/myResourceGroup/providers/Microsoft.Sql/servers/$servername/elasticPools/mySamplePool" `
+    -Location $location `
+    -TargetResourceId "/subscriptions/$($(Get-AzureRMContext).Subscription.Id)/resourceGroups/$resourcegroupname/providers/Microsoft.Sql/servers/$servername/elasticPools/$poolname" `
     -MetricName "dtu_consumption_percent" `
     -Operator "GreaterThan" `
     -Threshold 90 `
     -WindowSize $([TimeSpan]::Parse("00:05:00")) `
     -TimeAggregationOperator "Average" `
     -Actions $(New-AzureRmAlertRuleEmail -SendToServiceOwners)
+
+# Clean up deployment 
+# Remove-AzureRmResourceGroup -ResourceGroupName $resourcegroupname
