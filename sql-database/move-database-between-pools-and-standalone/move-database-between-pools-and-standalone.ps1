@@ -1,52 +1,73 @@
-﻿# Set an admin login and password for your database
+﻿# Login-AzureRmAccount
+# Set the resource group name and location for your server
+$resourcegroupname = "myResourceGroup-$(Get-Random)"
+$location = "southcentralus"
+# Set elastic poool names
+$firstpoolname = "MyFirstPool"
+$secondpoolname = "MySecondPool"
+# Set an admin login and password for your server
 $adminlogin = "ServerAdmin"
 $password = "ChangeYourAdminPassword1"
 # The logical server name has to be unique in the system
-$servername = "server-$($(Get-AzureRMContext).Subscription.SubscriptionId)"
+$servername = "server-$(Get-Random)"
+# The sample database names
+$firstdatabasename = "myFirstSampleDatabase"
+$seconddatabasename = "mySecondSampleDatabase"
+# The ip address range that you want to allow to access your server
+$startip = "0.0.0.0"
+$endip = "0.0.0.0"
 
 # Create a new resource group
-New-AzureRmResourceGroup -Name "myResourceGroup" -Location "northcentralus"
+$resourcegroup = New-AzureRmResourceGroup -Name $resourcegroupname -Location $location
 
 # Create a new server with a system wide unique server name
-New-AzureRmSqlServer -ResourceGroupName "myResourceGroup" `
+$server = New-AzureRmSqlServer -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
-    -Location "northcentralus" `
+    -Location $location `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 
-# Create two elastic database pools
-New-AzureRmSqlElasticPool -ResourceGroupName "myResourceGroup" `
+# Create a server firewall rule that allows access from the specified IP range
+$serverfirewallrule = New-AzureRmSqlServerFirewallRule -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
-    -ElasticPoolName "MyFirstPool" `
+    -FirewallRuleName "AllowedIPs" -StartIpAddress $startip -EndIpAddress $endip
+
+# Create two elastic database pools
+$firstpool = New-AzureRmSqlElasticPool -ResourceGroupName $resourcegroupname `
+    -ServerName $servername `
+    -ElasticPoolName $firstpoolname `
     -Edition "Standard" `
     -Dtu 50 `
     -DatabaseDtuMin 10 `
     -DatabaseDtuMax 20
-New-AzureRmSqlElasticPool -ResourceGroupName "myResourceGroup" `
+$secondpool = New-AzureRmSqlElasticPool -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
-    -ElasticPoolName "MySecondPool" `
+    -ElasticPoolName $secondpoolname `
     -Edition "Standard" `
     -Dtu 50 `
     -DatabaseDtuMin 10 `
     -DatabaseDtuMax 50
 
 # Create two blank databases in the first pool
-New-AzureRmSqlDatabase  -ResourceGroupName "myResourceGroup" `
+$firstdatabase = New-AzureRmSqlDatabase  -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
-    -DatabaseName "MySampleDatabase" `
-    -ElasticPoolName "MyFirstPool"
-New-AzureRmSqlDatabase  -ResourceGroupName "myResourceGroup" `
+    -DatabaseName $firstdatabasename `
+    -ElasticPoolName $firstpoolname
+$seconddatabase = New-AzureRmSqlDatabase  -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
     -DatabaseName "MySecondSampleDatabase" `
-    -ElasticPoolName "SamplePool"
-
-# Move the database to the second pool
-Set-AzureRmSqlDatabase -ResourceGroupName "myResourceGroup" `
-    -ServerName $servername `
-    -DatabaseName "MySampleDatabase" `
     -ElasticPoolName "MySecondPool"
 
-# Move the database into a standalone performance level
-Set-AzureRmSqlDatabase -ResourceGroupName "myResourceGroup" `
+# Move the database to the second pool
+$firstdatabase = Set-AzureRmSqlDatabase -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
-    -DatabaseName "MySampleDatabase" `
+    -DatabaseName $firstdatabasename `
+    -ElasticPoolName $secondpoolname
+
+# Move the database into a standalone performance level
+$firstdatabase = Set-AzureRmSqlDatabase -ResourceGroupName $resourcegroupname `
+    -ServerName $servername `
+    -DatabaseName $firstdatabasename `
     -RequestedServiceObjectiveName "S0"
+
+# Clean up deployment 
+# Remove-AzureRmResourceGroup -ResourceGroupName $resourcegroupname
