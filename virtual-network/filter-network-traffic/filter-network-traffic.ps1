@@ -41,11 +41,10 @@ Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name 'MySubnet-Fron
   -AddressPrefix 10.0.1.0/24 -NetworkSecurityGroup $nsg
 
 # Create an NSG rule to block all outbound traffic from the back-end subnet to the Internet (inbound blocked by default).
-
 $rule1 = New-AzureRmNetworkSecurityRuleConfig -Name 'Deny-Internet-All' -Description "Deny all Internet" `
   -Access Allow -Protocol Tcp -Direction Outbound -Priority 100 `
   -SourceAddressPrefix * -SourcePortRange * `
-  -DestinationAddressPrefix * -DestinationPortRange *
+  -DestinationAddressPrefix Internet -DestinationPortRange *
 
 # Create a network security group for the back-end subnet.
 $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $RgName -Location $location `

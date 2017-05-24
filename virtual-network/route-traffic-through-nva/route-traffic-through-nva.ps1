@@ -25,7 +25,7 @@ $rule1 = New-AzureRmNetworkSecurityRuleConfig -Name 'Allow-HTTP-ALL' -Descriptio
 $rule2 = New-AzureRmNetworkSecurityRuleConfig -Name 'Allow-HTTPS-All' -Description 'Allow HTTPS' `
   -Access Allow -Protocol Tcp -Direction Inbound -Priority 200 `
   -SourceAddressPrefix Internet -SourcePortRange * `
-  -DestinationAddressPrefix * -DestinationPortRange 80
+  -DestinationAddressPrefix * -DestinationPortRange 443
 
 # Create a network security group (NSG) for the front-end subnet.
 $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $RgName -Location $location `
