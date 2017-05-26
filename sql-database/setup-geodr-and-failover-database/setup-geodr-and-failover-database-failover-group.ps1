@@ -1,9 +1,8 @@
-﻿# Login-AzureRmAccount
+# Login-AzureRmAccount
 # Set the resource group name and location for your primary server
 $primaryresourcegroupname = "myPrimaryResourceGroup-$(Get-Random)"
 $primarylocation = "eastus"
 # Set the resource group name and location for your secondary server
-$secondaryresourcegroupname = "mySecondaryResourceGroup-$(Get-Random)"
 $secondarylocation = "southcentralus"
 # Set an admin login and password for your servers
 $adminlogin = "ServerAdmin"
@@ -23,29 +22,32 @@ $secondaryendip = "0.0.0.0"
 
 # Create new resource group
 $primaryresourcegroup = New-AzureRmResourceGroup -Name $primaryresourcegroupname -Location $primarylocation
-
+$primaryresourcegroup
 # Create two new logical servers with a system wide unique server name
 $primaryserver = New-AzureRmSqlServer -ResourceGroupName $primaryresourcegroupname `
     -ServerName $primaryservername `
     -Location $primarylocation `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
-$secondaryserver = New-AzureRmSqlServer -ResourceGroupName $secondaryresourcegroupname `
+$primaryserver
+$secondaryserver = New-AzureRmSqlServer -ResourceGroupName $primaryresourcegroupname `
     -ServerName $secondaryservername `
     -Location $secondarylocation `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
-
+$secondaryserver
 # Create a server firewall rule that allows access from the specified IP range
 $primaryserverfirewallrule = New-AzureRmSqlServerFirewallRule -ResourceGroupName $primaryresourcegroupname `
     -ServerName $primaryservername `
     -FirewallRuleName "AllowedIPs" -StartIpAddress $primarystartip -EndIpAddress $primaryendip
-$secondaryserverfirewallrule = New-AzureRmSqlServerFirewallRule -ResourceGroupName $secondaryresourcegroupname `
+$primaryserverfirewallrule
+$secondaryserverfirewallrule = New-AzureRmSqlServerFirewallRule -ResourceGroupName $primaryresourcegroupname `
     -ServerName $secondaryservername `
     -FirewallRuleName "AllowedIPs" -StartIpAddress $secondarystartip -EndIpAddress $secondaryendip
+$secondaryserverfirewallrule
 # Create a blank database with S0 performance level on the primary server
 $database = New-AzureRmSqlDatabase  -ResourceGroupName $primaryresourcegroupname `
     -ServerName $primaryservername `
     -DatabaseName $databasename -RequestedServiceObjectiveName "S0"
-
+$database
 # Create failover group
 $fileovergroup = New-AzureRMSqlDatabaseFailoverGroup `
       –ResourceGroupName $primaryresourcegroupname `
@@ -54,7 +56,7 @@ $fileovergroup = New-AzureRMSqlDatabaseFailoverGroup `
       –FailoverGroupName $failovergroupname `
       –FailoverPolicy Automatic `
       -GracePeriodWithDataLossHours 2
-
+$fileovergroup
 # Add database to failover group
 $fileovergroup = Get-AzureRmSqlDatabase `
    -ResourceGroupName $primaryresourcegroupname `
@@ -64,7 +66,7 @@ $fileovergroup = Get-AzureRmSqlDatabase `
    -ResourceGroupName $primaryresourcegroupname ` `
    -ServerName $primaryservername `
    -FailoverGroupName $failovergroupname
-
+$fileovergroup
 # Initiate a planned failover
 Switch-AzureRMSqlDatabaseFailoverGroup `
    -ResourceGroupName $primaryresourcegroupname  `
@@ -86,5 +88,4 @@ Remove-AzureRmSqlDatabaseFailoverGroup `
    -FailoverGroupName $failovergroupname
 
 # Clean up deployment 
-#Remove-AzureRmResourceGroup -ResourceGroupName $primaryresourcegroupname
-#Remove-AzureRmResourceGroup -ResourceGroupName $secondaryresourcegroupname
+# Remove-AzureRmResourceGroup -ResourceGroupName $primaryresourcegroupname
