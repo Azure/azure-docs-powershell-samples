@@ -75,8 +75,8 @@ $nicVM1 = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $loca
 -Name 'MyNic-VM1' -IpConfiguration $ipconfig1, $ipconfig2, $ipconfig3
 
 # Create a virtual machine configuration
-$vmConfig = New-AzureRmVMConfig -VMName 'myVM' -VMSize Standard_DS2 -AvailabilitySetId $as.Id | `
-  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM' -Credential $cred | `
+$vmConfig = New-AzureRmVMConfig -VMName 'myVM1' -VMSize Standard_DS2 -AvailabilitySetId $as.Id | `
+  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM1' -Credential $cred | `
   Set-AzureRmVMSourceImage -PublisherName 'MicrosoftWindowsServer' -Offer 'WindowsServer' `
   -Skus '2016-Datacenter' -Version latest | Add-AzureRmVMNetworkInterface -Id $nicVM1.Id
 

@@ -67,8 +67,8 @@ $nicVMbe = New-AzureRmNetworkInterface -ResourceGroupName $rgName -Location $loc
   -Name MyNic-BackEnd -Subnet $vnet.Subnets[1]
 
 # Create the VM with both the FrontEnd and BackEnd NICs.
-$vmConfig = New-AzureRmVMConfig -VMName 'myVM2' -VMSize Standard_DS2 | `
-  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM2' -Credential $cred | `
+$vmConfig = New-AzureRmVMConfig -VMName 'myVM' -VMSize Standard_DS2 | `
+  Set-AzureRmVMOperatingSystem -Windows -ComputerName 'myVM' -Credential $cred | `
   Set-AzureRmVMSourceImage -PublisherName 'MicrosoftWindowsServer' -Offer 'WindowsServer' `
   -Skus '2016-Datacenter' -Version 'latest'
     
