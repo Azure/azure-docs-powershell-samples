@@ -24,11 +24,11 @@ $feip = New-AzureRmLoadBalancerFrontendIpConfig -Name 'myFrontEndPool' -PublicIp
 # Create the back-end address pool.
 $bepool = New-AzureRmLoadBalancerBackendAddressPoolConfig -Name 'myBackEndPool'
 
-# Creates an NLB probe on port 80.
+# Creates an LB probe on port 80.
 $probe = New-AzureRmLoadBalancerProbeConfig -Name 'myHealthProbe' -Protocol Http -Port 80 `
   -RequestPath / -IntervalInSeconds 360 -ProbeCount 5
 
-# Creates an NLB rule for port 80.
+# Creates an LB rule for port 80.
 $rule = New-AzureRmLoadBalancerRuleConfig -Name 'myLoadBalancerRuleWeb' -Protocol Tcp `
   -Probe $probe -FrontendPort 80 -BackendPort 80 `
   -FrontendIpConfiguration $feip -BackendAddressPool $bePool
