@@ -24,11 +24,11 @@ $feip = New-AzureRmLoadBalancerFrontendIpConfig -Name 'myFrontEndPool' -PublicIp
 # Create the back-end address pool.
 $bepool = New-AzureRmLoadBalancerBackendAddressPoolConfig -Name 'myBackEndPool'
 
-# Creates an LB probe on port 80.
+# Creates a load balancer probe on port 80.
 $probe = New-AzureRmLoadBalancerProbeConfig -Name 'myHealthProbe' -Protocol Http -Port 80 `
   -RequestPath / -IntervalInSeconds 360 -ProbeCount 5
 
-# Creates an LB rule for port 80.
+# Creates a load balancer rule for port 80.
 $rule = New-AzureRmLoadBalancerRuleConfig -Name 'myLoadBalancerRuleWeb' -Protocol Tcp `
   -Probe $probe -FrontendPort 80 -BackendPort 80 `
   -FrontendIpConfiguration $feip -BackendAddressPool $bePool
@@ -43,7 +43,7 @@ $natrule2 = New-AzureRmLoadBalancerInboundNatRuleConfig -Name 'myLoadBalancerRDP
 $natrule3 = New-AzureRmLoadBalancerInboundNatRuleConfig -Name 'myLoadBalancerRDP3' -FrontendIpConfiguration $feip `
   -Protocol tcp -FrontendPort 4223 -BackendPort 3389
 
-# Create an Azure Network Load Balancer.
+# Create a load balancer.
 $lb = New-AzureRmLoadBalancer -ResourceGroupName $rgName -Name 'MyLoadBalancer' -Location $location `
   -FrontendIpConfiguration $feip -BackendAddressPool $bepool `
   -Probe $probe -LoadBalancingRule $rule -InboundNatRule $natrule1,$natrule2,$natrule3
