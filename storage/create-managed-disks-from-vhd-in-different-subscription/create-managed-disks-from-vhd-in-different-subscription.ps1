@@ -26,6 +26,7 @@ $sourceVHDURI = 'https://contosostorageaccount1.blob.core.windows.net/vhds/conto
 
 #Provide the resource Id of the storage account where VHD file is stored.
 #e.g. /subscriptions/6472s1g8-h217-446b-b509-314e17e1efb0/resourceGroups/MDDemo/providers/Microsoft.Storage/storageAccounts/contosostorageaccount
+#This is an optional parameter if you are creating managed disk in the same subscription
 $storageAccountId = '/subscriptions/yourSubscriptionId/resourceGroups/yourResourceGroupName/providers/Microsoft.Storage/storageAccounts/yourStorageAccountName'
 
 #Set the context to the subscription Id where Managed Disk will be created
