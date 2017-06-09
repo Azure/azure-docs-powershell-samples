@@ -27,9 +27,6 @@ $destinationVHDFileName = "yourvhdfilename"
 # Set the context to the subscription Id where Snapshot is created
 Select-AzureRmSubscription -SubscriptionId $SubscriptionId
 
-#Get the snapshot using name and resource group
-$snapshot = Get-AzureRmSnapshot -ResourceGroupName $ResourceGroupName -SnapshotName $SnapshotName 
-
 #Generate the SAS for the snapshot 
 $sas = Grant-AzureRmSnapshotAccess -ResourceGroupName $ResourceGroupName -SnapshotName $SnapshotName  -DurationInSecond $sasExpiryDuration -Access Read 
  
