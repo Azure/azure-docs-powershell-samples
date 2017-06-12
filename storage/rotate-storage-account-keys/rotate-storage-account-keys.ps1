@@ -33,7 +33,3 @@ New-AzureRmStorageAccountKey -ResourceGroupName $resourceGroup `
 # retrieve it again and display it 
 $storageAccountKey = (Get-AzureRmStorageAccountKey -ResourceGroupName $resourceGroup -Name $storageAccountName).Value[0]
 Write-Host "storage account key 1 = " $storageAccountKey
-
-# clean up
-# remove the resource group and everything in it 
-Remove-AzureRmResourceGroup -Name $resourceGroup
