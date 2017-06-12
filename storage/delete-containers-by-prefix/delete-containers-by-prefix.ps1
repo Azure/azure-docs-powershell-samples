@@ -7,9 +7,6 @@
 #       (more than a couple hundred), use continuation tokens to retrieve
 #       the list of containers. We will be adding a sample showing that scenario in the future.
 
-# login to your Azure account
-Login-AzureRmAccount
-
 # these are for the storage account to be used
 #   and the prefix for which to search
 $resourceGroup = "containerdeletetestrg"
