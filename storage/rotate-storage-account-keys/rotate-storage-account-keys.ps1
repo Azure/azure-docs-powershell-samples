@@ -1,8 +1,5 @@
 ﻿# this script will show how to rotate one of the access keys for a storage account
 
-# login to your Azure account
-Login-AzureRmAccount
-
 # get list of locations and pick one
 Get-AzureRmLocation | select Location
 
