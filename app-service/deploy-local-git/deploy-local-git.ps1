@@ -22,7 +22,7 @@ Set-AzureRmResource -PropertyObject $PropertiesObject -ResourceGroupName myResou
 -ApiVersion 2015-08-01 -Force
 
 # Get app-level deployment credentials
-$xml = (Get-AzureRmWebAppPublishingProfile -Name $webappname -ResourceGroupName myResourceGroup `
+$xml = [xml](Get-AzureRmWebAppPublishingProfile -Name $webappname -ResourceGroupName myResourceGroup `
 -OutputFile null)
 $username = $xml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userName").value
 $password = $xml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userPWD").value
