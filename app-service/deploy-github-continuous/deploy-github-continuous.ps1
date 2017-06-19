@@ -1,5 +1,5 @@
-$gitrepo="<Replace with your GitHub repo URL>"
-$gittoken="<Replace with your GitHub token>"
+$gitrepo="<replace-with-URL-of-your-own-GitHub-repo>"
+$gittoken="<replace-with-a-GitHub-access-token>"
 $webappname="mywebapp$(Get-Random)"
 $location="West Europe"
 

@@ -1,4 +1,5 @@
-$gitrepo="<Replace with your GitHub repo URL>"
+# Replace the following URL with a public GitHub repo URL
+$gitrepo="https://github.com/Azure-Samples/app-service-web-dotnet-get-started.git"
 $webappname="mywebapp$(Get-Random)"
 $location="West Europe"
 
