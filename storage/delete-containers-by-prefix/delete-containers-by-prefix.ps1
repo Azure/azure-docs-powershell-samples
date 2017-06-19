@@ -11,7 +11,7 @@
 #   and the prefix for which to search
 $resourceGroup = "containerdeletetestrg"
 $location = "eastus"
-$storageAccountName = "contosocontainerdeletetest"
+$storageAccountName = "containerdeletetest"
 $prefix = "image"
 
 # get a reference to the storage account and the context
@@ -31,9 +31,10 @@ $listOfContainersToDelete = Get-AzureStorageContainer -Context $ctx -Prefix $pre
 Write-Host "Containers to be deleted"
 $listOfContainersToDelete | select Name
 
-# delete the containers
+# delete the containers; this pipes the result of the listing of the containers to delete
+#    into the Remove-AzureStorageContainer command. It handles all of the containers in the list.
 Write-Host "Deleting containers"
-$listOfContainersToDelete | ForEach-Object { Remove-AzureStorageContainer -Container $_.Name -Context $ctx }
+$listOfContainersToDelete | Remove-AzureStorageContainer -Context $ctx 
 
 # show list of containers not deleted 
 Write-Host "All containers not deleted"
