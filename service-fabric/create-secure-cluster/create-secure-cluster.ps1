@@ -1,7 +1,7 @@
 #Provide the subscription Id
 $subscriptionId = 'yourSubscriptionId'
 
-# Variables for certificate.
+# Certificate variables.
 $certpwd="Password#1234" | ConvertTo-SecureString -AsPlainText -Force
 $certfolder="c:\mycertificates\"
 
