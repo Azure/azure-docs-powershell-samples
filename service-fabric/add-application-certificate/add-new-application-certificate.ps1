@@ -12,5 +12,5 @@ $appcertfolder="c:\myappcertificates\"
 
 # Create a new self-signed certificate and add it to all the VMs in the cluster.
 Add-AzureRmServiceFabricApplicationCertificate -ResourceGroupName $groupname -Name $clustername `
-    -KeyVaultName $vaultname `-KeyVaultResouceGroupName $groupname -CertificateSubjectName $subname 
+    -KeyVaultName $vaultname -KeyVaultResouceGroupName $groupname -CertificateSubjectName $subname `
     -CertificateOutputFolder $appcertfolder -CertificatePassword $appcertpwd
