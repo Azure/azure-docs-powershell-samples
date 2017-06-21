@@ -14,7 +14,7 @@ Connect-ServiceFabricCluster -ConnectionEndpoint $endpoint `
 Copy-ServiceFabricApplicationPackage $packagepath -ImageStoreConnectionString fabric:ImageStore -ApplicationPackagePathInImageStore MyApplication
 
 # Register the application type.
-Register-ServiceFabricApplicationType MyApplication
+Register-ServiceFabricApplicationType -ApplicationPathInImageStore MyApplication
 
 # Create the application instance.
-New-ServiceFabricApplication fabric:/MyApplication MyApplicationType 1.0.0
+New-ServiceFabricApplication -ApplicationName fabric:/MyApplication -ApplicationTypeName MyApplicationType -ApplicationTypeVersion 1.0.0

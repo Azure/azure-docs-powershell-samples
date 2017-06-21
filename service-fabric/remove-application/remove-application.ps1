@@ -11,10 +11,10 @@ Connect-ServiceFabricCluster -ConnectionEndpoint $endpoint `
           -StoreLocation CurrentUser -StoreName My
 
 # Remove an application instance
-Remove-ServiceFabricApplication fabric:/MyApplication
+Remove-ServiceFabricApplication -ApplicationName fabric:/MyApplication
 
 # Unregister the application type
-Unregister-ServiceFabricApplicationType MyApplicationType 1.0.0
+Unregister-ServiceFabricApplicationType -ApplicationTypeName MyApplicationType -ApplicationTypeVersion 1.0.0
 
 # Remove the application package
 Remove-ServiceFabricApplicationPackage -ImageStoreConnectionString fabric:ImageStore -ApplicationPackagePathInImageStore MyApplication
