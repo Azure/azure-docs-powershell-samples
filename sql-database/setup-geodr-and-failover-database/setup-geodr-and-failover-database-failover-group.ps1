@@ -49,16 +49,16 @@ $database = New-AzureRmSqlDatabase  -ResourceGroupName $primaryresourcegroupname
     -DatabaseName $databasename -RequestedServiceObjectiveName "S0"
 $database
 # Create failover group
-$fileovergroup = New-AzureRMSqlDatabaseFailoverGroup `
+$failovergroup = New-AzureRMSqlDatabaseFailoverGroup `
       –ResourceGroupName $primaryresourcegroupname `
       -ServerName $primaryservername `
       -PartnerServerName $secondaryservername  `
       –FailoverGroupName $failovergroupname `
       –FailoverPolicy Automatic `
       -GracePeriodWithDataLossHours 2
-$fileovergroup
+$failovergroup
 # Add database to failover group
-$fileovergroup = Get-AzureRmSqlDatabase `
+$failovergroup = Get-AzureRmSqlDatabase `
    -ResourceGroupName $primaryresourcegroupname `
    -ServerName $primaryservername `
    -DatabaseName $databasename | `
@@ -66,7 +66,7 @@ $fileovergroup = Get-AzureRmSqlDatabase `
    -ResourceGroupName $primaryresourcegroupname ` `
    -ServerName $primaryservername `
    -FailoverGroupName $failovergroupname
-$fileovergroup
+$failovergroup
 # Initiate a planned failover
 Switch-AzureRMSqlDatabaseFailoverGroup `
    -ResourceGroupName $primaryresourcegroupname  `
