@@ -4,7 +4,7 @@
 $ApplicationPackagePath = "C:\Users\sfuser\documents\visual studio 2017\Projects\Voting\Voting\pkg\Debug"
 $ApplicationName = "fabric:/Voting"
 $ApplicationTypeName = "VotingType"
-$ApplicationTypeVersion = "1.2.0"
+$ApplicationTypeVersion = "1.3.0"
 $imageStoreConnectionString = "fabric:ImageStore"
 $CopyPackageTimeoutSec = 600
 $CompressPackage = $false
@@ -38,7 +38,7 @@ else
     ## Copy application package to image store
     $applicationPackagePathInImageStore = $ApplicationTypeName
     Write-Host "Copying application package to image store..."
-    Copy-ServiceFabricApplicationPackage -ApplicationPackagePath $ApplicationPackagePath -ImageStoreConnectionString $imageStoreConnectionString -ApplicationPackagePathInImageStore $applicationPackagePathInImageStore -TimeOutSec $CopyPackageTimeoutSec -CompressPackage:$CompressPackage -Verbose
+    Copy-ServiceFabricApplicationPackage -ApplicationPackagePath $ApplicationPackagePath -ImageStoreConnectionString $imageStoreConnectionString -ApplicationPackagePathInImageStore $applicationPackagePathInImageStore -TimeOutSec $CopyPackageTimeoutSec -CompressPackage:$CompressPackage 
     if(!$?)
     {
         throw "Copying of application package to image store failed. Cannot continue with registering the application."
@@ -61,6 +61,8 @@ else
     }
     catch
     {
+        Write-Host ("Error starting upgrade. " + $_)
+
         Write-Host "Unregister application type '$ApplicationTypeName' and version '$ApplicationTypeVersion' ..."
         Unregister-ServiceFabricApplicationType -ApplicationTypeName $ApplicationTypeName -ApplicationTypeVersion $ApplicationTypeVersion -Force
         throw
