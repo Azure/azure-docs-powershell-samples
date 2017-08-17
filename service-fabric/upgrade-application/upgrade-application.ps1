@@ -5,7 +5,7 @@ $ApplicationPackagePath = "C:\Users\sfuser\documents\visual studio 2017\Projects
 # $ApplicationParameterFilePath = "C:\Users\sfuser\documents\visual studio 2017\Projects\Voting\Voting\ApplicationParameters\Cloud.xml"
 $ApplicationName = "fabric:/Voting"
 $ApplicationTypeName = "VotingType"
-$ApplicationTypeVersion = 1.0.0
+$ApplicationTypeVersion = 1.1
 $imageStoreConnectionString = "fabric:ImageStore"
 $CopyPackageTimeoutSec = 600
 $CompressPackage = $true
@@ -53,9 +53,7 @@ else
         throw "Registration of application type failed."
     }
 
-    $UpgradeParameters["ApplicationName"] = $ApplicationName
-    $UpgradeParameters["ApplicationTypeVersion"] = $ApplicationTypeVersion
-
+    
     ## Start monitored application upgrade
     try
     {
