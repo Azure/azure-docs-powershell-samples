@@ -1,14 +1,13 @@
-﻿Connect-ServiceFabricCluster -ConnectionEndpoint mysftestcluster.westus.cloudapp.azure.com:19000
+﻿Connect-ServiceFabricCluster -ConnectionEndpoint ryanwicluster.westus.cloudapp.azure.com:19000
 
 
 $ApplicationPackagePath = "C:\Users\sfuser\documents\visual studio 2017\Projects\Voting\Voting\pkg\Debug"
-# $ApplicationParameterFilePath = "C:\Users\sfuser\documents\visual studio 2017\Projects\Voting\Voting\ApplicationParameters\Cloud.xml"
 $ApplicationName = "fabric:/Voting"
 $ApplicationTypeName = "VotingType"
-$ApplicationTypeVersion = 1.1
+$ApplicationTypeVersion = "1.2.0"
 $imageStoreConnectionString = "fabric:ImageStore"
 $CopyPackageTimeoutSec = 600
-$CompressPackage = $true
+$CompressPackage = $false
 
 
 ## Check existence of the application
@@ -25,7 +24,7 @@ else
     $upgradeStatus = Get-ServiceFabricApplicationUpgrade -ApplicationName $ApplicationName
     if ($upgradeStatus.UpgradeState -ne "RollingBackCompleted" -and $upgradeStatus.UpgradeState -ne "RollingForwardCompleted" -and $upgradeStatus.UpgradeState -ne "Failed")
     {
-        $errMsg = "An upgrade for the application '$names.ApplicationTypeName' is already in progress."
+        $errMsg = "An upgrade for the application '$ApplicationTypeName' is already in progress."
         throw $errMsg
     }
 
@@ -39,7 +38,7 @@ else
     ## Copy application package to image store
     $applicationPackagePathInImageStore = $ApplicationTypeName
     Write-Host "Copying application package to image store..."
-    Copy-ServiceFabricApplicationPackage -ApplicationPackagePath $ApplicationPackagePath -ImageStoreConnectionString $imageStoreConnectionString -ApplicationPackagePathInImageStore $applicationPackagePathInImageStore -TimeOutSec $CopyPackageTimeoutSec -CompressPackage:$CompressPackage
+    Copy-ServiceFabricApplicationPackage -ApplicationPackagePath $ApplicationPackagePath -ImageStoreConnectionString $imageStoreConnectionString -ApplicationPackagePathInImageStore $applicationPackagePathInImageStore -TimeOutSec $CopyPackageTimeoutSec -CompressPackage:$CompressPackage -Verbose
     if(!$?)
     {
         throw "Copying of application package to image store failed. Cannot continue with registering the application."
