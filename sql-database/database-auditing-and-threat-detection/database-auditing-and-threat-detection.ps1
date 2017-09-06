@@ -46,7 +46,7 @@ $storageaccount = New-AzureRmStorageAccount -ResourceGroupName $resourcegroupnam
 $auditpolicy = Set-AzureRmSqlDatabaseAuditingPolicy -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
     -DatabaseName $databasename `
-    -StorageAccountName $storageaccountname `
+    -StorageAccountName $storageaccountname 
 
 # Set a threat detection policy
 #threatdetectionpolicy = Set-AzureRmSqlDatabaseThreatDetectionPolicy -ResourceGroupName $resourcegroupname `
