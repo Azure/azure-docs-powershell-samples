@@ -13,7 +13,7 @@ $databasename = "mySampleDatabase"
 $startip = "0.0.0.0"
 $endip = "0.0.0.0"
 # The storage account name has to be unique in the system
-$storageaccountname = $("sql$($(Get-AzureRMContext).Subscription.Id)").substring(0,23).replace("-", "")
+$storageaccountname = $("sql$(Get-Random)")
 # Specify the email recipients for the threat detection alerts
 $notificationemailreceipient = "changeto@your.email;changeto@your.email"
 
