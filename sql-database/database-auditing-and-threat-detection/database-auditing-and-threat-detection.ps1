@@ -13,7 +13,7 @@ $databasename = "mySampleDatabase"
 $startip = "0.0.0.0"
 $endip = "0.0.0.0"
 # The storage account name has to be unique in the system
-$storageaccountname = $("sql$($(Get-AzureRMContext).Subscription.Id)").substring(0,23).replace("-", "")
+$storageaccountname = $("sql$(Get-Random)")
 # Specify the email recipients for the threat detection alerts
 $notificationemailreceipient = "changeto@your.email;changeto@your.email"
 
@@ -43,15 +43,15 @@ $storageaccount = New-AzureRmStorageAccount -ResourceGroupName $resourcegroupnam
     -Type "Standard_LRS"
 
 # Set an auditing policy
-$auditpolicy = Set-AzureRmSqlDatabaseAuditingPolicy -ResourceGroupName $resourcegroupname `
+Set-AzureRmSqlDatabaseAuditingPolicy -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
     -DatabaseName $databasename `
-    -StorageAccountName $storageaccountname `
+    -StorageAccountName $storageaccountname 
 
 # Set a threat detection policy
-#threatdetectionpolicy = Set-AzureRmSqlDatabaseThreatDetectionPolicy -ResourceGroupName $resourcegroupname `
+Set-AzureRmSqlDatabaseThreatDetectionPolicy -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
-    -DatabaseName $databasename`
+    -DatabaseName $databasename `
     -StorageAccountName $storageaccountname `
     -NotificationRecipientsEmails $notificationemailreceipient `
     -EmailAdmins $False
