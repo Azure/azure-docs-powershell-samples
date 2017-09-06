@@ -49,9 +49,9 @@ $auditpolicy = Set-AzureRmSqlDatabaseAuditingPolicy -ResourceGroupName $resource
     -StorageAccountName $storageaccountname 
 
 # Set a threat detection policy
-#threatdetectionpolicy = Set-AzureRmSqlDatabaseThreatDetectionPolicy -ResourceGroupName $resourcegroupname `
+$threatdetectionpolicy = Set-AzureRmSqlDatabaseThreatDetectionPolicy -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
-    -DatabaseName $databasename`
+    -DatabaseName $databasename `
     -StorageAccountName $storageaccountname `
     -NotificationRecipientsEmails $notificationemailreceipient `
     -EmailAdmins $False
