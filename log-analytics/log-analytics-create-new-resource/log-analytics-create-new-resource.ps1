@@ -38,7 +38,7 @@ $null = Set-AzureRmContext -SubscriptionID $SubscriptionID
 
 # Check that the resource group is valid
 $null = Get-AzureRmResourceGroup -Name $ResourceGroupName
-# Create a new OMS workspace if needed
+# Create a new Log Analytics workspace if needed
 try {
 
     $Workspace = Get-AzureRmOperationalInsightsWorkspace -Name $WorkspaceName -ResourceGroupName $ResourceGroupName  -ErrorAction Stop
