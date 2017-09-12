@@ -1,6 +1,4 @@
-﻿powershell Set-ExecutionPolicy Unrestricted -Scope CurrentUser
-
-# Set variables with your own values
+﻿# Set variables with your own values
 $resourceGroupName = "<Name of the resource group>"
 $dataFactoryName = "<Name of the data factory. Must be globally unique>"
 $dataFactoryRegion = "East US" # Currently, you can create data factories only in East US region. Data stores and computes used by a data factory can be in other regions. 
@@ -18,7 +16,9 @@ New-AzureRmResourceGroup -Name $resourceGroupName -Location $dataFactoryRegion
 # Create a data factory
 $df = New-AzureRmDataFactoryV2 -ResourceGroupName $resourceGroupName -Location $dataFactoryRegion -Name $dataFactoryName -LoggingStorageAccountName $storageAccountName  -LoggingStorageAccountKey $storageAccountKey
 
-# Create a storage linked service in the data factory
+# Create an Azure Storage linked service in the data factory
+
+## JSON definition of the linked service. 
 $storageLinkedServiceDefinition = @"
 {
     "name": "AzureStorageLinkedService",
@@ -33,10 +33,16 @@ $storageLinkedServiceDefinition = @"
     }
 }
 "@
+
+## IMPORTANT: stores the JSON definition in a file that will be used by the New-AzureRMDataFactoryV2LinkedService command. 
 $storageLinkedServiceDefinition | Out-File c:\StorageLinkedService.json
+
+## Creates a linked service in the data factory
 New-AzureRmDataFactoryV2LinkedService -DataFactory $df -Name "AzureStorageLinkedService" -File c:\StorageLinkedService.json
 
-# Create a dataset in the data factory
+# Create an Azure Blob dataset in the data factory
+
+## JSON definition of the dataset
 $datasetDefiniton = @"
 {
     "name": "BlobDataset",
@@ -60,10 +66,16 @@ $datasetDefiniton = @"
     }
 }
 "@
+
+## IMPORTANT: stores the JSON definition in a file that will be used by the New-AzureRmDataFactoryV2Dataset command. 
 $datasetDefiniton | Out-File c:\BlobDataset.json
+
+## Creates a dataset in the data factory
 New-AzureRmDataFactoryV2Dataset -DataFactory $df -Name "BlobDataset" -File "c:\BlobDataset.json"
 
 # Create a pipeline in the data factory
+
+## JSON definition of the pipeline
 $pipelineDefinition = @"
 {
     "name": "Adfv2QuickStartPipeline",
@@ -111,16 +123,22 @@ $pipelineDefinition = @"
     }
 }
 "@
+
+## IMPORTANT: stores the JSON definition in a file that will be used by the New-AzureRmDataFactoryV2Pipeline command. 
 $pipelineDefinition | Out-File c:\CopyPipeline.json
+
+## Creates a pipeline in the data factory
 New-AzureRmDataFactoryV2Pipeline -DataFactory $df -Name "CopyPipeline" -File "c:\CopyPipeline.json"
 
-# Create pipeline parameters for a run
+# Creates pipeline parameters for a run in the JSON format.
 $pipelineParameters = @"
 {
     "inputPath": "$sourceBlobPath",
     "outputPath": "$sinkBlobPath"
 }
 "@
+
+## IMPORTANT: stores the JSON definition in a file that will be used by the New-AzureRmDataFactoryV2PipelineRun command. 
 $pipelineParameters | Out-File c:\PipelineParameters.json
 
 # Create a pipeline run by using parameters
