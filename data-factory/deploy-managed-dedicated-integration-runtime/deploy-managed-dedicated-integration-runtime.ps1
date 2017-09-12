@@ -50,10 +50,6 @@ Catch [System.Data.SqlClient.SqlException]
     } 
 }
 
-##### Login and select Azure subscription #####
-
-Login-AzureRmAccount
-Select-AzureRmSubscription -SubscriptionName $SubscriptionName
 
 ##### Automatically configure VNet permissions/settings for managed-dedicated integration runtime to join ##### 
 
@@ -71,10 +67,17 @@ if(![string]::IsNullOrEmpty($VnetId) -and ![string]::IsNullOrEmpty($SubnetName))
 }
 
 ##### Provision data factory + managed-dedicated integration runtime ##### 
+
+# Create an Azure resource gorup. 
 New-AzureRmResourceGroup -Location $DataFactoryLocation -Name $ResourceGroupName
-Register-AzureRmResourceProvider -ProviderNamespace Microsoft.DataFactory
+
+# Create data factory
 New-AzureRmDataFactoryV2 -Location $DataFactoryLocation -LoggingStorageAccountName $DataFactoryLoggingStorageAccountName -LoggingStorageAccountKey $DataFactoryLoggingStorageAccountKey -Name $DataFactoryName -ResourceGroupName $ResourceGroupName 
+
+# Create managed-dedicated integration runtime
 New-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $MDIRName -ResourceGroupName $ResourceGroupName -Type Managed -CatalogServerEndpoint $SSISDBServerEndpoint -CatalogAdminUserName $SSISDBServerAdminUserName -CatalogAdminPassword $SSISDBServerAdminPassword -CatalogPricingTier $SSISDBPricingTier -Description $MDIRDescription -Location $MDIRLocation -NodeSize $MDIRNodeSize -NumberOfNodes $MDIRNodeNumber -MaxParallelExecutionsPerNode $MDIRMaxParallelExecutionsPerNode -VnetId $VnetId -Subnet $SubnetName
+
+# Starting managed-dedicated integration runtime that can run SSIS packages in the cloud
 write-host("##### Starting #####")
 Start-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $MDIRName -ResourceGroupName $ResourceGroupName -Sync -Force
 write-host("##### Completed #####")
@@ -82,8 +85,8 @@ write-host("If any cmdlet is unsuccessful, please consider using -Debug option f
 
 ##### Get managed-dedicated integration runtime status #####
 
-#Get-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $MDIRName -ResourceGroupName $ResourceGroupName
-#Get-AzureRmDataFactoryV2IntegrationRuntimeStatus -DataFactoryName $DataFactoryName -Name $MDIRName -ResourceGroupName $ResourceGroupName
+Get-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $MDIRName -ResourceGroupName $ResourceGroupName
+Get-AzureRmDataFactoryV2IntegrationRuntimeStatus -DataFactoryName $DataFactoryName -Name $MDIRName -ResourceGroupName $ResourceGroupName
 
 ##### Reconfigure managed-dedicated integration runtime, e.g. scale out from 2 to 5 nodes #####
 

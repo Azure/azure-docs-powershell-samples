@@ -7,9 +7,6 @@ $storageAccountKey = "<Key for your Azure Storage account>"
 $sourceBlobPath = "<blob container>/<input folder>"
 $sinkBlobPath = "<bloblcontainer>/<output folder>"
 
-# Login to your Azure account
-Login-AzureRmAccount
-
 # Create a resource group
 New-AzureRmResourceGroup -Name $resourceGroupName -Location $dataFactoryRegion
 
@@ -67,10 +64,10 @@ $datasetDefiniton = @"
 }
 "@
 
-## IMPORTANT: stores the JSON definition in a file that will be used by the New-AzureRmDataFactoryV2Dataset command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the New-AzureRmDataFactoryV2Dataset command. 
 $datasetDefiniton | Out-File c:\BlobDataset.json
 
-## Creates a dataset in the data factory
+## Create a dataset in the data factory
 New-AzureRmDataFactoryV2Dataset -DataFactory $df -Name "BlobDataset" -File "c:\BlobDataset.json"
 
 # Create a pipeline in the data factory
@@ -124,13 +121,15 @@ $pipelineDefinition = @"
 }
 "@
 
-## IMPORTANT: stores the JSON definition in a file that will be used by the New-AzureRmDataFactoryV2Pipeline command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the New-AzureRmDataFactoryV2Pipeline command. 
 $pipelineDefinition | Out-File c:\CopyPipeline.json
 
-## Creates a pipeline in the data factory
+## Create a pipeline in the data factory
 New-AzureRmDataFactoryV2Pipeline -DataFactory $df -Name "CopyPipeline" -File "c:\CopyPipeline.json"
 
-# Creates pipeline parameters for a run in the JSON format.
+# Create a pipeline run 
+
+## JSON definition for pipeline parameters
 $pipelineParameters = @"
 {
     "inputPath": "$sourceBlobPath",
@@ -138,7 +137,7 @@ $pipelineParameters = @"
 }
 "@
 
-## IMPORTANT: stores the JSON definition in a file that will be used by the New-AzureRmDataFactoryV2PipelineRun command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the New-AzureRmDataFactoryV2PipelineRun command. 
 $pipelineParameters | Out-File c:\PipelineParameters.json
 
 # Create a pipeline run by using parameters
