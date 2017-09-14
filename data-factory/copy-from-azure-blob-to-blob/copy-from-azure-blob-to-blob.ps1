@@ -11,7 +11,7 @@ $sinkBlobPath = "<bloblcontainer>/<output folder>"
 New-AzureRmResourceGroup -Name $resourceGroupName -Location $dataFactoryRegion
 
 # Create a data factory
-$df = New-AzureRmDataFactoryV2 -ResourceGroupName $resourceGroupName -Location $dataFactoryRegion -Name $dataFactoryName -LoggingStorageAccountName $storageAccountName  -LoggingStorageAccountKey $storageAccountKey
+$df = Set-AzureRmDataFactoryV2 -ResourceGroupName $resourceGroupName -Location $dataFactoryRegion -Name $dataFactoryName -LoggingStorageAccountName $storageAccountName  -LoggingStorageAccountKey $storageAccountKey
 
 # Create an Azure Storage linked service in the data factory
 
@@ -31,11 +31,11 @@ $storageLinkedServiceDefinition = @"
 }
 "@
 
-## IMPORTANT: stores the JSON definition in a file that will be used by the New-AzureRMDataFactoryV2LinkedService command. 
+## IMPORTANT: stores the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2LinkedService command. 
 $storageLinkedServiceDefinition | Out-File c:\StorageLinkedService.json
 
 ## Creates a linked service in the data factory
-New-AzureRmDataFactoryV2LinkedService -DataFactory $df -Name "AzureStorageLinkedService" -File c:\StorageLinkedService.json
+Set-AzureRmDataFactoryV2LinkedService -DataFactory $df -Name "AzureStorageLinkedService" -File c:\StorageLinkedService.json
 
 # Create an Azure Blob dataset in the data factory
 
@@ -64,11 +64,11 @@ $datasetDefiniton = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the New-AzureRmDataFactoryV2Dataset command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2Dataset command. 
 $datasetDefiniton | Out-File c:\BlobDataset.json
 
 ## Create a dataset in the data factory
-New-AzureRmDataFactoryV2Dataset -DataFactory $df -Name "BlobDataset" -File "c:\BlobDataset.json"
+Set-AzureRmDataFactoryV2Dataset -DataFactory $df -Name "BlobDataset" -File "c:\BlobDataset.json"
 
 # Create a pipeline in the data factory
 
@@ -121,11 +121,11 @@ $pipelineDefinition = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the New-AzureRmDataFactoryV2Pipeline command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2Pipeline command. 
 $pipelineDefinition | Out-File c:\CopyPipeline.json
 
 ## Create a pipeline in the data factory
-New-AzureRmDataFactoryV2Pipeline -DataFactory $df -Name "CopyPipeline" -File "c:\CopyPipeline.json"
+Set-AzureRmDataFactoryV2Pipeline -DataFactory $df -Name "CopyPipeline" -File "c:\CopyPipeline.json"
 
 # Create a pipeline run 
 
@@ -137,42 +137,44 @@ $pipelineParameters = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the New-AzureRmDataFactoryV2PipelineRun command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Invoke-AzureRmDataFactoryV2PipelineRun command. 
 $pipelineParameters | Out-File c:\PipelineParameters.json
 
 # Create a pipeline run by using parameters
-$runId = New-AzureRmDataFactoryV2PipelineRun -DataFactory $df -PipelineName "CopyPipeline" -ParameterFile c:\PipelineParameters.json
+$runId = Invoke-AzureRmDataFactoryV2PipelineRun -DataFactory $df -PipelineName "CopyPipeline" -ParameterFile c:\PipelineParameters.json
 
 # Check the pipeline run status until it finishes the copy operation
 while ($True) {
-    $run = Get-AzureRmDataFactoryV2PipelineRun -DataFactory $df -RunId $runId -ErrorAction Stop
-    Write-Host  "Pipeline run status: " $run.Status -foregroundcolor "Yellow"
+    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactory $df -PipelineRunId $runId -PipelineName 'Adfv2QuickStartPipeline' -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
 
-    if ($run.Status -eq "InProgress") {
-        Start-Sleep -Seconds 15
+    if (($result | Where-Object { $_.Status -eq "InProgress" } | Measure-Object).count -ne 0) {
+        Write-Host "Pipeline run status: In Progress" -foregroundcolor "Yellow"
+        Start-Sleep -Seconds 30
     }
     else {
-        $run
+        Write-Host "Pipeline 'Adfv2QuickStartPipeline' run finished. Result:" -foregroundcolor "Yellow"
+        $result
         break
     }
 }
 
 # Get the activity run details 
 $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactory $df `
-    -PipelineName "Adfv2QuickStartPipeline" `
-    -PipelineRunId $runId `
-    -RunStartedAfter (Get-Date).AddMinutes(-10) `
-    -RunStartedBefore (Get-Date).AddMinutes(10) `
-    -ErrorAction Stop
+    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactory $df `
+        -PipelineName "Adfv2QuickStartPipeline" `
+        -PipelineRunId $runId `
+        -RunStartedAfter (Get-Date).AddMinutes(-10) `
+        -RunStartedBefore (Get-Date).AddMinutes(10) `
+        -ErrorAction Stop
 
-$result
+    $result
 
-if ($run.Status -eq "Succeeded") {`
-    $result.Output -join "`r`n"`
-}`
-else {`
-    $result.Error -join "`r`n"`
-}
+    if ($result.Status -eq "Succeeded") {`
+        $result.Output -join "`r`n"`
+    }`
+    else {`
+        $result.Error -join "`r`n"`
+    }
 
 # To remove the data factory from the resource gorup
 # Remove-AzureRmDataFactoryV2 -Name $dataFactoryName -ResourceGroupName $resourceGroupName

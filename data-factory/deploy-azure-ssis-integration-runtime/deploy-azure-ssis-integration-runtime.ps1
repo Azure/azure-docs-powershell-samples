@@ -72,10 +72,10 @@ if(![string]::IsNullOrEmpty($VnetId) -and ![string]::IsNullOrEmpty($SubnetName))
 New-AzureRmResourceGroup -Location $DataFactoryLocation -Name $ResourceGroupName
 
 # Create data factory
-New-AzureRmDataFactoryV2 -Location $DataFactoryLocation -LoggingStorageAccountName $DataFactoryLoggingStorageAccountName -LoggingStorageAccountKey $DataFactoryLoggingStorageAccountKey -Name $DataFactoryName -ResourceGroupName $ResourceGroupName 
+Set-AzureRmDataFactoryV2 -Location $DataFactoryLocation -LoggingStorageAccountName $DataFactoryLoggingStorageAccountName -LoggingStorageAccountKey $DataFactoryLoggingStorageAccountKey -Name $DataFactoryName -ResourceGroupName $ResourceGroupName 
 
 # Create Azure-SSIS IR
-New-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSsisIRName -ResourceGroupName $ResourceGroupName -Type Managed -CatalogServerEndpoint $SSISDBServerEndpoint -CatalogAdminUserName $SSISDBServerAdminUserName -CatalogAdminPassword $SSISDBServerAdminPassword -CatalogPricingTier $SSISDBPricingTier -Description $AzureSsisIRDescription -Location $AzureSsisIRLocation -NodeSize $AzureSsisIRNodeSize -NumberOfNodes $AzureSsisIRNodeNumber -MaxParallelExecutionsPerNode $AzureSsisIRMaxParallelExecutionsPerNode -VnetId $VnetId -Subnet $SubnetName
+Set-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSsisIRName -ResourceGroupName $ResourceGroupName -Type Managed -CatalogServerEndpoint $SSISDBServerEndpoint -CatalogAdminUserName $SSISDBServerAdminUserName -CatalogAdminPassword $SSISDBServerAdminPassword -CatalogPricingTier $SSISDBPricingTier -Description $AzureSsisIRDescription -Location $AzureSsisIRLocation -NodeSize $AzureSsisIRNodeSize -NumberOfNodes $AzureSsisIRNodeNumber -MaxParallelExecutionsPerNode $AzureSsisIRMaxParallelExecutionsPerNode -VnetId $VnetId -Subnet $SubnetName
 
 # Starting Azure-SSIS IR that can run SSIS packages in the cloud
 write-host("##### Starting #####")
