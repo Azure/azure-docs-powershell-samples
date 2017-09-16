@@ -333,7 +333,7 @@ while ($True) {
     }
 
 # To remove the data factory from the resource gorup
-Remove-AzureRmDataFactoryV2 -Name $dataFactory -ResourceGroupName $resourceGroup
+# Remove-AzureRmDataFactoryV2 -Name $dataFactory -ResourceGroupName $resourceGroup
 # 
 # To remove the whole resource group
 # Remove-AzureRmResourceGroup  -Name $resourceGroup
