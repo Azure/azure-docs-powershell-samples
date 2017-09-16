@@ -2,10 +2,10 @@
 
 # Set variables with your own values
 $resourceGroupName = "<Azure resource group name>"
-$dataFactoryName = "<Data factory name. Must be globally unique."
-$dataFactoryRegion = "East US" # Data factory can only be created in East US. Data stores and compute services can be in other regions. 
+$dataFactoryName = "<Data factory name. Must be globally unique.>"
+$dataFactoryRegion = "East US" 
 $storageAccountName = "<Azure Storage account name> "
-$storageAccountKey = "Azure Storage account key"
+$storageAccountKey = "<Azure Storage account key>"
 $subscriptionID = "<Azure subscription ID>"
 $tenantID = "<tenant ID>"
 $servicePrincipalID = "<Active directory service principal ID>"
@@ -17,7 +17,7 @@ $pipelineName = "SparkTransformPipeline"
 New-AzureRmResourceGroup -Name $resourceGroupName -Location $dataFactoryRegion
 
 # Create a data factory
-$df = Set-AzureRmDataFactoryV2 -ResourceGroupName $resourceGroupName -Location $dataFactoryRegion -Name $dataFactoryName -LoggingStorageAccountName $storageAccountName  -LoggingStorageAccountKey $storageAccountKey
+$df = Set-AzureRmDataFactoryV2 -ResourceGroupName $resourceGroupName -Location $dataFactoryRegion -Name $dataFactoryName
 
 # Create an Azure Storage linked service in the data factory
 
@@ -141,7 +141,7 @@ while ($True) {
         Start-Sleep -Seconds 300
     }
     else {
-        Write-Host "Pipeline 'Adfv2QuickStartPipeline' run finished. Result:" -foregroundcolor "Yellow"
+        Write-Host "Pipeline $pipelineName run finished. Result:" -foregroundcolor "Yellow"
         $result
         break
     }
