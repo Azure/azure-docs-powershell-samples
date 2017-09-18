@@ -48,7 +48,7 @@ $storageLinkedServiceDefinition = @"
 $storageLinkedServiceDefinition | Out-File c:\AzureStorageLinkedService.json
 
 ## Creates a linked service in the data factory
-Set-AzureRmDataFactoryV2LinkedService -DataFactory $df -Name "AzureStorageLinkedService" -File c:\AzureStorageLinkedService.json
+Set-AzureRmDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "AzureStorageLinkedService" -File c:\AzureStorageLinkedService.json
 
 # create an on-premises SQL Server linked service
 
@@ -76,10 +76,10 @@ $sqlServerLinkedServiceDefinition = @"
 $sqlServerLinkedServiceDefinition | Out-File c:\SqlServerLinkedService.json
 
 ## Encrypt SQL Server credentials 
-New-AzureRmDataFactoryV2LinkedServiceEncryptCredential -DataFactory $df -IntegrationRuntimeName $integrationRuntimeName -File "c:\SqlServerLinkedService.json" > c:\EncryptedSqlServerLinkedService.json
+New-AzureRmDataFactoryV2LinkedServiceEncryptCredential -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -IntegrationRuntimeName $integrationRuntimeName -File "c:\SqlServerLinkedService.json" > c:\EncryptedSqlServerLinkedService.json
 
 # Create a SQL Server linked service
-Set-AzureRmDataFactoryV2LinkedService -DataFactory $df "EncryptedSqlServerLinkedService" -File "c:\EncryptedSqlServerLinkedService.json"
+Set-AzureRmDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName "EncryptedSqlServerLinkedService" -File "c:\EncryptedSqlServerLinkedService.json"
 
 
 # Create a source dataset for source SQL Server Database
@@ -119,7 +119,7 @@ $sourceSqlServerDatasetDefiniton = @"
 $sourceSqlServerDatasetDefiniton | Out-File c:\SqlServerDataset.json
 
 # Create an Azure Blob dataset in the data factory
-Set-AzureRmDataFactoryV2Dataset -DataFactory $df -Name "SqlServerDataset" -File "c:\SqlServerDataset.json"
+Set-AzureRmDataFactoryV2Dataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "SqlServerDataset" -File "c:\SqlServerDataset.json"
 
 # Create a dataset for sink Azure Blob Storage
 
@@ -147,7 +147,7 @@ $sinkBlobDatasetDefiniton = @"
 $sinkBlobDatasetDefiniton | Out-File c:\AzureBlobDataset.json
 
 ## Create the Azure Blob dataset
-Set-AzureRmDataFactoryV2Dataset -DataFactory $df -Name "AzureBlobDataset" -File "c:\AzureBlobDataset.json"
+Set-AzureRmDataFactoryV2Dataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "AzureBlobDataset" -File "c:\AzureBlobDataset.json"
 
 
 # Create a pipeline in the data factory
@@ -191,7 +191,7 @@ $pipelineDefinition = @"
 $pipelineDefinition | Out-File c:\SqlServerToBlobPipeline.json
 
 ## Create a pipeline in the data factory
-Set-AzureRmDataFactoryV2Pipeline -DataFactory $df -Name "$pipelineName" -File "c:\SqlServerToBlobPipeline.json"
+Set-AzureRmDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$pipelineName" -File "c:\SqlServerToBlobPipeline.json"
 
 
 # start the pipeline run
@@ -199,7 +199,7 @@ $runId = Invoke-AzureRmDataFactoryV2PipelineRun -DataFactoryName $dataFactoryNam
 
 # Check the pipeline run status until it finishes the copy operation
 while ($True) {
-    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactory $df -PipelineRunId $runId -PipelineName $pipelineName -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
+    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineRunId $runId -PipelineName $pipelineName -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
 
     if (($result | Where-Object { $_.Status -eq "InProgress" } | Measure-Object).count -ne 0) {
         Write-Host "Pipeline run status: In Progress" -foregroundcolor "Yellow"
@@ -213,7 +213,7 @@ while ($True) {
 }
 
 # Get the activity run details 
-    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactory $df `
+    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName `
         -PipelineName $pipelineName `
         -PipelineRunId $runId `
         -RunStartedAfter (Get-Date).AddMinutes(-10) `
