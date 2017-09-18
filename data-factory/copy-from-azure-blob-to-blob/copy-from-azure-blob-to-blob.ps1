@@ -36,7 +36,7 @@ $storageLinkedServiceDefinition = @"
 $storageLinkedServiceDefinition | Out-File c:\StorageLinkedService.json
 
 ## Creates a linked service in the data factory
-Set-AzureRmDataFactoryV2LinkedService -DataFactory $df -Name "AzureStorageLinkedService" -File c:\StorageLinkedService.json
+Set-AzureRmDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "AzureStorageLinkedService" -File c:\StorageLinkedService.json
 
 # Create an Azure Blob dataset in the data factory
 
@@ -69,7 +69,7 @@ $datasetDefiniton = @"
 $datasetDefiniton | Out-File c:\BlobDataset.json
 
 ## Create a dataset in the data factory
-Set-AzureRmDataFactoryV2Dataset -DataFactory $df -Name "BlobDataset" -File "c:\BlobDataset.json"
+Set-AzureRmDataFactoryV2Dataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "BlobDataset" -File "c:\BlobDataset.json"
 
 # Create a pipeline in the data factory
 
@@ -126,7 +126,7 @@ $pipelineDefinition = @"
 $pipelineDefinition | Out-File c:\CopyPipeline.json
 
 ## Create a pipeline in the data factory
-Set-AzureRmDataFactoryV2Pipeline -DataFactory $df -Name $pipelineName -File "c:\CopyPipeline.json"
+Set-AzureRmDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $pipelineName -File "c:\CopyPipeline.json"
 
 # Create a pipeline run 
 
@@ -142,11 +142,11 @@ $pipelineParameters = @"
 $pipelineParameters | Out-File c:\PipelineParameters.json
 
 # Create a pipeline run by using parameters
-$runId = Invoke-AzureRmDataFactoryV2PipelineRun -DataFactory $df -PipelineName $pipelineName -ParameterFile c:\PipelineParameters.json
+$runId = Invoke-AzureRmDataFactoryV2PipelineRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineName $pipelineName -ParameterFile c:\PipelineParameters.json
 
 # Check the pipeline run status until it finishes the copy operation
 while ($True) {
-    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactory $df -PipelineRunId $runId -PipelineName $pipelineName -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
+    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineRunId $runId -PipelineName $pipelineName -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
 
     if (($result | Where-Object { $_.Status -eq "InProgress" } | Measure-Object).count -ne 0) {
         Write-Host "Pipeline run status: In Progress" -foregroundcolor "Yellow"
@@ -160,7 +160,7 @@ while ($True) {
 }
 
 # Get the activity run details 
-    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactory $df `
+    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName `
         -PipelineName "$pipelineName" `
         -PipelineRunId $runId `
         -RunStartedAfter (Get-Date).AddMinutes(-10) `

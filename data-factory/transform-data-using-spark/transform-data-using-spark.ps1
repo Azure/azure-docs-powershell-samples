@@ -41,7 +41,7 @@ $storageLinkedServiceDefinition = @"
 $storageLinkedServiceDefinition | Out-File c:\AzureStorageLinkedService.json
 
 ## Creates an Azure Storage linked service
-Set-AzureRmDataFactoryV2LinkedService -DataFactory $df -Name "AzureStorageLinkedService" -File c:\AzureStorageLinkedService.json
+Set-AzureRmDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "AzureStorageLinkedService" -File c:\AzureStorageLinkedService.json
 
 # Create on-demand Spark linked service in the data factory
 
@@ -79,7 +79,7 @@ $sparkLinkedServiceDefinition = @"
 $sparkLinkedServiceDefinition | Out-File c:\OnDemandSparkLinkedService.json
 
 # Creates an on-demand Spark linked service
-Set-AzureRmDataFactoryV2LinkedService -DataFactory $df -Name "OnDemandSparkLinkedService" -File "C:\OnDemandSparkLinkedService.json"
+Set-AzureRmDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "OnDemandSparkLinkedService" -File "C:\OnDemandSparkLinkedService.json"
 
 # Create a pipeline in the data factory
 
@@ -115,7 +115,7 @@ $pipelineDefinition = @"
 $pipelineDefinition | Out-File c:\SparkTransformPipeline.json
 
 ## Create a pipeline with Spark Activity in the data factory
-Set-AzureRmDataFactoryV2Pipeline -DataFactory $df -Name "SparkTransformPipeline" -File "c:\SparkTransformPipeline.json"
+Set-AzureRmDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "SparkTransformPipeline" -File "c:\SparkTransformPipeline.json"
 
 # Create a pipeline run 
 
@@ -130,11 +130,12 @@ $pipelineParameters = @"
 $pipelineParameters | Out-File c:\PipelineParameters.json
 
 # Create a pipeline run by using parameters
-$runId = Invoke-AzureRmDataFactoryV2PipelineRun -DataFactory $df -PipelineName $pipelineName -ParameterFile c:\PipelineParameters.json
+$runId = Invoke-AzureRmDataFactoryV2PipelineRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineName $pipelineName -ParameterFile c:\PipelineParameters.json
 
 # Check the pipeline run status until it finishes
+Start-Sleep -Seconds 30
 while ($True) {
-    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactory $df -PipelineRunId $runId -PipelineName $pipelineName -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
+    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineRunId $runId -PipelineName $pipelineName -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
 
     if (($result | Where-Object { $_.Status -eq "InProgress" } | Measure-Object).count -ne 0) {
         Write-Host "Pipeline run status: In Progress" -foregroundcolor "Yellow"
@@ -148,7 +149,7 @@ while ($True) {
 }
 
 # Get the activity run details 
-$result = Get-AzureRmDataFactoryV2ActivityRun -DataFactory $df `
+$result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName `
     -PipelineName $pipelineName `
     -PipelineRunId $runId `
     -RunStartedAfter (Get-Date).AddMinutes(-30) `
