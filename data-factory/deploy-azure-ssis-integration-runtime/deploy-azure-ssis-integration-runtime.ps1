@@ -1,37 +1,28 @@
-Set-ExecutionPolicy Unrestricted -Scope CurrentUser
-
-##### Azure-SSIS integration runtime (IR) specifications
-
 # If your inputs contain PSH special characters, e.g. "$", please precede it with the escape character "`" like "`$". 
+# Azure Data Factory v2 information
+$SubscriptionName = "[your Azure subscription name]"
+$ResourceGroupName = "[your Azure resource group name]"
+$DataFactoryName = "[your data factory name]"
+$DataFactoryLocation = "EastUS" # In Public Preview, only EastUS|EastUS2 are supported for now
 
-# Azure Data Factory information
-$SubscriptionName = "<your azure subscription name>"
-$ResourceGroupName = "<azure resource group name>"
-$DataFactoryName = "<globablly unique name for your data factory>"
-$DataFactoryLocation = "EastUS" # data factory v2 can be created only in east us region. 
+# Azure-SSIS Integration Runtime info - This is Data Factory compute resource for running SSIS packages
+$AzureSSISName = "[your Azure-SSIS Integration Runtime name]"
+$AzureSSISDescription = "This is my Azure-SSIS Integration Runtime"
+$AzureSSISLocation = "EastUS" # In Public Preview, only EastUS|NorthEurope are supported for now
+$AzureSSISNodeSize = "Standard_A4_v2" # In Public Preview, only Standard_A4_v2|Standard_A8_v2|Standard_D1_v2|Standard_D2_v2|Standard_D3_v2|Standard_D4_v2 are supported for now
+$AzureSSISNodeNumber = 2 # In Public Preview, only 1-10 nodes are supported for now
+$AzureSSISMaxParallelExecutionsPerNode = 2 # In Public Preview, only 1-8 parallel executions per node are supported for now
+$VnetId = "[your VNet resource ID or leave it empty]" # OPTIONAL: In Public Preview, only Classic VNet is supported for now
+$SubnetName = "[your subnet name or leave it empty]" # OPTIONAL: In Public Preview, only Classic VNet is supported for now
 
-# Azure-SSIS IR information
-$AzureSsisIRName = "<name of Azure-SSIS IR>"
-$AzureSsisIRDescription = "This is my Azure-SSIS IR instance"
-$AzureSsisIRLocation = "EastUS" # only East US|North Europe are supported
-$AzureSsisIRNodeSize = "Standard_A4_v2" # currently, only Standard_A4_v2|Standard_A8_v2|Standard_D1_v2|Standard_D2_v2|Standard_D3_v2|Standard_D4_v2 are supported 
-$AzureSsisIRNodeNumber = 2 # only 1-10 nodes are supported
-$AzureSsisIRMaxParallelExecutionsPerNode = 2 # only 1-8 parallel executions per node are supported
-$VnetId = "" # OPTIONAL: only classic VNet is supported
-$SubnetName = "" # OPTIONAL: only classic VNet is supported
+# SSISDB info
+$SSISDBServerEndpoint = "[your Azure SQL Database server name.database.windows.net or your Azure SQL Managed Instance server endpoint]"
+$SSISDBServerAdminUserName = "[your server admin username]"
+$SSISDBServerAdminPassword = "[your server admin password]"
+$SSISDBPricingTier = "[your Azure SQL Database pricing tier, e.g. S3, or leave it empty for Azure SQL Managed Instance]" # Not applicable for Azure SQL Managed Instance
 
-# SSISDB information
-$SSISDBServerEndpoint = "<your azure sql server name>.database.windows.net"
-$SSISDBServerAdminUserName = "<sql server admin user ID>"
-$SSISDBServerAdminPassword = "<sql server admin password>"
-$SSISDBPricingTier = "<your azure sql database pricing tier, e.g. S0, S3, or leave it empty for azure sql managed instance>" # Not applicable for Azure SQL MI
-
-##### End of Azure-SSIS IR specifications ##### 
-
+##### Validate your Azure SQL Database/Managed Instance server ##### 
 $SSISDBConnectionString = "Data Source=" + $SSISDBServerEndpoint + ";User ID="+ $SSISDBServerAdminUserName +";Password="+ $SSISDBServerAdminPassword
-
-##### Validate Azure SQL DB/MI server ##### 
-
 $sqlConnection = New-Object System.Data.SqlClient.SqlConnection $SSISDBConnectionString;
 Try
 {
@@ -48,9 +39,11 @@ Catch [System.Data.SqlClient.SqlException]
     } 
 }
 
+##### Login and and select your Azure subscription #####
+Login-AzureRmAccount
+Select-AzureRmSubscription -SubscriptionName $SubscriptionName
 
-##### Automatically configure VNet permissions/settings for Azure-SSIS IR to join ##### 
-
+##### Automatically configure VNet permissions/settings for your Azure-SSIS Integration Runtime to join ##### 
 # Register to Azure Batch resource provider
 if(![string]::IsNullOrEmpty($VnetId) -and ![string]::IsNullOrEmpty($SubnetName))
 {
@@ -58,43 +51,59 @@ if(![string]::IsNullOrEmpty($VnetId) -and ![string]::IsNullOrEmpty($SubnetName))
     Register-AzureRmResourceProvider -ProviderNamespace Microsoft.Batch
     while(!(Get-AzureRmResourceProvider -ProviderNamespace "Microsoft.Batch").RegistrationState.Contains("Registered"))
     {
-	Start-Sleep -s 10
+    Start-Sleep -s 10
     }
     # Assign VM contributor role to Microsoft.Batch
     New-AzureRmRoleAssignment -ObjectId $BatchObjectId -RoleDefinitionName "Classic Virtual Machine Contributor" -Scope $VnetId
 }
 
-##### Provision data factory + Azure-SSIS IR ##### 
-
-# Create an Azure resource gorup. 
+##### Provision your Azure Data Factory  + Azure-SSIS Integration Runtime ##### 
 New-AzureRmResourceGroup -Location $DataFactoryLocation -Name $ResourceGroupName
+Register-AzureRmResourceProvider -ProviderNamespace Microsoft.DataFactory
 
-# Create data factory
-Set-AzureRmDataFactoryV2 -Location $DataFactoryLocation -Name $DataFactoryName -ResourceGroupName $ResourceGroupName 
+$secpasswd = ConvertTo-SecureString $SSISDBServerAdminPassword -AsPlainText -Force
+$serverCreds = New-Object System.Management.Automation.PSCredential($SSISDBServerAdminUserName, $secpasswd)
 
-# Create Azure-SSIS IR
-Set-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSsisIRName -ResourceGroupName $ResourceGroupName -Type Managed -CatalogServerEndpoint $SSISDBServerEndpoint -CatalogAdminUserName $SSISDBServerAdminUserName -CatalogAdminPassword $SSISDBServerAdminPassword -CatalogPricingTier $SSISDBPricingTier -Description $AzureSsisIRDescription -Location $AzureSsisIRLocation -NodeSize $AzureSsisIRNodeSize -NumberOfNodes $AzureSsisIRNodeNumber -MaxParallelExecutionsPerNode $AzureSsisIRMaxParallelExecutionsPerNode -VnetId $VnetId -Subnet $SubnetName
-
-# Starting Azure-SSIS IR that can run SSIS packages in the cloud
+Set-AzureRmDataFactoryV2 -ResourceGroupName $ResourceGroupName `
+                         -Location $DataFactoryLocation `
+                         -Name $DataFactoryName
+Set-AzureRmDataFactoryV2IntegrationRuntime  -ResourceGroupName $ResourceGroupName `
+                                            -DataFactoryName $DataFactoryName `
+                                            -Name $AzureSSISName `
+                                            -Type Managed `
+                                            -CatalogServerEndpoint $SSISDBServerEndpoint `
+                                            -CatalogAdminCredential $serverCreds `
+                                            -CatalogPricingTier $SSISDBPricingTier `
+                                            -Description $AzureSSISDescription `
+                                            -Location $AzureSSISLocation `
+                                            -NodeSize $AzureSSISNodeSize `
+                                            -NodeCount $AzureSSISNodeNumber `
+                                            -MaxParallelExecutionsPerNode $AzureSSISMaxParallelExecutionsPerNode `
+                                            -VnetId $VnetId `
+                                            -Subnet $SubnetName
 write-host("##### Starting #####")
-Start-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSsisIRName -ResourceGroupName $ResourceGroupName -Sync -Force
+Start-AzureRmDataFactoryV2IntegrationRuntime -ResourceGroupName $ResourceGroupName `
+                                             -DataFactoryName $DataFactoryName `
+                                             -Name $AzureSSISName `
+                                             -Force
 write-host("##### Completed #####")
 write-host("If any cmdlet is unsuccessful, please consider using -Debug option for diagnostics.")
 
-##### Get Azure-SSIS IR status #####
+##### Query/monitor your Azure-SSIS Integration Runtime #####
+#Get-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSSISName -ResourceGroupName $ResourceGroupName -Status
 
-Get-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSsisIRName -ResourceGroupName $ResourceGroupName
-Get-AzureRmDataFactoryV2IntegrationRuntimeStatus -DataFactoryName $DataFactoryName -Name $AzureSsisIRName -ResourceGroupName $ResourceGroupName
+##### Reconfigure your Azure-SSIS Integration Runtime, e.g. stopping/scaling out to 5 nodes/starting #####
+# Stopping your Azure-SSIS Integration Runtime will release its nodes and stop billing
+#Stop-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSSISName -ResourceGroupName $ResourceGroupName 
 
-##### Reconfigure Azure-SSIS IR, e.g. scale out from 2 to 5 nodes #####
+# Scaling out your Azure-SSIS Integration Runtime to 5 nodes
+#Set-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSSISName -ResourceGroupName $ResourceGroupName -NodeCount 5
 
-#Stop-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSsisIRName -ResourceGroupName $ResourceGroupName 
-#Set-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSsisIRName -ResourceGroupName $ResourceGroupName -NumberOfNodes 5
-#Start-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSsisIRName -ResourceGroupName $ResourceGroupName -Sync
+# Starting your Azure-SSIS Integration Runtime will allocate its nodes and start billing
+#Start-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSSISName -ResourceGroupName $ResourceGroupName
 
 ##### Clean up ######
-
-#Stop-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSsisIRName -ResourceGroupName $ResourceGroupName -Force
-#Remove-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSsisIRName -ResourceGroupName $ResourceGroupName -Force
+#Stop-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSSISName -ResourceGroupName $ResourceGroupName -Force
+#Remove-AzureRmDataFactoryV2IntegrationRuntime -DataFactoryName $DataFactoryName -Name $AzureSSISName -ResourceGroupName $ResourceGroupName -Force
 #Remove-AzureRmDataFactoryV2 -Name $DataFactoryName -ResourceGroupName $ResourceGroupName -Force
 #Remove-AzureRmResourceGroup -Name $ResourceGroupName -Force
