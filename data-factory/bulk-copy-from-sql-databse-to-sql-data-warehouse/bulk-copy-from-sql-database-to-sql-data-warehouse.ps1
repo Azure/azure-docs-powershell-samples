@@ -293,16 +293,16 @@ $pipelineParameters = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Invoke-AzureRmDataFactoryV2PipelineRun command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Invoke-AzureRmDataFactoryV2Pipeline command. 
 $pipelineParameters | Out-File c:\PipelineParameters.json
 
 # Create a pipeline run by using parameters
-$runId = Invoke-AzureRmDataFactoryV2PipelineRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineName $pipelineGetTableListAndTriggerCopyData -ParameterFile c:\PipelineParameters.json
+$runId = Invoke-AzureRmDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineName $pipelineGetTableListAndTriggerCopyData -ParameterFile c:\PipelineParameters.json
 
 # Check the pipeline run status until it finishes the copy operation
 Start-Sleep -Seconds 30
 while ($True) {
-    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineRunId $runId -PipelineName $pipelineGetTableListAndTriggerCopyData -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
+    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineRunId $runId -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
 
     if (($result | Where-Object { $_.Status -eq "InProgress" } | Measure-Object).count -ne 0) {
         Write-Host "Pipeline run status: In Progress" -foregroundcolor "Yellow"
@@ -317,7 +317,6 @@ while ($True) {
 
 # Get the activity run details 
     $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName `
-        -PipelineName $pipelineGetTableListAndTriggerCopyData `
         -PipelineRunId $runId `
         -RunStartedAfter (Get-Date).AddMinutes(-10) `
         -RunStartedBefore (Get-Date).AddMinutes(10) `
