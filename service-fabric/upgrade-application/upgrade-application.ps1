@@ -50,7 +50,13 @@ else
         throw "Registration of application type failed."
     }
 
-    
+    # Remove the application package to free system resources.
+    Remove-ServiceFabricApplicationPackage -ImageStoreConnectionString $imageStoreConnectionString -ApplicationPackagePathInImageStore $applicationPackagePathInImageStore
+    if(!$?)
+    {
+        Write-Host "Removing the application package failed."
+    }
+        
     ## Start monitored application upgrade
     try
     {

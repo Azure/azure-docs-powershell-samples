@@ -16,5 +16,8 @@ Copy-ServiceFabricApplicationPackage $packagepath -ImageStoreConnectionString fa
 # Register the application type.
 Register-ServiceFabricApplicationType -ApplicationPathInImageStore MyApplication
 
+# Remove the application package to free system resources.
+Remove-ServiceFabricApplicationPackage -ImageStoreConnectionString fabric:ImageStore -ApplicationPackagePathInImageStore MyApplication
+
 # Create the application instance.
 New-ServiceFabricApplication -ApplicationName fabric:/MyApplication -ApplicationTypeName MyApplicationType -ApplicationTypeVersion 1.0.0
