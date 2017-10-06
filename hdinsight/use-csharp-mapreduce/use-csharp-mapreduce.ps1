@@ -80,7 +80,7 @@ function Start-MapReduce {
             -StorageAccountKey $storageAccountKey
         # Download the file
         Get-AzureStorageBlobContent `
-            -Blob 'example/data/WordCountOutput/part-r-00000' `
+            -Blob 'example/wordcountoutput/part-00000' `
             -Container $container `
             -Destination output.txt `
             -Context $context

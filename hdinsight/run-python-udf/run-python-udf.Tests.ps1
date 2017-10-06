@@ -65,7 +65,7 @@ Describe "hdinsight-python" {
         }
         It "Runs the hive job" {
             # Test the return data
-            (Start-HiveJob)[-1].StartsWith("100004") | Should be True
+            (Start-HiveJob)[-1].Contains("100004") | Should be True
         }
         It "Runs the pig job" {
             # Test the return data
