@@ -15,6 +15,3 @@ Remove-ServiceFabricApplication -ApplicationName fabric:/MyApplication
 
 # Unregister the application type
 Unregister-ServiceFabricApplicationType -ApplicationTypeName MyApplicationType -ApplicationTypeVersion 1.0.0
-
-# Remove the application package
-Remove-ServiceFabricApplicationPackage -ImageStoreConnectionString fabric:ImageStore -ApplicationPackagePathInImageStore MyApplication
