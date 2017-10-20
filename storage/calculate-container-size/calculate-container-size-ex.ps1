@@ -17,8 +17,8 @@ param(
     [string]$ContainerName
 )
 
-# The script has been tested on Powershell 5.0
-Set-StrictMode -Version 5
+#Set-StrictMode will cause Get-AzureStorageBlob returns result in different data types when there is only one blob
+#Set-StrictMode -Version 2
 
 $VerbosePreference = "Continue"
 
@@ -91,8 +91,12 @@ function Get-ContainerBytes
         $Blobs = Get-AzureStorageBlob -Context $storageContext -Container $Container.Name -MaxCount $MaxReturn -ContinuationToken $Token
         if($Blobs -eq $Null) { break }
 
-        $Token = $Null
-        if (Get-Member -InputObject $Blobs -Name Count -MemberType Properties)
+        #Set-StrictMode will cause Get-AzureStorageBlob returns result in different data types when there is only one blob
+        if($Blobs.GetType().Name -eq "AzureStorageBlob")
+        {
+            $Token = $Null
+        }
+        else
         {
             $Token = $Blobs[$Blobs.Count - 1].ContinuationToken;
         }
