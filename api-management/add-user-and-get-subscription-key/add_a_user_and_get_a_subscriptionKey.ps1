@@ -15,15 +15,15 @@ $organisation = "Contoso"
 $adminEmail = "admin@contoso.com"
 
 # User specific details
-$userEmail = "tomcruise@contoso.com"
-$userFirstName = "Tom"
-$userLastName = "Cruise"
-$userPassword = "godspeed"
+$userEmail = "user@contoso.com"
+$userFirstName = "userFirstName"
+$userLastName = "userLastName"
+$userPassword = "userPassword"
 $userNote = "fellow trying out my apim instance"
 $userState = "Active"
 
 # Subscription Name details
-$subscriptionName = "tomcruisesub"
+$subscriptionName = "subscriptionName"
 $subscriptionState = "Active"
 
 # Set the context to the subscription Id where the cluster will be created
