@@ -1,7 +1,7 @@
 ##########################################################
 #  Script to import an API and add it to a Product in api Management 
 #  Adding the Imported api to a product is necessary, so that it can be called by a subscription
-###########################################################
+########################################################### 
 
 $random = (New-Guid).ToString().Substring(0,8)
 
