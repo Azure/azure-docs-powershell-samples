@@ -2,6 +2,7 @@ $webappname="mywebapp$(Get-Random -Minimum 100000 -Maximum 999999)"
 $storagename="$($webappname)storage"
 $container="appbackup"
 $location="West Europe"
+
 # Create a resource group.
 New-AzureRmResourceGroup -Name myResourceGroup -Location $location
 
