@@ -9,9 +9,9 @@ $roleid=(Get-AzureRmRoleDefinition -Name Owner).Id
 
 # Create the definition for a managed application
 New-AzureRmManagedApplicationDefinition `
-  -Name "ManagedStorage2" `
+  -Name "ManagedStorage" `
   -Location "westcentralus" `
-  -ResourceGroupName appDefinitionGroup2 `
+  -ResourceGroupName appDefinitionGroup `
   -LockLevel ReadOnly `
   -DisplayName "Managed Storage Account" `
   -Description "Managed Azure Storage Account" `
