@@ -1,10 +1,9 @@
-$webappname="mywebapp$(Get-Random)"
-$storagename="$(webappname)storage"
+$webappname="mywebapp$(Get-Random -Minimum 100000 -Maximum 999999)"
+$storagename="$($webappname)storage"
 $container="appbackup"
 $location="West Europe"
-
 # Create a resource group.
-New-AzureRmResourceGroup -Name $webappname -Location $location
+New-AzureRmResourceGroup -Name myResourceGroup -Location $location
 
 # Create a storage account.
 $storage = New-AzureRmStorageAccount -ResourceGroupName myResourceGroup `
@@ -19,15 +18,15 @@ $sasUrl = New-AzureStorageContainerSASToken -Name $container -Permission rwdl `
 -Context $storage.Context -ExpiryTime (Get-Date).AddYears(1) -FullUri
 
 # Create an App Service plan in Standard tier. Standard tier allows one backup per day.
-New-AzureRmAppServicePlan -Name $webappname -Location $location `
--ResourceGroupName $webappname -Tier Standard
+New-AzureRmAppServicePlan -ResourceGroupName myResourceGroup -Name $webappname `
+-Location $location -Tier Standard
 
 # Create a web app.
-New-AzureRmWebApp -Name $webappname -Location $location -AppServicePlan $webappname `
--ResourceGroupName $webappname
+New-AzureRmWebApp -ResourceGroupName myResourceGroup -Name $webappname `
+-Location $location -AppServicePlan $webappname
 
 # Schedule a backup every day, beginning in one hour, and retain for 10 days
-Edit-AzureRmWebAppBackupConfiguration -Name $webappname -ResourceGroupName myResourceGroup `
+Edit-AzureRmWebAppBackupConfiguration -ResourceGroupName myResourceGroup -Name $webappname `
 -StorageAccountUrl $sasUrl -FrequencyInterval 1 -FrequencyUnit Day -KeepAtLeastOneBackup `
 -StartTime (Get-Date).AddHours(1) -RetentionPeriodInDays 10
 
