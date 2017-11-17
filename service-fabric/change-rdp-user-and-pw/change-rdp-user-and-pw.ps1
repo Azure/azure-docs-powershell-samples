@@ -1,6 +1,6 @@
 ﻿Login-AzureRmAccount
 Get-AzureRmSubscription
-Set-AzureRmContext -SubscriptionId 0754ecc2-d80d-426a-902c-b83f4cfbdc95
+Set-AzureRmContext -SubscriptionId 'yourSubscriptionID'
 
 $nodeTypeName = 'nt1vm'
 $resourceGroup = 'sfclustertutorialgroup'
