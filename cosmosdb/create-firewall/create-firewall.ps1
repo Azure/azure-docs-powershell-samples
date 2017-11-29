@@ -40,4 +40,4 @@ Set-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
     -ApiVersion "2015-04-08" `
     -ResourceGroupName $resourceGroupName `
     -Name $DBName `
-    -PropertyObject $DBProperties
+    -PropertyObject $updateDBProperties
