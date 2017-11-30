@@ -35,62 +35,21 @@ Set-AzureRmKeyVaultAccessPolicy -VaultName $keyvaultName `
     -PermissionsToKeys "all" `
     -PermissionsToSecrets "all"
 
-# Define virtual networking for a new virtual machine
-$subnetConfig = New-AzureRmVirtualNetworkSubnetConfig `
-    -Name mySubnet `
-    -AddressPrefix "192.168.1.0/24"
-$vnet = New-AzureRmVirtualNetwork `
-    -ResourceGroupName $rgName `
-    -Location $location `
-    -Name myVnet `
-    -AddressPrefix "192.168.0.0/16" `
-    -Subnet $subnetConfig
-
-# Create a public IP address for the virtual machine
-$pip = New-AzureRmPublicIpAddress `
-    -ResourceGroupName $rgName `
-    -Location $location `
-    -AllocationMethod "Static" `
-    -IdleTimeoutInMinutes "4" `
-    -Name "mypublicdns$(Get-Random)"
-
-# Create a Network Security Group and RDP rule
-$nsgRuleRDP = New-AzureRmNetworkSecurityRuleConfig `
-    -Name "myNetworkSecurityGroupRuleRDP" `
-    -Protocol "Tcp" `
-    -Direction "Inbound" `
-    -Priority "1000" `
-    -SourceAddressPrefix * `
-    -SourcePortRange * `
-    -DestinationAddressPrefix * `
-    -DestinationPortRange "3389" `
-    -Access "Allow"
-$nsg = New-AzureRmNetworkSecurityGroup `
-    -ResourceGroupName $rgName `
-    -Location $location `
-    -Name "myNetworkSecurityGroup" `
-    -SecurityRules $nsgRuleRDP
-
-# Create a virtual network interface card
-$nic = New-AzureRmNetworkInterface `
-    -Name "myNic" `
-    -ResourceGroupName $rgName `
-    -Location $location `
-    -SubnetId $vnet.Subnets[0].Id `
-    -PublicIpAddressId $pip.Id `
-    -NetworkSecurityGroupId $nsg.Id
-
-# Prompt for admin credentials to add to new virtual machine
-$cred = Get-Credential
+# Create user object
+$cred = Get-Credential -Message "Enter a username and password for the virtual machine."
 
 # Create a virtual machine
-$vmName = "myVM"
-$vmConfig = New-AzureRmVMConfig -VMName $vmName -VMSize "Standard_D1" | `
-    Set-AzureRmVMOperatingSystem -Windows -ComputerName "myVM" -Credential $cred | `
-    Set-AzureRmVMSourceImage -PublisherName "MicrosoftWindowsServer" `
-        -Offer "WindowsServer" -Skus "2016-Datacenter" -Version "latest" | `
-    Add-AzureRmVMNetworkInterface -Id $nic.Id
-New-AzureRmVM -ResourceGroupName $rgName -Location $location -VM $vmConfig
+New-AzureRmVM `
+  -ResourceGroupName $resourceGroup `
+  -Name $vmName `
+  -Location $location `
+  -ImageName "Win2016Datacenter" `
+  -VirtualNetworkName "myVnet" `
+  -SubnetName "mySubnet" `
+  -SecurityGroupName "myNetworkSecurityGroup" `
+  -PublicIpAddressName "myPublicIp" `
+  -Credential $cred `
+  -OpenPorts 3389
 
 # Define required information for our Key Vault and keys
 $keyVault = Get-AzureRmKeyVault -VaultName $keyVaultName -ResourceGroupName $rgName;
