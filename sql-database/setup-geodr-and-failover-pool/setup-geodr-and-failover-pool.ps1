@@ -72,7 +72,7 @@ $database = Get-AzureRmSqlDatabase -ResourceGroupName $primaryresourcegroupname 
     -DatabaseName $databasename
 $database | New-AzureRmSqlDatabaseSecondary -PartnerResourceGroupName $secondaryresourcegroupname `
     -PartnerServerName $secondaryservername `
-    -SecondaryElasticPoolName $primarypoolname `
+    -SecondaryElasticPoolName $secondarypoolname `
     -AllowConnections "All"
 
 # Initiate a planned failover
