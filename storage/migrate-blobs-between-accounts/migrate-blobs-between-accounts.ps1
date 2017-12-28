@@ -3,7 +3,7 @@
 # Need install AzCopy before runing the script: https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy
 # Do not modify the Source or Destination accounts while the copy is running
 
- param (
+param (
     [Parameter(Mandatory = $true, 
     HelpMessage= "Source Storage account name.")]
     [ValidatePattern("^[a-z0-9`]{3,24}$")]
@@ -44,7 +44,7 @@
 
     if([version] $FilePath -lt "7.0.0.2")
     {
-        $AzCopyPath = Read-Host "Input the full filePath of the AzCopy.exe, e.g.: C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe"
+        $AzCopyPath = Read-Host "Version of AzCopy found at default install directory is of a lower, unsupported version. Please input the full filePath of the AzCopy.exe that is version 7.0.0.2 or higher, e.g.: C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe"
     }
  }
  elseIf( (Get-Item $AzCopyPath).Exists -eq $false)
@@ -87,6 +87,21 @@ if((Test-Path $AzCopyPath) -eq $false)
 {
     Write-Error "Script is terminating since the provided AzCopyPath does not exist: $AzCopyPath ";
     return;
+}
+elseif((Get-Item $AzCopyPath).BaseName -ne "AzCopy" )
+{
+    Write-Error "Script is terminating since the provided AzCopyPath does not refer to the AzCopy exe: $AzCopyPath ";
+    return;
+}
+elseif((Get-Item $AzCopyPath).BaseName -eq "AzCopy")
+{
+    $FileItemVersion = (Get-Item $AzCopyPath).VersionInfo
+    $FilePath = ("{0}.{1}.{2}.{3}" -f  $FileItemVersion.FileMajorPart,  $FileItemVersion.FileMinorPart,  $FileItemVersion.FileBuildPart,  $FileItemVersion.FilePrivatePart)
+
+    if([version] $FilePath -lt "7.0.0.2")
+    {
+        $AzCopyPath = Read-Host "Version of AzCopy found at provided path is of a lower, unsupported version. Please input the full filePath of the AzCopy.exe that is version 7.0.0.2 or higher, e.g.: C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe"
+    }
 }
 
 $OutputLastSuccessContainer = $LastSuccessContainerName;
