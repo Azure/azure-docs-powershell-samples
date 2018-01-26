@@ -1,8 +1,8 @@
 # Azure Container Registy
 
-The scripts in this directory demonstrate working with [Azure Container Registry][acr-home] using the [Azure PowerShell][azure-psh] cmdlets.
-
 ## PowerShell sample scripts
+
+The scripts in this directory demonstrate working with [Azure Container Registry][acr-home] using the [Azure PowerShell][azure-psh] cmdlets.
 
 | Script | Description |
 | ------ | ----------- |
