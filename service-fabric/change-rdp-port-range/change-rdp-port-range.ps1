@@ -1,4 +1,4 @@
-﻿Login-AzureRmAccount
+Login-AzureRmAccount
 Get-AzureRmSubscription
 Set-AzureRmContext -SubscriptionId 'yourSubscriptionId'
 
@@ -18,5 +18,5 @@ $lb.Properties.inboundNatPools.properties.frontendPortRangeEnd = $end
 Write-Host ($lb.Properties.inboundNatPools | Format-List | Out-String)
 
 # Update the load balancer
-Set-AzureRmResource -PropertyObject $lb.Properties -ResourceGroupName $groupname -ResourceType Microsoft.Network/loadBalancers -ResourceName $lbname  -Force
+Set-AzureRmResource -PropertyObject $lb.Properties -ResourceGroupName $groupname -ResourceType Microsoft.Network/loadBalancers -ResourceName $lb.name  -Force
 
