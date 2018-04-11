@@ -1,4 +1,9 @@
-﻿‘List all the operations/actions for a resource provider.
+﻿$rgName = <Specify your lab's resource group name>
+$subscriptionId = <Specify your subscription ID>
+$labName = <Specify your lab name>
+
+
+‘List all the operations/actions for a resource provider.
 Get-AzureRmProviderOperation -OperationSearchString "Microsoft.DevTestLab/*"
 
 ‘List actions in a particular role.
@@ -10,9 +15,10 @@ $policyRoleDef.Id = $null
 $policyRoleDef.Name = "Policy Contributor"
 $policyRoleDef.IsCustom = $true
 $policyRoleDef.AssignableScopes.Clear()
-$policyRoleDef.AssignableScopes.Add("/subscriptions/<SubscriptionID> ")
+$policyRoleDef.AssignableScopes.Add("/subscriptions/" + $subscriptionId)
 $policyRoleDef.Actions.Add("Microsoft.DevTestLab/labs/policySets/policies/*")
 $policyRoleDef = (New-AzureRmRoleDefinition -Role $policyRoleDef)
 
 $user=Get-AzureRmADUser -SearchString "SomeUser"
-New-AzureRmRoleAssignment -ObjectId $user.ObjectId -RoleDefinitionName "Policy Contributor" -Scope /subscriptions/<SubscriptionID>/resourceGroups/<ResourceGroupName>/providers/Microsoft.DevTestLab/labs/<LabName>/policySets/default/policies/AllowedVmSizesInLab
+$scope = '/subscriptions/' + subscriptionId + '/resourceGroups/' + $rgName + '/providers/Microsoft.DevTestLab/labs/' + $labName + '/policySets/default/policies/AllowedVmSizesInLab'
+New-AzureRmRoleAssignment -ObjectId $user.ObjectId -RoleDefinitionName "Policy Contributor" -Scope $scope
