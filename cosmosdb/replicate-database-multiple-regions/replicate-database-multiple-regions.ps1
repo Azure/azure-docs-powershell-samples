@@ -33,12 +33,24 @@ New-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
                     -Name $DBName `
                     -PropertyObject $DBProperties
 
-# Modify locations/priorities
+# Update failoverpolicy to make West US as a write region
+$NewfailoverPolicies = @(@{"locationName"="West US"; "failoverPriority"=0}, @{"locationName"="South Central US"; "failoverPriority"=1}, @{"locationName"="East US"; "failoverPriority"=2} )
+
+Invoke-AzureRmResourceAction `
+    -Action failoverPriorityChange `
+    -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
+    -ApiVersion "2015-04-08" `
+    -ResourceGroupName $resourceGroupName `
+    -Name $DBName `
+    -Parameters @{"failoverPolicies"=$NewfailoverPolicies}
+
+
+# Add a new locations with priorities
 $newLocations = @(@{"locationName"="West US"; 
                  "failoverPriority"=0},
-               @{"locationName"="East US"; 
-                 "failoverPriority"=1},
                @{"locationName"="South Central US"; 
+                 "failoverPriority"=1},
+               @{"locationName"="East US"; 
                  "failoverPriority"=2},
                @{"locationName"="North Central US";
                  "failoverPriority"=3})
