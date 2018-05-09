@@ -1,5 +1,5 @@
-# OMS Id and OMS key
-$omsId = "<Replace with your OMS Id>"
+# OMS ID and OMS key
+$omsId = "<Replace with your OMS ID>"
 $omsKey = "<Replace with your OMS key>"
 
 # Variables for common values
@@ -7,7 +7,7 @@ $resourceGroup = "myResourceGroup"
 $location = "westeurope"
 $vmName = "myVM"
 
-# Create user object
+# Create a user object
 $cred = Get-Credential -Message "Enter a username and password for the virtual machine."
 
 # Create a resource group
@@ -32,5 +32,5 @@ $protectedSettings = New-Object psobject | Add-Member -PassThru NoteProperty wor
 
 Set-AzureRmVMExtension -ExtensionName "OMS" -ResourceGroupName $resourceGroup -VMName $vmName `
   -Publisher "Microsoft.EnterpriseCloud.Monitoring" -ExtensionType "MicrosoftMonitoringAgent" `
-  -TypeHandlerVersion 1.0 -SettingString $PublicSettings ` -ProtectedSettingString $protectedSettings `
+  -TypeHandlerVersion 1.0 -SettingString $PublicSettings -ProtectedSettingString $protectedSettings `
   -Location $location
