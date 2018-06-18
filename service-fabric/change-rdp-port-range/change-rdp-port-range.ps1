@@ -7,7 +7,7 @@ $start=3400
 $end=4400
 
 # Get the load balancer resource
-$resource = Get-AzureRmResource | Where {$_.ResourceGroupName â€“eq $groupname -and $_.ResourceType -eq "Microsoft.Network/loadBalancers"} 
+$resource = Get-AzureRmResource | Where {$_.ResourceGroupName –eq $groupname -and $_.ResourceType -eq "Microsoft.Network/loadBalancers"} 
 $lb = Get-AzureRmResource -ResourceGroupName $groupname -ResourceType Microsoft.Network/loadBalancers -ResourceName $resource.Name
 
 # Update the front end port range

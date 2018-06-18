@@ -5,6 +5,11 @@ $groupname="mysfclustergroup"
 $clustername = "mysfcluster"
 $vaultname = "mykeyvault"
 $subname="$clustername.$clusterloc.cloudapp.azure.com"
+$subscriptionID = 'subscription ID'
+
+# Login and select your subscription
+Connect-AzureRmAccount
+Get-AzureRmSubscription -SubscriptionId $subscriptionID | Select-AzureRmSubscription
 
 # Certificate variables.
 $appcertpwd = ConvertTo-SecureString -String 'Password#1234' -AsPlainText -Force
