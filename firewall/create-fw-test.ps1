@@ -1,4 +1,3 @@
-
 #ResourceGroup name and location
 $RG="AzfwSampleScriptEastUS"
 $Location="East US"
