@@ -70,6 +70,3 @@ $AzfwRouteTable = New-AzureRmRouteTable -Name $AzfwRouteTableName -ResourceGroup
 #associate to Servers Subnet
 $vnet.Subnets[2].RouteTable = $SecGwRouteTable
 Set-AzureRmVirtualNetwork -VirtualNetwork $vnet
-
-
-
