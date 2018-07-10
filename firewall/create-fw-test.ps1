@@ -1,3 +1,4 @@
+
 #ResourceGroup name and location
 $RG="AzfwSampleScriptEastUS"
 $Location="East US"
@@ -17,7 +18,7 @@ New-AzureRmVirtualNetwork -ResourceGroupName $RG -Name $VnetName -AddressPrefix 
 #Configure subnets
 $vnet = Get-AzureRmVirtualNetwork -ResourceGroupName $RG -Name $VnetName
 Add-AzureRmVirtualNetworkSubnetConfig -Name AzureFirewallSubnet -VirtualNetwork $vnet -AddressPrefix 192.168.1.0/24
-Add-AzureRmVirtualNetworkSubnetConfig -Name JumpBox -VirtualNetwork $vnet -AddressPrefix 192.168.0.0/24
+Add-AzureRmVirtualNetworkSubnetConfig -Name JumpBoxSubnet -VirtualNetwork $vnet -AddressPrefix 192.168.0.0/24
 Add-AzureRmVirtualNetworkSubnetConfig -Name ServersSubnet -VirtualNetwork $vnet -AddressPrefix 192.168.2.0/24
 Set-AzureRmVirtualNetwork -VirtualNetwork $vnet
 
@@ -35,9 +36,9 @@ $nsg = New-AzureRmNetworkSecurityGroup -ResourceGroupName $RG -Location $Locatio
 
 #Create jumpbox
 $vnet = Get-AzureRmVirtualNetwork -ResourceGroupName $RG -Name $VnetName
-$DefaultSubnetId = $vnet.Subnets[1].Id
+$JumpBoxSubnetId = $vnet.Subnets[1].Id
 # Create a virtual network card and associate with jumpbox public IP address
-$JumpBoxNic = New-AzureRmNetworkInterface -Name JumpBoxNic -ResourceGroupName $RG -Location $Location -SubnetId $DefaultSubnetId -PublicIpAddressId $JumpBoxpip.Id -NetworkSecurityGroupId $nsg.Id
+$JumpBoxNic = New-AzureRmNetworkInterface -Name JumpBoxNic -ResourceGroupName $RG -Location $Location -SubnetId $JumpBoxSubnetId -PublicIpAddressId $JumpBoxpip.Id -NetworkSecurityGroupId $nsg.Id
 $JumpBoxConfig = New-AzureRmVMConfig -VMName JumpBox -VMSize Standard_DS1_v2 | Set-AzureRmVMOperatingSystem -Windows -ComputerName JumpBox -Credential $cred | Set-AzureRmVMSourceImage -PublisherName "MicrosoftWindowsServer" -Offer "WindowsServer" -Skus "2012-R2-Datacenter" -Version latest | Add-AzureRmVMNetworkInterface -Id $JumpBoxNic.Id
 New-AzureRmVM -ResourceGroupName $RG -Location $Location -VM $JumpBoxConfig
 
@@ -49,7 +50,7 @@ New-AzureRmVM -ResourceGroupName $RG -Location $Location -VM $ServerVmConfig
 
 #Create AZFW
 $GatewayName = $RG + "Azfw"
-$Azfw = New-AzureRmFirewall -Name $GatewayName -ResourceGroupName $RG -Location $Location -VirtualNetworkName $vnet.Name
+$Azfw = New-AzureRmFirewall -Name $GatewayName -ResourceGroupName $RG -Location $Location -VirtualNetworkName $vnet.Name -PublicIpName $LBPip.Name
 
 #Add a rule to allow *microsoft.com
 $Azfw = Get-AzureRmFirewall -ResourceGroupName $RG
@@ -67,5 +68,5 @@ $AzfwRoute = New-AzureRmRouteConfig -Name $AzfwRouteName -AddressPrefix 0.0.0.0/
 $AzfwRouteTable = New-AzureRmRouteTable -Name $AzfwRouteTableName -ResourceGroupName $RG -location $Location -Route $AzfwRoute
 
 #associate to Servers Subnet
-$vnet.Subnets[2].RouteTable = $SecGwRouteTable
+$vnet.Subnets[2].RouteTable = $AzfwRouteTable
 Set-AzureRmVirtualNetwork -VirtualNetwork $vnet
