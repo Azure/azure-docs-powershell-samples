@@ -14,7 +14,7 @@ New-AzureRmWebApp -Name $webappname -Location $location -AppServicePlan $webappn
 -ResourceGroupName myResourceGroup
 
 # Get publishing profile for the web app
-$xml = (Get-AzureRmWebAppPublishingProfile -Name $webappname `
+$xml = [xml](Get-AzureRmWebAppPublishingProfile -Name $webappname `
 -ResourceGroupName myResourceGroup `
 -OutputFile null)
 

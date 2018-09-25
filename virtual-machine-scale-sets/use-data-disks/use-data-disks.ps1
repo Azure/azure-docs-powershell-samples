@@ -13,8 +13,8 @@ New-AzureRmVmss `
   -PublicIpAddressName "myPublicIPAddress" `
   -LoadBalancerName "myLoadBalancer" `
   -Credential $cred `
-  -UpgradePolicy "Automatic" `
-  -DataDiskSizeGb 64,128
+  -UpgradePolicyMode "Automatic" `
+  -DataDiskSizeInGb 64,128
 
 # Get scale set object
 $vmss = Get-AzureRmVmss `

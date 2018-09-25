@@ -1,4 +1,4 @@
-# Azure Container Registy
+# Azure Container Registry
 
 ## PowerShell sample scripts
 

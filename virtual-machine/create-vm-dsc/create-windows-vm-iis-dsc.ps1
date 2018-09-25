@@ -1,7 +1,6 @@
 # Variables for common values
 $resourceGroup = "myResourceGroup"
 $location = "westeurope"
-$resourceGroup = "myResourceGroup"
 $vmName = "myVM"
 
 # Create a resource group
