@@ -42,7 +42,8 @@ param (
     $FileItemVersion = (Get-Item $AzCopyPath).VersionInfo
     $FilePath = ("{0}.{1}.{2}.{3}" -f  $FileItemVersion.FileMajorPart,  $FileItemVersion.FileMinorPart,  $FileItemVersion.FileBuildPart,  $FileItemVersion.FilePrivatePart)
 
-    if([version] $FilePath -lt "7.0.0.2")
+    # only netcore version AzCopy.exe has version 0.0.0.0, and all netcore version AzCopy works in this script 
+    if(([version] $FilePath -lt "7.0.0.2") -and ([version] $FilePath -ne "0.0.0.0"))
     {
         $AzCopyPath = Read-Host "Version of AzCopy found at default install directory is of a lower, unsupported version. Please input the full filePath of the AzCopy.exe that is version 7.0.0.2 or higher, e.g.: C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe"
     }
