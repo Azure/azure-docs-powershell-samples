@@ -22,7 +22,7 @@ $consistencyPolicy = @{"defaultConsistencyLevel"="BoundedStaleness";
                        "maxIntervalInSeconds"="10"; 
                        "maxStalenessPrefix"="200"}
 
-# Create a Gremlin API Cosmos DB account
+# Create an Azure Cosmos DB Cassandra API account
 $Capability= "EnableCassandra”
 
 $capabilities= @(@{"name"=$Capability})
