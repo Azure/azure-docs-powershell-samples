@@ -1,4 +1,5 @@
 #Provide the subscription Id
+
 $subscriptionId = 'yourSubscriptionId'
 
 #Provide the name of your resource group
@@ -6,6 +7,7 @@ $resourceGroupName ='yourResourceGroupName'
 
 #Provide the name of the Managed Disk
 $diskName = 'yourDiskName'
+
 
 #Provide the Azure region (e.g. westus) where virtual machine will be located.
 #This location should be same as the Managed Disk location 
@@ -24,6 +26,7 @@ $virtualMachineName = 'yourVirtualMachineName'
 #Get all the vm sizes in a region using below script:
 #e.g. Get-AzureRmVMSize -Location westus
 $virtualMachineSize = 'Standard_DS3'
+
 
 #Set the context to the subscription Id where Managed Disk will be created
 Select-AzureRmSubscription -SubscriptionId $SubscriptionId
