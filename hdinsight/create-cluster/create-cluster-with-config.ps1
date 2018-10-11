@@ -45,7 +45,7 @@ function New-ClusterWithConfig {
 
     # Default cluster size (# of worker nodes), version, type, and OS
     $clusterSizeInNodes = "4"
-    $clusterVersion = "3.5"
+    $clusterVersion = "3.6"
     $clusterType = "Hadoop"
     $clusterOS = "Linux"
     # Set the storage container name to the cluster name
@@ -75,9 +75,10 @@ function New-ClusterWithConfig {
         -EdgeNodeSize "Standard_D12_v2"
 
     # Add RStudio to the configuration
-    $rserverConfig = @{"RStudio"="true"}
+    $rserverConfig = @{"rstudio"="true"}
     $config = $config | Add-AzureRmHDInsightConfigValues `
-        -RServer $rserverConfig
+        -RServer $rserverConfig `
+        -Spark2Defaults $spark2Config
 
     # Add an additional storage account
     Add-AzureRmHDInsightStorage -Config $config -StorageAccountName "$additionalStorageAccountName.blob.core.windows.net" -StorageAccountKey $additionalStorageAccountKey

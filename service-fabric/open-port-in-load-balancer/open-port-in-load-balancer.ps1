@@ -3,6 +3,11 @@ $probename = "AppPortProbe6"
 $rulename="AppPortLBRule6"
 $RGname="mysftestclustergroup"
 $port=8303
+$subscriptionID = 'subscription ID'
+
+# Login and select your subscription
+Connect-AzureRmAccount
+Get-AzureRmSubscription -SubscriptionId $subscriptionID | Select-AzureRmSubscription 
 
 # Get the load balancer resource
 $resource = Get-AzureRmResource | Where {$_.ResourceGroupName –eq $RGname -and $_.ResourceType -eq "Microsoft.Network/loadBalancers"} 

@@ -2,7 +2,7 @@
 # Set the resource group name and location for your server
 $resourcegroupname = "myResourceGroup-$(Get-Random)"
 $location = "southcentralus"
-# Set elastic poool names
+# Set elastic pool names
 $poolname = "MySamplePool"
 # Set an admin login and password for your database
 $adminlogin = "ServerAdmin"
@@ -26,7 +26,7 @@ $server = New-AzureRmSqlServer -ResourceGroupName $resourcegroupname `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 
 # Create elastic database pool
-$elasticpool = -AzureRmSqlElasticPool -ResourceGroupName $resourcegroupname `
+$elasticpool = New-AzureRmSqlElasticPool -ResourceGroupName $resourcegroupname `
     -ServerName $servername `
     -ElasticPoolName $poolname `
     -Edition "Standard" `
@@ -51,7 +51,7 @@ $seconddatabase = New-AzureRmSqlDatabase  -ResourceGroupName $resourcegroupname 
 
 # Monitor the pool
 $monitorparameters = @{
-  ResourceId = "/subscriptions/$($(Get-AzureRMContext).Subscription.Id)/resourceGroups/$resourcegroupname/providers/Microsoft.Sql/servers/$servername/elasticPools/$poolname"
+  ResourceId = "/subscriptions/$($(Get-AzureRmContext).Subscription.Id)/resourceGroups/$resourcegroupname/providers/Microsoft.Sql/servers/$servername/elasticPools/$poolname"
   TimeGrain = [TimeSpan]::Parse("00:05:00")
   MetricNames = "dtu_consumption_percent"
 }
@@ -67,10 +67,10 @@ $elasticpool = Set-AzureRmSqlElasticPool -ResourceGroupName $resourcegroupname `
     -DatabaseDtuMax 100
 
 # Add an alert that fires when the pool utilization reaches 90%
-Add-AzureRMMetricAlertRule -ResourceGroup $resourcegroupname `
+Add-AzureRmMetricAlertRule -ResourceGroup $resourcegroupname `
     -Name "mySampleAlertRule" `
     -Location $location `
-    -TargetResourceId "/subscriptions/$($(Get-AzureRMContext).Subscription.Id)/resourceGroups/$resourcegroupname/providers/Microsoft.Sql/servers/$servername/elasticPools/$poolname" `
+    -TargetResourceId "/subscriptions/$($(Get-AzureRmContext).Subscription.Id)/resourceGroups/$resourcegroupname/providers/Microsoft.Sql/servers/$servername/elasticPools/$poolname" `
     -MetricName "dtu_consumption_percent" `
     -Operator "GreaterThan" `
     -Threshold 90 `
