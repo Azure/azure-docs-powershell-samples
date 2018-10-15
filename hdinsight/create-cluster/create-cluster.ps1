@@ -23,7 +23,7 @@ function New-Cluster {
 
     $defaultStorageAccountName = Read-Host -Prompt "Enter the name of the storage account"
 
-    # Create an Azure storae account and container
+    # Create an Azure storage account and container
     New-AzureRmStorageAccount `
         -ResourceGroupName $resourceGroupName `
         -Name $defaultStorageAccountName `
