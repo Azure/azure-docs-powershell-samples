@@ -4,10 +4,9 @@
 
 $random = (New-Guid).ToString().Substring(0,8)
 
-#Azure specific details
+# Azure specific details
 $subscriptionId = "my-azure-subscription-id"
  
-
 # Api Management service specific details
 $apiManagementName = "apim-$random"
 $resourceGroupName = "apim-rg-$random"
@@ -18,9 +17,9 @@ $adminEmail = "admin@contoso.com"
 # Storage Account details
 $storageAccountName = "backup$random"
 $containerName = "backups"
-$backupName = $apiManagementName + ".apimbackup"
+$backupName = $apiManagementName + "-apimbackup"
  
-# Select into the ResourceGroup
+# Select default azure subscription
 Select-AzureRmSubscription -SubscriptionId $subscriptionId
  
 # Create a Resource Group 
@@ -30,6 +29,9 @@ New-AzureRmResourceGroup -Name $resourceGroupName -Location $location -Force
 New-AzureRmStorageAccount -StorageAccountName $storageAccountName -Location $location -ResourceGroupName $resourceGroupName -Type Standard_LRS
 $storageKey = (Get-AzureRmStorageAccountKey -ResourceGroupName $resourceGroupName -StorageAccountName $storageAccountName)[0].Value
 $storageContext = New-AzureStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageKey
+
+# Create blob container
+New-AzureStorageContainer -Name $containerName -Context $storageContext -Permission blob
  
 # Create API Management service
 New-AzureRmApiManagement -ResourceGroupName $resourceGroupName -Location $location -Name $apiManagementName -Organization $organisation -AdminEmail $adminEmail
@@ -39,4 +41,3 @@ Backup-AzureRmApiManagement -ResourceGroupName $resourceGroupName -Name $apiMana
  
 # Restore API Management service
 Restore-AzureRmApiManagement -ResourceGroupName $resourceGroupName -Name $apiManagementName -StorageContext $storageContext -SourceContainerName $containerName -SourceBlobName $backupName
-
