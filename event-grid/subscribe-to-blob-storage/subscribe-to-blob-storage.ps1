@@ -4,11 +4,14 @@ $storageName = "contosostorage"
 # Provide an endpoint for handling the events.
 $myEndpoint = "<endpoint URL>"
 
+# Provide the name of the resource group to contain the storage account.
+$myResourceGroup="<resource group name>"
+
 # Create resource group
-New-AzureRmResourceGroup -Name myResourceGroup -Location westus2
+New-AzureRmResourceGroup -Name $myResourceGroup -Location westus2
 
 # Create the Blob storage account. 
-New-AzureRmStorageAccount -ResourceGroupName myResourceGroup `
+New-AzureRmStorageAccount -ResourceGroupName $myResourceGroup `
   -Name $storageName `
   -Location westus2 `
   -SkuName Standard_LRS `
@@ -16,7 +19,7 @@ New-AzureRmStorageAccount -ResourceGroupName myResourceGroup `
   -AccessTier Hot
 
 # Get the resource ID of the Blob storage account.
-$storageId = (Get-AzureRmStorageAccount -ResourceGroupName myResourceGroup -AccountName $storageName).Id
+$storageId = (Get-AzureRmStorageAccount -ResourceGroupName $myResourceGroup -AccountName $storageName).Id
 
 # Subscribe to the Blob storage account. 
 New-AzureRmEventGridSubscription `
