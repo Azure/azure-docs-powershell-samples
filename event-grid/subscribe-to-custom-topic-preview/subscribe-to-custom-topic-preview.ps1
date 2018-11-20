@@ -3,16 +3,19 @@
 # Install-Module -Name AzureRM.EventGrid -AllowPrerelease -Force -Repository PSGallery
 
 # Provide the name of the topic you are subscribing to
-$myTopic = "demoContosoTopic"
+$myTopic = "<your-custom-topic-name>"
 
-# Provide an endpoint for handling the events.
-$myEndpoint = "<endpoint URL>"
+# Provide an endpoint for handling the events. Must be formatted "https://your-endpoint-URL"
+$myEndpoint = "<your-endpoint-URL>"
 
-# Provide the name of the resource group containing the custom topic.
-$myResourceGroup = "demoResourceGroup"
+# Provide the name of the resource group to create. It will contain the custom topic.
+$myResourceGroup = "<resource-group-name>"
 
-# Get the resource ID of the custom topic
-$topicID = (Get-AzureRmEventGridTopic -Name $myTopic -ResourceGroupName $myResourceGroup).Id
+# Create resource group
+New-AzureRmResourceGroup -Name $myResourceGroup -Location westus2
+
+# Create custom topic and get its resource ID.
+$topicID = (New-AzureRmEventGridTopic -ResourceGroupName $myResourceGroup -Name $myTopic -Location westus2).Id 
 
 # Subscribe to the custom event. Include the resource group that contains the custom topic.
 New-AzureRmEventGridSubscription `
