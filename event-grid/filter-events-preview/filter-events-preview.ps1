@@ -1,15 +1,15 @@
-﻿# You must have the latest version of the Event Grid PowerShell module.
+# You must have the latest version of the Event Grid PowerShell module.
 # To install:
 # Install-Module -Name AzureRM.EventGrid -AllowPrerelease -Force -Repository PSGallery
 
 # Provide an endpoint for handling the events. Must be formatted "https://your-endpoint-URL"
-$myEndpoint = "<endpoint URL>"
+$myEndpoint = "<your-endpoint-URL>"
 
 # Provide the name of the custom topic to create
 $topicName = "<your-topic-name>"
 
 # Provide the name of the resource group to create. It will contain the custom topic.
-$myResourceGroup= "<resource-group>"
+$myResourceGroup= "<resource-group-name>"
 
 # Create the resource group
 New-AzureRmResourceGroup -Name $myResourceGroup -Location westus2
