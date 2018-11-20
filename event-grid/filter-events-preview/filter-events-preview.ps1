@@ -2,7 +2,7 @@
 # To install:
 # Install-Module -Name AzureRM.EventGrid -AllowPrerelease -Force -Repository PSGallery
 
-# Provide an endpoint for handling the events.
+# Provide an endpoint for handling the events. Must be formatted "https://your-endpoint-URL"
 $myEndpoint = "<endpoint URL>"
 
 # Provide the name of the custom topic to create
@@ -12,10 +12,10 @@ $topicName = "<your-topic-name>"
 $myResourceGroup= "<resource-group>"
 
 # Create the resource group
-New-AzureRmResourceGroup -Name $myResourceGroup -Location eastus2
+New-AzureRmResourceGroup -Name $myResourceGroup -Location westus2
 
 # Create custom topic
-New-AzureRmEventGridTopic -ResourceGroupName $myResourceGroup -Location eastus2 -Name $topicName
+New-AzureRmEventGridTopic -ResourceGroupName $myResourceGroup -Location westus2 -Name $topicName
 
 # Get resource ID of custom topic
 $topicid = (Get-AzureRmEventGridTopic -ResourceGroupName $myResourceGroup -Name $topicName).Id
