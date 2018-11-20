@@ -8,14 +8,11 @@ $myEndpoint = "<endpoint URL>"
 # Provide the name of the resource group to subscribe to.
 $myResourceGroup = "<resource group name>"
 
-# Select the Azure subscription that contains the resource group.
-Set-AzureRmContext -Subscription "Contoso Subscription"
-
 # Get resource ID of the resource group.
 $resourceGroupID = (Get-AzureRmResourceGroup -Name $myResourceGroup).ResourceId
 
 # Subscribe to the resource group. Provide the name of the resource group you want to subscribe to.
 New-AzureRmEventGridSubscription `
-  -ResourceId $resourceGroupID
+  -ResourceId $resourceGroupID `
   -Endpoint $myEndpoint `
   -EventSubscriptionName demoSubscriptionToResourceGroup
