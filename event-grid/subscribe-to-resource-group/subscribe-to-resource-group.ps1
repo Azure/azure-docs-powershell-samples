@@ -1,11 +1,11 @@
-# Provide an endpoint for handling the events.
-$myEndpoint = "<endpoint URL>"
+# Provide an endpoint for handling the events. Must be formatted "https://your-endpoint-URL"
+$myEndpoint = "<your-endpoint-URL>"
 
-# Provide the name of the resource group to subscribe to.
-$myResourceGroup="<resource group name>"
+# Provide the name of the resource group to create and subscribe to.
+$myResourceGroup="<resource-group-name>"
 
-# Select the Azure subscription that contains the resource group.
-Set-AzureRmContext -Subscription "Contoso Subscription"
+# Create resource grroup
+New-AzureRmResourceGroup -Name $myResourceGroup -Location westus2
 
 # Subscribe to the resource group. Provide the name of the resource group you want to subscribe to.
 New-AzureRmEventGridSubscription `
