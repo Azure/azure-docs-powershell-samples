@@ -8,11 +8,8 @@ $myEndpoint = "<endpoint URL>"
 # Provide the name of the custom topic to create
 $topicName = "<your-topic-name>"
 
-# Provide the name of the resource group to contain the custom topic
+# Provide the name of the resource group to create. It will contain the custom topic.
 $myResourceGroup= "<resource-group>"
-
-# Select the Azure subscription that contains the resource group.
-Set-AzureRmContext -Subscription "Contoso Subscription"
 
 # Create the resource group
 New-AzureRmResourceGroup -Name $myResourceGroup -Location eastus2
