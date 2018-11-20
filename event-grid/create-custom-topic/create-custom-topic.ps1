@@ -2,7 +2,7 @@
 $myTopic = "demoContosoTopic"
 
 # Provice name for resource group
-$myResourceGroup=demoResourceGroup
+$myResourceGroup = "demoResourceGroup"
 
 # Create resource group
 New-AzureRmResourceGroup -Name $myResourceGroup -Location westus2
