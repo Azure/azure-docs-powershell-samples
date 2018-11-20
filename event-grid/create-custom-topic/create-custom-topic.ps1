@@ -1,7 +1,7 @@
 # Give your custom topic a unique name
 $myTopic = "<your-custom-topic-name>"
 
-# Provice a name for resource group to create. It will contain the custom event.
+# Provide a name for resource group to create. It will contain the custom event.
 $myResourceGroup = "<resource-group-name>"
 
 # Create resource group
