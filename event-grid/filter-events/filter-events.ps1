@@ -1,9 +1,6 @@
 ﻿# Provide an endpoint for handling the events.
 $myEndpoint = "<endpoint URL>"
 
-# Select the Azure subscription that contains the resource group.
-Set-AzureRmContext -Subscription "Contoso Subscription"
-
 # Get the resource ID to filter events
 $resourceId = (Get-AzureRmResource -ResourceName demoSecurityGroup -ResourceGroupName myResourceGroup).ResourceId
 
