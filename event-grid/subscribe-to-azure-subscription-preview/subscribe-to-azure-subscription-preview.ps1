@@ -3,11 +3,7 @@
 # Install-Module -Name AzureRM.EventGrid -AllowPrerelease -Force -Repository PSGallery
 
 # Provide an endpoint for handling the events. Must be formatted "https://your-endpoint-URL"
-$myEndpoint = "<endpoint URL>"
-
-# Select the Azure subscription you want to subscribe to. You need this command only if 
-# the current subscription is not the one you wish to subscribe to. 
-Set-AzureRmContext -Subscription "<subscription-name-or-ID>"
+$myEndpoint = "<your-endpoint-URL>"
 
 # Get the subscription ID
 $subID = (Get-AzureRmSubscription -SubscriptionName "<subscription-name-or-ID>").Id
