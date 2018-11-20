@@ -1,5 +1,5 @@
 # Provide an endpoint for handling the events. Must be formatted "https://your-endpoint-URL"
-$myEndpoint = "<endpoint URL>"
+$myEndpoint = "<your-endpoint-URL>"
 
 # Select the Azure subscription you want to subscribe to. You need this command only if the 
 # current subscription is not the one you wish to subscribe to.
