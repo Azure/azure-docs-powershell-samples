@@ -2,14 +2,15 @@
 # To install:
 # Install-Module -Name AzureRM.EventGrid -AllowPrerelease -Force -Repository PSGallery
 
-# Provide an endpoint for handling the events.
+# Provide an endpoint for handling the events. Must be formatted "https://your-endpoint-URL"
 $myEndpoint = "<endpoint URL>"
 
-# Select the Azure subscription you want to subscribe to.
-Set-AzureRmContext -Subscription "Contoso Subscription"
+# Select the Azure subscription you want to subscribe to. You need this command only if 
+# the current subscription is not the one you wish to subscribe to. 
+Set-AzureRmContext -Subscription "<subscription-name-or-ID>"
 
 # Get the subscription ID
-$subID = (Get-AzureRmSubscription -SubscriptionName "Contoso Subscription").Id
+$subID = (Get-AzureRmSubscription -SubscriptionName "<subscription-name-or-ID>").Id
 
 # Subscribe to the Azure subscription. The command creates the subscription for the currently selected Azure subscription. 
 New-AzureRmEventGridSubscription -ResourceId "/subscriptions/$subID" -Endpoint $myEndpoint -EventSubscriptionName demoSubscriptionToAzureSub
