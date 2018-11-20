@@ -2,7 +2,7 @@
 $storageName = "<your-unique-storage-name>"
 
 # Provide an endpoint for handling the events. Must be formatted "https://your-endpoint-URL"
-$myEndpoint = "<endpoint-URL>"
+$myEndpoint = "<your-endpoint-URL>"
 
 # Provide the name of the resource group to create. It will contain the storage account.
 $myResourceGroup="<resource-group-name>"
