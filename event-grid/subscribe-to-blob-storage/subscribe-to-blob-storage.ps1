@@ -1,11 +1,11 @@
 # Provide a unique name for the Blob storage account.
-$storageName = "contosostorage"
+$storageName = "<your-unique-storage-name>"
 
-# Provide an endpoint for handling the events.
-$myEndpoint = "<endpoint URL>"
+# Provide an endpoint for handling the events. Must be formatted "https://your-endpoint-URL"
+$myEndpoint = "<endpoint-URL>"
 
-# Provide the name of the resource group to contain the storage account.
-$myResourceGroup="<resource group name>"
+# Provide the name of the resource group to create. It will contain the storage account.
+$myResourceGroup="<resource-group-name>"
 
 # Create resource group
 New-AzureRmResourceGroup -Name $myResourceGroup -Location westus2
