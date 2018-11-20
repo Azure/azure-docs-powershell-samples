@@ -1,8 +1,8 @@
 # Give your custom topic a unique name
-$myTopic = "demoContosoTopic"
+$myTopic = "<your-custom-topic-name>"
 
-# Provice name for resource group
-$myResourceGroup = "demoResourceGroup"
+# Provice a name for resource group to create. It will contain the custom event.
+$myResourceGroup = "<resource-group-name>"
 
 # Create resource group
 New-AzureRmResourceGroup -Name $myResourceGroup -Location westus2
