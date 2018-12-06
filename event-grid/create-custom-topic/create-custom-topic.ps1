@@ -12,7 +12,7 @@ New-AzureRmEventGridTopic -ResourceGroupName $myResourceGroup -Name $myTopic -Lo
 
 # Retrieve endpoint and key to use when publishing to the topic
 $endpoint = (Get-AzureRmEventGridTopic -ResourceGroupName $myResourceGroup -Name $myTopic).Endpoint
-$key = (Get-AzureRmEventGridTopicKey -ResourceGroupName $myResourceGroup3 -Name $myTopic).Key1
+$key = (Get-AzureRmEventGridTopicKey -ResourceGroupName $myResourceGroup -Name $myTopic).Key1
 
 $endpoint
 $key
