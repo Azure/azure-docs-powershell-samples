@@ -27,5 +27,5 @@ $AdvFilter1=@{operator="StringIn"; key="Data.color"; Values=@('blue', 'red', 'gr
 New-AzureRmEventGridSubscription `
   -ResourceId $topicid `
   -EventSubscriptionName demoSubWithFilter `
-  -Endpoint $endpointURL `
+  -Endpoint $myEndpoint `
   -AdvancedFilter @($AdvFilter1)
