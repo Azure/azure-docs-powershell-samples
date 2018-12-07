@@ -19,6 +19,6 @@ $topicID = (New-AzureRmEventGridTopic -ResourceGroupName $myResourceGroup -Name 
 
 # Subscribe to the custom event. Include the resource group that contains the custom topic.
 New-AzureRmEventGridSubscription `
-  -ResourceId $topicID
+  -ResourceId $topicID `
   -EventSubscriptionName demoSubscription `
   -Endpoint $myEndpoint 
