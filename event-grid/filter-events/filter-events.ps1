@@ -14,7 +14,7 @@ New-AzureRmResourceGroup -Name $myResourceGroup -Location westus2
 # Create a network security group. You will filter events to only those that are related to this resource.
 New-AzureRmNetworkSecurityGroup -Name $nsgName -ResourceGroupName $myResourceGroup  -Location westus2
 
-# Get the resource ID to filter events
+# Get the resource ID to filter events. The name of the network security group must not be the same as the other resource names.
 $resourceId = (Get-AzureRmResource -ResourceName $nsgName -ResourceGroupName $myResourceGroup).ResourceId
 
 # Subscribe to the resource group. Provide the name of the resource group you want to subscribe to.
