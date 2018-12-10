@@ -6,7 +6,7 @@
 $myEndpoint = "<your-endpoint-URL>"
 
 # Get the subscription ID
-$subID = (Get-AzureRmSubscription -SubscriptionName "<subscription-name-or-ID>").Id
+$subID = (Get-AzureRmSubscription -SubscriptionName "<subscription-name>").Id
 
 # Subscribe to the Azure subscription. The command creates the subscription for the currently selected Azure subscription. 
 New-AzureRmEventGridSubscription -ResourceId "/subscriptions/$subID" -Endpoint $myEndpoint -EventSubscriptionName demoSubscriptionToAzureSub
