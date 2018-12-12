@@ -1,4 +1,4 @@
-﻿# Description: This script shows how to post Azure Storage Analytics logs to Azure Log Analytics workspace
+# Description: This script shows how to post Az.Storage Analytics logs to Azure Log Analytics workspace
 #
 # Before running this script:
 #     - Create or have a storage account, and enable analytics logs
@@ -22,7 +22,7 @@
 #     - Log Analytics Data Collector API: https://docs.microsoft.com/en-us/azure/log-analytics/log-analytics-data-collector-api
 #
 
-#Login-AzureRmAccount
+#Login-AzAccount
 
 # Resource group name for the storage acccount
 $ResourceGroup = "{ReplaceWithYourResourceGroup}"
@@ -245,7 +245,7 @@ Function ConvertLogLineToJson([String] $logLine)
     return $logJson
 }
 
-$storageAccount = Get-AzureRmStorageAccount -ResourceGroupName $ResourceGroup -Name $StorageAccountName -ErrorAction SilentlyContinue
+$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroup -Name $StorageAccountName -ErrorAction SilentlyContinue
 if($storageAccount -eq $null)
 {
     throw "The storage account specified does not exist in this subscription."

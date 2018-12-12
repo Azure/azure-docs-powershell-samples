@@ -1,4 +1,4 @@
-﻿# this script will show how to delete containers with a specific prefix 
+# this script will show how to delete containers with a specific prefix 
 # the prefix this will search for is "image". 
 # before running this, you need to create a storage account, create some containers,
 #    some having the same prefix so you can test this
@@ -15,7 +15,7 @@ $storageAccountName = "containerdeletetest"
 $prefix = "image"
 
 # get a reference to the storage account and the context
-$storageAccount = Get-AzureRmStorageAccount `
+$storageAccount = Get-AzStorageAccount `
   -ResourceGroupName $resourceGroup `
   -Name $storageAccountName
 $ctx = $storageAccount.Context 

@@ -1,4 +1,4 @@
-﻿# this script will show how to get the total size of the blobs in a container
+# this script will show how to get the total size of the blobs in a container
 # before running this, you need to create a storage account, create a container,
 #    and upload some blobs into the container 
 # note: this retrieves all of the blobs in the container in one command 
@@ -12,7 +12,7 @@ $storageAccountName = "contosobloblisttest"
 $containerName = "listtestblobs"
 
 # get a reference to the storage account and the context
-$storageAccount = Get-AzureRmStorageAccount `
+$storageAccount = Get-AzStorageAccount `
   -ResourceGroupName $resourceGroup `
   -Name $storageAccountName
 $ctx = $storageAccount.Context 

@@ -1,8 +1,8 @@
-﻿# this script will show how to get the total size of the blobs in a container
+# this script will show how to get the total size of the blobs in a container
 # before running this, you need to create a storage account, create a container,
 #    and upload some blobs into the container
 # note: this retrieves all of the blobs in the container in one command.
-#       connect Azure with Login-AzureRmAccount before you run the script.
+#       connect Azure with Login-AzAccount before you run the script.
 #       requests sent as part of this tool will incur transactional costs. 
 # command line usage: script.ps1 -ResourceGroup {YourResourceGroupName} -StorageAccountName {YourAccountName} -ContainerName {YourContainerName}
 #
@@ -23,9 +23,9 @@ param(
 
 $VerbosePreference = "Continue"
 
-if(((Get-Module -ListAvailable Azure) -eq $null) -or ((Get-Module -ListAvailable Azure.Storage) -eq $null))
+if(((Get-Module -ListAvailable Azure) -eq $null) -or ((Get-Module -ListAvailable Az.Storage) -eq $null))
 {
-    throw "Azure Powershell not found! Please install from https://docs.microsoft.com/en-us/powershell/azure/install-azurerm-ps"
+    throw "Azure Powershell not found! Please install from https://docs.microsoft.com/en-us/powershell/azure/install-Az-ps"
 }
 
 # function Retry-OnRequest
@@ -232,9 +232,9 @@ function Get-ContainerBytes
     return @{ "containerSize" = $containerSizeInBytes; "blobCount" = $blobCount }
 }
 
-#Login-AzureRmAccount
+#Login-AzAccount
 
-$storageAccount = Get-AzureRmStorageAccount -ResourceGroupName $ResourceGroup -Name $StorageAccountName -ErrorAction SilentlyContinue
+$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroup -Name $StorageAccountName -ErrorAction SilentlyContinue
 if($storageAccount -eq $null)
 {
     throw "The storage account specified does not exist in this subscription."
