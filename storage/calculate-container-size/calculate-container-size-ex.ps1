@@ -23,7 +23,7 @@ param(
 
 $VerbosePreference = "Continue"
 
-if(((Get-Module -ListAvailable Azure) -eq $null) -or ((Get-Module -ListAvailable Az.Storage) -eq $null))
+if((Get-Module -ListAvailable Az.Storage) -eq $null)
 {
     throw "Azure Powershell not found! Please install from https://docs.microsoft.com/en-us/powershell/azure/install-Az-ps"
 }
@@ -203,7 +203,7 @@ function Get-ContainerBytes
     $MaxReturn = 5000
 
     do {
-        $Blobs = Get-AzureStorageBlob -Context $storageContext -Container $Container.Name -MaxCount $MaxReturn -ContinuationToken $Token
+        $Blobs = Get-AzStorageBlob -Context $storageContext -Container $Container.Name -MaxCount $MaxReturn -ContinuationToken $Token
         if($Blobs -eq $Null) { break }
 
         #Set-StrictMode will cause Get-AzureStorageBlob returns result in different data types when there is only one blob
@@ -256,12 +256,12 @@ if (-not ([System.Management.Automation.PSTypeName]'PageRange').Type)
 $containers = New-Object System.Collections.ArrayList
 if($ContainerName.Length -ne 0)
 {
-    $container = Get-AzureStorageContainer -Context $storageContext -Name $ContainerName -ErrorAction SilentlyContinue |
+    $container = Get-AzStorageContainer -Context $storageContext -Name $ContainerName -ErrorAction SilentlyContinue |
         ForEach-Object { $containers.Add($_) } | Out-Null
 }
 else
 {
-    Get-AzureStorageContainer -Context $storageContext | ForEach-Object { $containers.Add($_) } | Out-Null
+    Get-AzStorageContainer -Context $storageContext | ForEach-Object { $containers.Add($_) } | Out-Null
 }
 
 $sizeInBytes = 0

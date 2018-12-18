@@ -55,13 +55,13 @@ param (
 
 # Create and check Storage context
 $Error.Clear()
-$srcCtx = New-AzureStorageContext -StorageAccountName $srcStorageAccountName -StorageAccountKey $srcStorageAccountKey
+$srcCtx = New-AzStorageContext -StorageAccountName $srcStorageAccountName -StorageAccountKey $srcStorageAccountKey
 if ($srcCtx -eq $null)
 {
     Write-Error "Script could not create source Storage Context, possibly due to invalid StorageAccountName or StorageAccount Key terminating: $Error[0]";
     return;
 }
-$destCtx = New-AzureStorageContext -StorageAccountName $destStorageAccountName -StorageAccountKey $destStorageAccountKey
+$destCtx = New-AzStorageContext -StorageAccountName $destStorageAccountName -StorageAccountKey $destStorageAccountKey
 if ($destCtx -eq $null)
 {
     Write-Error "Script could not create destination storage context, possibly due to invalid StorageAccountName or StorageAccount Key terminating: $Error[0]";
@@ -70,13 +70,13 @@ if ($destCtx -eq $null)
 
 #Check Source and Destination Storage account Connection
 $Error.Clear()
-$Containers = Get-AzureStorageContainer -MaxCount 1 -Context $srcCtx
+$Containers = Get-AzStorageContainer -MaxCount 1 -Context $srcCtx
 if ($Error.Count -gt 0)
 {
     Write-Error "Script failed to connect to source Storage account, terminating: $Error[0]";
     return;
 }
-$Containers = Get-AzureStorageContainer -MaxCount 1 -Context $destCtx
+$Containers = Get-AzStorageContainer -MaxCount 1 -Context $destCtx
 if ($Error.Count -gt 0)
 {
     Write-Error "Script failed to connect to destination Storage account, terminating: $Error[0]";
@@ -121,14 +121,14 @@ do{
     # List source containers
     $retry = 1
     $Error.Clear()
-    $srcContainers = Get-AzureStorageContainer -MaxCount $MaxReturn -ContinuationToken $Token -Context $srcCtx
+    $srcContainers = Get-AzStorageContainer -MaxCount $MaxReturn -ContinuationToken $Token -Context $srcCtx
 
     # If list container fail, retry it
     while(($Error.Count -gt 0) -and ($RetryTimes -eq -1 -or $retry -le $retryTimes))
     {
         Write-Host "Retry List containers $retry"
         $Error.Clear()
-        $srcContainers = Get-AzureStorageContainer -MaxCount $MaxReturn -ContinuationToken $Token -Context $srcCtx
+        $srcContainers = Get-AzStorageContainer -MaxCount $MaxReturn -ContinuationToken $Token -Context $srcCtx
         $retry++
     }
 

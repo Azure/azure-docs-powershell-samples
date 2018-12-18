@@ -253,7 +253,7 @@ if($storageAccount -eq $null)
 
 $storageContext = $storageAccount.Context
 $containers = New-Object System.Collections.ArrayList
-$container = Get-AzureStorageContainer -Context $storageContext -Name "`$logs" -ErrorAction SilentlyContinue |
+$container = Get-AzStorageContainer -Context $storageContext -Name "`$logs" -ErrorAction SilentlyContinue |
         ForEach-Object { $containers.Add($_) } | Out-Null
 
 Write-Output("> Container count: {0}" -f $containers.Count)
@@ -270,7 +270,7 @@ $containers | ForEach-Object {
     Write-Output("> Reading container {0}" -f $Container.Name)
 
     do {
-        $Blobs = Get-AzureStorageBlob -Context $storageContext -Container $Container.Name -MaxCount $MaxReturn -ContinuationToken $Token
+        $Blobs = Get-AzStorageBlob -Context $storageContext -Container $Container.Name -MaxCount $MaxReturn -ContinuationToken $Token
         if($Blobs -eq $Null) {
             break
         }
@@ -287,7 +287,7 @@ $containers | ForEach-Object {
         {
             Write-Output("> Downloading blob: {0}" -f $blob.Name)
             $filename = ".\log.txt"
-            Get-AzureStorageBlobContent -Context $storageContext -Container $Container.Name -Blob $blob.Name -Destination $filename -Force > Null
+            Get-AzStorageBlobContent -Context $storageContext -Container $Container.Name -Blob $blob.Name -Destination $filename -Force > Null
             
             Write-Output("> Posting logs to log analytic worspace: {0}" -f $blob.Name)
             $Lines = Get-Content $filename

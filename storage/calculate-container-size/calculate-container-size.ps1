@@ -18,7 +18,7 @@ $storageAccount = Get-AzStorageAccount `
 $ctx = $storageAccount.Context 
 
 # get a list of all of the blobs in the container 
-$listOfBLobs = Get-AzureStorageBlob -Container $ContainerName -Context $ctx 
+$listOfBLobs = Get-AzStorageBlob -Container $ContainerName -Context $ctx 
 
 # zero out our total
 $length = 0
