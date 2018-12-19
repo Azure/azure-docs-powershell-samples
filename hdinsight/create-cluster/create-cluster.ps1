@@ -45,7 +45,7 @@ function New-Cluster {
 
     # Default cluster size (# of worker nodes), version, type, and OS
     $clusterSizeInNodes = "4"
-    $clusterVersion = "3.5"
+    $clusterVersion = "3.6"
     $clusterType = "Hadoop"
     $clusterOS = "Linux"
     # Set the storage container name to the cluster name
