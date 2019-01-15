@@ -28,7 +28,7 @@ Update-AzureRmKeyVaultNetworkRuleSet -VaultName "MyKeyVault" -DefaultAction Deny
 $key = Add-AzureKeyVaultKey -VaultName MyKeyVault -Name MyTDEKey -Destination Software -Size 2048
 
 # Alternatively, import existing key from .pfx file:
-$securepfxpwd = ConvertTo-SecureString –String 'MyPa$$w0rd' –AsPlainText –Force 
+$securepfxpwd = ConvertTo-SecureString -String 'MyPa$$w0rd' -AsPlainText -Force 
 $key = Add-AzureKeyVaultKey -VaultName 'MyKeyVault' -Name 'MyTDEKey' -KeyFilePath 'c:\some_path\mytdekey.pfx' -KeyFilePassword $securepfxpwd
 
 
