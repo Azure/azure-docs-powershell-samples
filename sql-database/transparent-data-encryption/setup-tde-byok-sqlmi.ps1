@@ -4,10 +4,14 @@ Connect-AzureRmAccount
 # If there are multiple subscriptions, choose the one where AKV is created: 
 Set-AzureRmContext -SubscriptionId "subscription ID"
 
-# 1. Create and setup Azure Key Vault (skip if already done)
+# 1. Create Resource and setup Azure Key Vault (skip if already done)
+
+# Create Resource (name the resource and specify the location)
+$location = "westus2" # specify the location
+New-AzureRmResourceGroup -Name "MyRG" -Location $location
 
 # Create new Azure Key Vault with soft-delete option turned on (change name, RG and region): 
-New-AzureRmKeyVault -VaultName "MyKeyVault" -ResourceGroupName "MyRG" -Location "My Region" -EnableSoftDelete
+New-AzureRmKeyVault -VaultName "MyKeyVault" -ResourceGroupName "MyRG" -Location $location -EnableSoftDelete
 
 # Create Managed Service Identity for the Managed Instance: 
 $instance = Set-AzureRmSqlManagedInstance -ResourceGroupName "MyRG" -Name "MyManagedInstance" -AssignIdentity
@@ -36,7 +40,7 @@ $key = Add-AzureKeyVaultKey -VaultName 'MyKeyVault' -Name 'MyTDEKey' -KeyFilePat
 
 # Assign the key to the Managed Instance:
 # $key = 'https://contoso.vault.azure.net/keys/contosokey/01234567890123456789012345678901'
-Add-AzureRmSqlManagedInstanceKeyVaultKey -KeyId $key -ManagedInstanceName MyManagedInstance -ResourceGroupName MyRG
+Add-AzureRmSqlManagedInstanceKeyVaultKey -KeyId $key -ManagedInstanceName "MyManagedInstance" -ResourceGroupName "MyRG"
 
 # Set TDE operation mode to BYOK: 
 Set-AzureRmSqlManagedInstanceTransparentDataEncryptionProtector -Type AzureKeyVault -ManagedInstanceName "MyManagedInstance" -ResourceGroup "MyRG"
