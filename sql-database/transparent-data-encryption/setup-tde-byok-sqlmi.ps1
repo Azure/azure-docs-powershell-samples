@@ -4,6 +4,9 @@ Connect-AzureRmAccount
 # If there are multiple subscriptions, choose the one where AKV is created: 
 Set-AzureRmContext -SubscriptionId "subscription ID"
 
+# Install the preview version of AzureRM.Sql PowerShell package 4.11.6-preview if you are running this PowerShell locally
+Install-Module -Name AzureRM.Sql -RequiredVersion 4.11.6-preview -AllowPrerelease
+
 # 1. Create Resource and setup Azure Key Vault (skip if already done)
 
 # Create Resource (name the resource and specify the location)
