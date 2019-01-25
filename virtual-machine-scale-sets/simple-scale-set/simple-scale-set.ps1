@@ -4,7 +4,7 @@ $cred = Get-Credential
 # Create a virtual machine scale set and supporting resources
 # A resource group, virtual network, load balancer, and NAT rules are automatically
 # created if they do not already exist
-New-AzureRmVmss `
+New-AzVmss `
   -ResourceGroupName "myResourceGroup" `
   -VMScaleSetName "myScaleSet" `
   -Location "EastUS" `
