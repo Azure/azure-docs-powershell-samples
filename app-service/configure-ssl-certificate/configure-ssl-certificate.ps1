@@ -5,14 +5,14 @@ $webappname="mywebapp$(Get-Random)"
 $location="West Europe"
 
 # Create a resource group.
-New-AzureRmResourceGroup -Name $webappname -Location $location
+New-AzResourceGroup -Name $webappname -Location $location
 
 # Create an App Service plan in Free tier.
-New-AzureRmAppServicePlan -Name $webappname -Location $location `
+New-AzAppServicePlan -Name $webappname -Location $location `
 -ResourceGroupName $webappname -Tier Free
 
 # Create a web app.
-New-AzureRmWebApp -Name $webappname -Location $location -AppServicePlan $webappname `
+New-AzWebApp -Name $webappname -Location $location -AppServicePlan $webappname `
 -ResourceGroupName $webappname
 
 Write-Host "Configure a CNAME record that maps $fqdn to $webappname.azurewebsites.net"
@@ -23,13 +23,13 @@ Read-Host "Press [Enter] key when ready ..."
 # hostname "www" and point it your web app's default domain name.
 
 # Upgrade App Service plan to Basic tier (minimum required by custom SSL certificates)
-Set-AzureRmAppServicePlan -Name $webappname -ResourceGroupName $webappname `
+Set-AzAppServicePlan -Name $webappname -ResourceGroupName $webappname `
 -Tier Basic
 
 # Add a custom domain name to the web app. 
-Set-AzureRmWebApp -Name $webappname -ResourceGroupName $webappname `
+Set-AzWebApp -Name $webappname -ResourceGroupName $webappname `
 -HostNames @($fqdn,"$webappname.azurewebsites.net")
 
 # Upload and bind the SSL certificate to the web app.
-New-AzureRmWebAppSSLBinding -WebAppName $webappname -ResourceGroupName $webappname -Name $fqdn `
+New-AzWebAppSSLBinding -WebAppName $webappname -ResourceGroupName $webappname -Name $fqdn `
 -CertificateFilePath $pfxPath -CertificatePassword $pfxPassword -SslState SniEnabled
