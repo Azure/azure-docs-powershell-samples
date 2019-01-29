@@ -4,8 +4,8 @@ Connect-AzureRmAccount
 # If there are multiple subscriptions, choose the one where AKV is created: 
 Set-AzureRmContext -SubscriptionId "subscription ID"
 
-# Install the preview version of AzureRM.Sql PowerShell package 4.11.6-preview if you are running this PowerShell locally
-Install-Module -Name AzureRM.Sql -RequiredVersion 4.11.6-preview -AllowPrerelease
+# Install the preview version of AzureRM.Sql PowerShell package 4.11.6-preview if you are running this PowerShell locally (uncomment below):
+# Install-Module -Name AzureRM.Sql -RequiredVersion 4.11.6-preview -AllowPrerelease
 
 # 1. Create Resource and setup Azure Key Vault (skip if already done)
 
@@ -31,10 +31,10 @@ Update-AzureRmKeyVaultNetworkRuleSet -VaultName "MyKeyVault" -DefaultAction Deny
 
 # 2. Provide TDE Protector key (skip if already done)
 
-# Generate new key directly in Azure Key Vault (recommended for test purposes only):
-$key = Add-AzureKeyVaultKey -VaultName MyKeyVault -Name MyTDEKey -Destination Software -Size 2048
+# Generate new key directly in Azure Key Vault (recommended for test purposes only - uncomment below):
+# $key = Add-AzureKeyVaultKey -VaultName MyKeyVault -Name MyTDEKey -Destination Software -Size 2048
 
-# Alternatively, import existing key from .pfx file:
+# Alternatively, the recommended way is to import an existing key from a .pfx file:
 $securepfxpwd = ConvertTo-SecureString -String 'MyPa$$w0rd' -AsPlainText -Force 
 $key = Add-AzureKeyVaultKey -VaultName 'MyKeyVault' -Name 'MyTDEKey' -KeyFilePath 'c:\some_path\mytdekey.pfx' -KeyFilePassword $securepfxpwd
 
