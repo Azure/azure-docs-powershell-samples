@@ -2,12 +2,19 @@
 Connect-AzureRmAccount
 
 # If there are multiple subscriptions, choose the one where AKV is created: 
-Set-AzureRmContext -SubscriptionId <subscription ID>
+Set-AzureRmContext -SubscriptionId "subscription ID"
 
-# 1. Create and setup Azure Key Vault (skip if already done)
+# Install the preview version of AzureRM.Sql PowerShell package 4.11.6-preview if you are running this PowerShell locally (uncomment below):
+# Install-Module -Name AzureRM.Sql -RequiredVersion 4.11.6-preview -AllowPrerelease
+
+# 1. Create Resource and setup Azure Key Vault (skip if already done)
+
+# Create Resource (name the resource and specify the location)
+$location = "westus2" # specify the location
+New-AzureRmResourceGroup -Name "MyRG" -Location $location
 
 # Create new Azure Key Vault with soft-delete option turned on (change name, RG and region): 
-New-AzureRmKeyVault -VaultName "MyKeyVault" -ResourceGroupName "MyRG" -Location "My Region" -EnableSoftDelete
+New-AzureRmKeyVault -VaultName "MyKeyVault" -ResourceGroupName "MyRG" -Location $location -EnableSoftDelete
 
 # Create Managed Service Identity for the Managed Instance: 
 $instance = Set-AzureRmSqlManagedInstance -ResourceGroupName "MyRG" -Name "MyManagedInstance" -AssignIdentity
@@ -24,11 +31,11 @@ Update-AzureRmKeyVaultNetworkRuleSet -VaultName "MyKeyVault" -DefaultAction Deny
 
 # 2. Provide TDE Protector key (skip if already done)
 
-# Generate new key directly in Azure Key Vault (recommended for test purposes only):
-$key = Add-AzureKeyVaultKey -VaultName MyKeyVault -Name MyTDEKey -Destination Software -Size 2048
+# Generate new key directly in Azure Key Vault (recommended for test purposes only - uncomment below):
+# $key = Add-AzureKeyVaultKey -VaultName MyKeyVault -Name MyTDEKey -Destination Software -Size 2048
 
-# Alternatively, import existing key from .pfx file:
-$securepfxpwd = ConvertTo-SecureString –String 'MyPa$$w0rd' –AsPlainText –Force 
+# Alternatively, the recommended way is to import an existing key from a .pfx file:
+$securepfxpwd = ConvertTo-SecureString -String 'MyPa$$w0rd' -AsPlainText -Force 
 $key = Add-AzureKeyVaultKey -VaultName 'MyKeyVault' -Name 'MyTDEKey' -KeyFilePath 'c:\some_path\mytdekey.pfx' -KeyFilePassword $securepfxpwd
 
 
@@ -36,7 +43,7 @@ $key = Add-AzureKeyVaultKey -VaultName 'MyKeyVault' -Name 'MyTDEKey' -KeyFilePat
 
 # Assign the key to the Managed Instance:
 # $key = 'https://contoso.vault.azure.net/keys/contosokey/01234567890123456789012345678901'
-Add-AzureRmSqlManagedInstanceKeyVaultKey -KeyId $key -Name MyManagedInstance -ResourceGroupName MyRG
+Add-AzureRmSqlManagedInstanceKeyVaultKey -KeyId $key -ManagedInstanceName "MyManagedInstance" -ResourceGroupName "MyRG"
 
 # Set TDE operation mode to BYOK: 
-Set-AzureRmSqlManagedInstanceTransparentDataEncryptionProtector -Type AzureKeyVault -Name "MyManagedInstance" -ResourceGroup "MyRG"
+Set-AzureRmSqlManagedInstanceTransparentDataEncryptionProtector -Type AzureKeyVault -ManagedInstanceName "MyManagedInstance" -ResourceGroup "MyRG"
