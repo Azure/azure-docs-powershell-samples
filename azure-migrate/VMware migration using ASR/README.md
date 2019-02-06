@@ -13,7 +13,7 @@ These scripts help you automate the migration of large number of VMs to Azure us
 
 ###Pre-requisites
 Before you get started, the script requires you to do the following:
-- Ensure that the Site Recovery vault is created
+- Ensure that the Site Recovery vault is creatsed
 - Ensure that the Configuration Server is installed in the on-premises environment (and the Process Server) and the vault is able to discover the environment using the vCenter credentials
 - Ensure that a Replication Policy is created and associated with the Configuration Server
 - Ensure that you have added the VM admin account to the config server (that will be used to replicate the on-prem VMs)
