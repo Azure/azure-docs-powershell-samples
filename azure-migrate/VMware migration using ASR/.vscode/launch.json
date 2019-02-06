@@ -1,0 +1,88 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PS template",
+            "script": "${workspaceRoot}/asr_template.ps1",
+            "args": ["-CsvFilePath ./input_template.csv"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PS migration",
+            "script": "${workspaceRoot}/asr_migration.ps1",
+            "args": ["-CsvFilePath ./asr_migration.new.1.csv"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PS update",
+            "script": "${workspaceRoot}/asr_updateproperties.ps1",
+            "args": ["-CsvFilePath ./asr_migration.new.1.csv"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PS status",
+            "script": "${workspaceRoot}/asr_migration_status.ps1",
+            "args": ["-CsvFilePath ./asr_migration.new.1.csv"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PS check",
+            "script": "${workspaceRoot}/asr_properties_check.ps1",
+            "args": ["-CsvFilePath ./asr_migration.new.1.csv"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PS testfailover",
+            "script": "${workspaceRoot}/asr_test_failover.ps1",
+            "args": ["-CsvFilePath ./asr_migration.new.1.csv"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PS realfailover",
+            "script": "${workspaceRoot}/asr_failover.ps1",
+            "args": ["-CsvFilePath ./asr_migration.new.1.csv"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PS postfailover",
+            "script": "${workspaceRoot}/asr_post_failover.ps1",
+            "args": ["-CsvFilePath ./asr_migration.new.1.csv"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PS complete",
+            "script": "${workspaceRoot}/asr_complete.ps1",
+            "args": ["-CsvFilePath ./asr_migration.new.1.csv"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PS cleanupfailover",
+            "script": "${workspaceRoot}/asr_cleanup_failover.ps1",
+            "args": ["-CsvFilePath ./asr_migration.new.1.csv"],
+            "cwd": "${workspaceRoot}"
+        }
+    ]
+}
