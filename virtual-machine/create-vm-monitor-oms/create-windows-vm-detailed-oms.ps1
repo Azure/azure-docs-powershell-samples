@@ -11,10 +11,10 @@ $vmName = "myVM"
 $cred = Get-Credential -Message "Enter a username and password for the virtual machine."
 
 # Create a resource group
-New-AzureRmResourceGroup -Name $resourceGroup -Location $location
+New-AzResourceGroup -Name $resourceGroup -Location $location
 
 # Create a virtual machine
-New-AzureRmVM `
+New-AzVM `
   -ResourceGroupName $resourceGroup `
   -Name $vmName `
   -Location $location `
@@ -30,7 +30,7 @@ New-AzureRmVM `
 $PublicSettings = New-Object psobject | Add-Member -PassThru NoteProperty workspaceId $omsId | ConvertTo-Json
 $protectedSettings = New-Object psobject | Add-Member -PassThru NoteProperty workspaceKey $omsKey | ConvertTo-Json
 
-Set-AzureRmVMExtension -ExtensionName "OMS" -ResourceGroupName $resourceGroup -VMName $vmName `
+Set-AzVMExtension -ExtensionName "OMS" -ResourceGroupName $resourceGroup -VMName $vmName `
   -Publisher "Microsoft.EnterpriseCloud.Monitoring" -ExtensionType "MicrosoftMonitoringAgent" `
   -TypeHandlerVersion 1.0 -SettingString $PublicSettings -ProtectedSettingString $protectedSettings `
   -Location $location

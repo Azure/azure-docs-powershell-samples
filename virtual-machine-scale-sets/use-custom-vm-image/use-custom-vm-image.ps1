@@ -8,7 +8,7 @@ $cred = Get-Credential
 # A resource group, virtual network, load balancer, and NAT rules are automatically
 # created if they do not already exist
 # For -ImageName, specify the name of your own custom VM image
-New-AzureRmVmss `
+New-AzVmss `
   -ResourceGroupName "myResourceGroup" `
   -VMScaleSetName "myScaleSet" `
   -Location "EastUS" `
