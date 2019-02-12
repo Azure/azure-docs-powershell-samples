@@ -7,10 +7,10 @@ $vmName = "myVM"
 $cred = Get-Credential -Message "Enter a username and password for the virtual machine."
 
 # Create a resource group
-New-AzureRmResourceGroup -Name $resourceGroup -Location $location
+New-AzResourceGroup -Name $resourceGroup -Location $location
 
 # Create a virtual machine
-New-AzureRmVM `
+New-AzVM `
   -ResourceGroupName $resourceGroup `
   -Name $vmName `
   -Location $location `
@@ -25,6 +25,6 @@ New-AzureRmVM `
 # Install IIS
 $PublicSettings = '{"commandToExecute":"powershell Add-WindowsFeature Web-Server"}'
 
-Set-AzureRmVMExtension -ExtensionName "IIS" -ResourceGroupName $resourceGroup -VMName $vmName `
+Set-AzVMExtension -ExtensionName "IIS" -ResourceGroupName $resourceGroup -VMName $vmName `
   -Publisher "Microsoft.Compute" -ExtensionType "CustomScriptExtension" -TypeHandlerVersion 1.4 `
   -SettingString $PublicSettings -Location $location

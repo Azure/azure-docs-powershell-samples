@@ -8,10 +8,10 @@ $sourceResourceGroupName='mySourceResourceGroupName'
 $managedDiskName='myDiskName'
 
 #Set the context to the subscription Id where Managed Disk exists
-Select-AzureRmSubscription -SubscriptionId $sourceSubscriptionId
+Select-AzSubscription -SubscriptionId $sourceSubscriptionId
 
 #Get the source managed disk
-$managedDisk= Get-AzureRMDisk -ResourceGroupName $sourceResourceGroupName -DiskName $managedDiskName
+$managedDisk= Get-AzDisk -ResourceGroupName $sourceResourceGroupName -DiskName $managedDiskName
 
 #Provide the subscription Id of the subscription where managed disk will be copied to
 #If managed disk is copied to the same subscription then you can skip this step
@@ -22,9 +22,9 @@ $targetResourceGroupName='myTargetResourceGroupName'
 
 #Set the context to the subscription Id where managed disk will be copied to
 #If snapshot is copied to the same subscription then you can skip this step
-Select-AzureRmSubscription -SubscriptionId $targetSubscriptionId
+Select-AzSubscription -SubscriptionId $targetSubscriptionId
 
-$diskConfig = New-AzureRmDiskConfig -SourceResourceId $managedDisk.Id -Location $managedDisk.Location -CreateOption Copy 
+$diskConfig = New-AzDiskConfig -SourceResourceId $managedDisk.Id -Location $managedDisk.Location -CreateOption Copy 
 
 #Create a new managed disk in the target subscription and resource group
-New-AzureRmDisk -Disk $diskConfig -DiskName $managedDiskName -ResourceGroupName $targetResourceGroupName
+New-AzDisk -Disk $diskConfig -DiskName $managedDiskName -ResourceGroupName $targetResourceGroupName

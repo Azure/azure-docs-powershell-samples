@@ -16,7 +16,7 @@ $storageType = 'PremiumLRS'
 #Provide the Azure region (e.g. westus) where Managed Disk will be located.
 #This location should be same as the storage account where VHD file is stored
 #Get all the Azure location using command below:
-#Get-AzureRmLocation
+#Get-AzLocation
 $location = 'westus'
 
 #Provide the URI of the VHD file (page blob) in a storage account. Please not that this is NOT the SAS URI of the storage container where VHD file is stored. 
@@ -30,9 +30,9 @@ $sourceVHDURI = 'https://contosostorageaccount1.blob.core.windows.net/vhds/conto
 $storageAccountId = '/subscriptions/yourSubscriptionId/resourceGroups/yourResourceGroupName/providers/Microsoft.Storage/storageAccounts/yourStorageAccountName'
 
 #Set the context to the subscription Id where Managed Disk will be created
-Select-AzureRmSubscription -SubscriptionId $SubscriptionId
+Select-AzSubscription -SubscriptionId $SubscriptionId
 
-$diskConfig = New-AzureRmDiskConfig -AccountType $storageType -Location $location -CreateOption Import -StorageAccountId $storageAccountId -SourceUri $sourceVHDURI
+$diskConfig = New-AzDiskConfig -AccountType $storageType -Location $location -CreateOption Import -StorageAccountId $storageAccountId -SourceUri $sourceVHDURI
  
-New-AzureRmDisk -Disk $diskConfig -ResourceGroupName $resourceGroupName -DiskName $diskName
+New-AzDisk -Disk $diskConfig -ResourceGroupName $resourceGroupName -DiskName $diskName
  

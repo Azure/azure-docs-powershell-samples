@@ -7,21 +7,21 @@ $locationSub2 = "West Europe"
 
 
 # Log into the subscription with the backup
-Add-AzureRmAccount
+Add-AzAccount
 
 # List statuses of all backups that are complete or currently executing.
-Get-AzureRmWebAppBackupList -ResourceGroupName $resourceGroupNameSub1 -Name $webAppNameSub1
+Get-AzWebAppBackupList -ResourceGroupName $resourceGroupNameSub1 -Name $webAppNameSub1
 
 # Note the BackupID property of the backup you want to restore
 
 # Get the backup object that you want to restore by specifying the BackupID
-$backup = (Get-AzureRmWebAppBackupList -ResourceGroupName $resourceGroupNameSub1 -Name $webAppNameSub1 | where {$_.BackupId -eq <replace-with-BackupID>}) 
+$backup = (Get-AzWebAppBackupList -ResourceGroupName $resourceGroupNameSub1 -Name $webAppNameSub1 | where {$_.BackupId -eq <replace-with-BackupID>}) 
 
 # Log into the subscription that you want to restore the app to
-Add-AzureRmAccount
+Add-AzAccount
 
 # Create a new web app
-New-AzureRmWebApp -ResourceGroupName $resourceGroupNameSub2 -AppServicePlan $appServicePlanSub2 -Name $webAppNameSub2 -Location $locationSub2
+New-AzWebApp -ResourceGroupName $resourceGroupNameSub2 -AppServicePlan $appServicePlanSub2 -Name $webAppNameSub2 -Location $locationSub2
 
 # Restore the app by overwriting it with the backup data
-Restore-AzureRmWebAppBackup -ResourceGroupName $resourceGroupNameSub2 -Name $webAppNameSub2 -StorageAccountUrl $backup.StorageAccountUrl -BlobName $backup.BlobName -Overwrite
+Restore-AzWebAppBackup -ResourceGroupName $resourceGroupNameSub2 -Name $webAppNameSub2 -StorageAccountUrl $backup.StorageAccountUrl -BlobName $backup.BlobName -Overwrite

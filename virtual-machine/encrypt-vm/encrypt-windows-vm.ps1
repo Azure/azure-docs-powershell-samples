@@ -1,4 +1,4 @@
-﻿# Edit these global variables with you unique Key Vault name, resource group name and location
+# Edit these global variables with you unique Key Vault name, resource group name and location
 #Name of the Key Vault
 $keyVaultName = "myKeyVault00"
 #Resource Group Name
@@ -15,10 +15,10 @@ $vmName = "myEncryptedVM"
 $vmAdminName = "encryptedUser"
 
 # Register the Key Vault provider and create a resource group
-New-AzureRmResourceGroup -Location $location -Name $rgName
+New-AzResourceGroup -Location $location -Name $rgName
 
 # Create a Key Vault and enable it for disk encryption
-New-AzureRmKeyVault `
+New-AzKeyVault `
     -Location $location `
     -ResourceGroupName $rgName `
     -VaultName $keyVaultName `
@@ -37,15 +37,15 @@ Set-AzureKeyVaultSecret -VaultName $keyVaultName -Name protectValue -SecretValue
 
 
 # Create Azure Active Directory app and service principal
-$app = New-AzureRmADApplication -DisplayName $appName `
+$app = New-AzADApplication -DisplayName $appName `
     -HomePage "https://myapp0.contoso.com" `
     -IdentifierUris "https://contoso.com/myapp0" `
     -Password (Get-AzureKeyVaultSecret -VaultName $keyVaultName -Name adminCreds).SecretValue
 
-New-AzureRmADServicePrincipal -ApplicationId $app.ApplicationId
+New-AzADServicePrincipal -ApplicationId $app.ApplicationId
 
 # Set permissions to allow your AAD service principal to read keys from Key Vault
-Set-AzureRmKeyVaultAccessPolicy -VaultName $keyvaultName `
+Set-AzKeyVaultAccessPolicy -VaultName $keyvaultName `
     -ServicePrincipalName $app.ApplicationId  `
     -PermissionsToKeys decrypt,encrypt,unwrapKey,wrapKey,verify,sign,get,list,update `
     -PermissionsToSecrets get,list,set,delete,backup,restore,recover,purge
@@ -54,7 +54,7 @@ Set-AzureRmKeyVaultAccessPolicy -VaultName $keyvaultName `
 $cred = New-Object System.Management.Automation.PSCredential($vmAdminName, (Get-AzureKeyVaultSecret -VaultName $keyVaultName -Name adminCreds).SecretValue)
 
 # Create a virtual machine
-New-AzureRmVM `
+New-AzVM `
   -ResourceGroupName $rgName `
   -Name $vmName `
   -Location $location `
@@ -67,13 +67,13 @@ New-AzureRmVM `
   -OpenPorts 3389
 
 # Define required information for our Key Vault and keys
-$keyVault = Get-AzureRmKeyVault -VaultName $keyVaultName -ResourceGroupName $rgName;
+$keyVault = Get-AzKeyVault -VaultName $keyVaultName -ResourceGroupName $rgName;
 $diskEncryptionKeyVaultUrl = $keyVault.VaultUri;
 $keyVaultResourceId = $keyVault.ResourceId;
 $keyEncryptionKeyUrl = (Get-AzureKeyVaultKey -VaultName $keyVaultName -Name "myKey").Key.kid;
 
 # Encrypt our virtual machine
-Set-AzureRmVMDiskEncryptionExtension `
+Set-AzVMDiskEncryptionExtension `
     -ResourceGroupName $rgName `
     -VMName $vmName `
     -AadClientID $app.ApplicationId `
@@ -84,11 +84,11 @@ Set-AzureRmVMDiskEncryptionExtension `
     -KeyEncryptionKeyVaultId $keyVaultResourceId
 
 # View encryption status
-Get-AzureRmVmDiskEncryptionStatus  -ResourceGroupName $rgName -VMName $vmName
+Get-AzVmDiskEncryptionStatus  -ResourceGroupName $rgName -VMName $vmName
 
 <#
 #clean up
-Remove-AzureRmResourceGroup -Name $rgName
+Remove-AzResourceGroup -Name $rgName
 #removes all of the Azure AD Applications you created w/ the same name
-Remove-AzureRmADApplication -ObjectId $app.ObjectId -Force
+Remove-AzADApplication -ObjectId $app.ObjectId -Force
 #>
