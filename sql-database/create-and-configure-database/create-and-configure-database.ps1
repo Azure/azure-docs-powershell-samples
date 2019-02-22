@@ -1,6 +1,7 @@
-﻿# Login-AzureRmAccount
+﻿# Connect-AzAccount
+Set-SubcriptionId 
 # Set the resource group name and location for your server
-$resourcegroupname = "myResourceGroup-$(Get-Random)"
+$resourceGroupName = "myResourceGroup-$(Get-Random)"
 $location = "southcentralus"
 # Set an admin login and password for your server
 $adminlogin = "ServerAdmin"
