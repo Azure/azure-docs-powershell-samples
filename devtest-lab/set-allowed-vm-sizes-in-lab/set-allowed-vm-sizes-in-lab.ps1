@@ -9,7 +9,7 @@ param
 
 function Get-Lab
 {
-    $lab = Find-AzureRmResource -ResourceType 'Microsoft.DevTestLab/labs' -ResourceNameEquals $DevTestLabName
+    $lab = Find-AzResource -ResourceType 'Microsoft.DevTestLab/labs' -ResourceNameEquals $DevTestLabName
 
     if(!$lab)
     {
@@ -23,7 +23,7 @@ function Get-PolicyChanges ($lab)
 {
     #start by finding the existing policy
     $script:labResourceName = $lab.Name + '/default'
-    $existingPolicy = (Get-AzureRmResource -ResourceType 'Microsoft.DevTestLab/labs/policySets/policies' -ResourceName $labResourceName -ResourceGroupName $lab.ResourceGroupName -ApiVersion 2016-05-15) | Where-Object {$_.Name -eq 'AllowedVmSizesInLab'}
+    $existingPolicy = (Get-AzResource -ResourceType 'Microsoft.DevTestLab/labs/policySets/policies' -ResourceName $labResourceName -ResourceGroupName $lab.ResourceGroupName -ApiVersion 2016-05-15) | Where-Object {$_.Name -eq 'AllowedVmSizesInLab'}
     if($existingPolicy)
     {
         $existingSizes = $existingPolicy.Properties.threshold
@@ -89,12 +89,12 @@ function Set-PolicyChanges ($lab, $policyChanges)
         if($policyChanges.existingPolicy)
         {
             Write-Output "Updating $($lab.Name) VM Size policy"
-            Set-AzureRmResource -ResourceType $resourceType -ResourceName $labResourceName -ResourceGroupName $lab.ResourceGroupName -ApiVersion 2016-05-15 -Properties $policyObj -Force
+            Set-AzResource -ResourceType $resourceType -ResourceName $labResourceName -ResourceGroupName $lab.ResourceGroupName -ApiVersion 2016-05-15 -Properties $policyObj -Force
         }
         else
         {
             Write-Output "Creating $($lab.Name) VM Size policy"
-            New-AzureRmResource -ResourceType $resourceType -ResourceName $labResourceName -ResourceGroupName $lab.ResourceGroupName -ApiVersion 2016-05-15 -Properties $policyObj -Force
+            New-AzResource -ResourceType $resourceType -ResourceName $labResourceName -ResourceGroupName $lab.ResourceGroupName -ApiVersion 2016-05-15 -Properties $policyObj -Force
         }
     }
 }
