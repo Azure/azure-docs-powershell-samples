@@ -15,7 +15,7 @@ $sp = Get-AzureRmADServicePrincipal -ServicePrincipalName $servicePrincipalName
 
 # Assign the role to the service principal. Default permissions are for docker
 # pull access. Modify the 'RoleDefinitionName' argument value as desired:
-# Reader:      pull only
-# Contributor: push and pull
+# acrpull:     pull only
+# acrpush:     push and pull
 # Owner:       push, pull, and assign roles
 $role = New-AzureRmRoleAssignment -ObjectId $sp.Id -RoleDefinitionName Reader -Scope $registry.Id
