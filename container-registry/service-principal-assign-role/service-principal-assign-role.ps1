@@ -18,4 +18,4 @@ $sp = Get-AzureRmADServicePrincipal -ServicePrincipalName $servicePrincipalName
 # acrpull:     pull only
 # acrpush:     push and pull
 # Owner:       push, pull, and assign roles
-$role = New-AzureRmRoleAssignment -ObjectId $sp.Id -RoleDefinitionName Reader -Scope $registry.Id
+$role = New-AzureRmRoleAssignment -ObjectId $sp.Id -RoleDefinitionName acrpull -Scope $registry.Id
