@@ -23,10 +23,10 @@ Start-Sleep 15
 
 # Assign the role to the service principal. Default permissions are for docker
 # pull access. Modify the 'RoleDefinitionName' argument value as desired:
-# Reader:      pull only
-# Contributor: push and pull
+# acrpull:     pull only
+# acrpush:     push and pull
 # Owner:       push, pull, and assign roles
-$role = New-AzureRmRoleAssignment -ObjectId $sp.Id -RoleDefinitionName Reader -Scope $registry.Id
+$role = New-AzureRmRoleAssignment -ObjectId $sp.Id -RoleDefinitionName acrpull -Scope $registry.Id
 
 # Output the service principal's credentials; use these in your services and
 # applications to authenticate to the container registry.
