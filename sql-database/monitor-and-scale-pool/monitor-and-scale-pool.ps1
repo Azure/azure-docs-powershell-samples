@@ -1,5 +1,5 @@
 ﻿# Connect-AzAccount
-$SubscriptionId = '45651c69-8b71-4c76-8ed8-91d1cd16a176'
+$SubscriptionId = ''
 # Set the resource group name and location for your server
 $resourceGroupName = "myResourceGroup-$(Get-Random)"
 $location = "West US"
