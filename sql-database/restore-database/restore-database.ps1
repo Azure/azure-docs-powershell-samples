@@ -42,11 +42,11 @@ $database = New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
     -RequestedServiceObjectiveName "S0" 
 
 # Restore database from latest geo-redundant backup into existing server 
-# Note: Check to see that backups are created and ready to restore from geo-redundant backup (this may take 10-15 minutes)
+# Check to see that backups are created and ready to restore from geo-redundant backup (this may take 10-15 minutes)
 # Important: If no backup exists, you will get an error indicating that no backups exist for the server specified
 
-Get-AzSqlDatabaseGeoBackup -ResourceGroupName $resourceGroupName -ServerName $serverName 
-Get-AzSqlDatabaseGeoBackup -ResourceGroupName $resourceGroupName -ServerName $serverName -DatabaseName $databaseName
+Get-AzSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $serverName 
+Get-AzSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $serverName -DatabaseName $databaseName
 
 # Do not continue until a backup exists
 
