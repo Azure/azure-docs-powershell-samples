@@ -1,4 +1,4 @@
-# Connect-AzAccount
+﻿# Connect-AzAccount
 $SubscriptionId = ''
 # Set the resource group name and location for your server
 $resourceGroupName = "myResourceGroup-$(Get-Random)"
@@ -11,7 +11,7 @@ $serverName = "server-$(Get-Random)"
 # The sample database name
 $databaseName = "mySampleDatabase"
 # The restored database names
-$restoredDatabaseName = "MySampleDatabase_GeoRestore"
+$restoreDatabaseName = "MySampleDatabase_GeoRestore"
 $pointInTimeRestoreDatabaseName = "MySampleDatabase_10MinutesAgo"
 $deletedDatabaseRestoreName = "MySampleDatabase_DeletedRestore"
 # The ip address range that you want to allow to access your server
@@ -41,7 +41,7 @@ $database = New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
     -DatabaseName $databaseName `
     -RequestedServiceObjectiveName "S0" 
 
-Start-Sleep -minutes 600
+Start-Sleep -second 600
 
 # Restore database to its state 7 minutes ago
 # Note: Point-in-time restore requires database to be at least 5 minutes old
@@ -59,9 +59,6 @@ Restore-AzSqlDatabase `
 Remove-AzSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $serverName -DatabaseName $databaseName
 
 # Restore deleted database 
-# Note: Check to see that the Get-AzSqlDeletedDatabaseBackup cmdlet returns a deletion date (may take a few minutes). 
-# Important: If no backup exists, no value will be returned.
-Start-Sleep -Seconds 120
 $deleteddatabase = Get-AzSqlDeletedDatabaseBackup -ResourceGroupName $resourceGroupName -ServerName $serverName -DatabaseName $databaseName
 $deleteddatabase
 # Do not continue until the cmdlet returns information about the deleted database.
@@ -69,7 +66,7 @@ Restore-AzSqlDatabase -FromDeletedDatabaseBackup `
     -ResourceGroupName $resourceGroupName `
     -ServerName $serverName `
     -TargetDatabaseName $deletedDatabaseRestoreName `
-    -ResourceId $deleteddatabase.ResourceID `
+    -ResourceID $deleteddatabase.ResourceId `
     -DeletionDate $deleteddatabase.DeletionDate `
     -Edition "Standard" `
     -ServiceObjectiveName "S0"
