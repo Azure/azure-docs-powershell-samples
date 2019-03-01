@@ -77,6 +77,7 @@ Remove-AzSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $serverNa
 # Restore deleted database 
 # Note: Check to see that the Get-AzSqlDeletedDatabaseBackup cmdlet returns a deletion date (may take a few minutes). 
 # Important: If no backup exists, no value will be returned.
+Start-Sleep -Seconds 120
 $deleteddatabase = Get-AzSqlDeletedDatabaseBackup -ResourceGroupName $resourceGroupName -ServerName $serverName -DatabaseName $databaseName
 $deleteddatabase
 # Do not continue until the cmdlet returns information about the deleted database.
