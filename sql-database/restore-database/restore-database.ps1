@@ -11,7 +11,7 @@ $serverName = "server-$(Get-Random)"
 # The sample database name
 $databaseName = "mySampleDatabase"
 # The restored database names
-$geoRestoreDatabaseName = "MySampleDatabase_GeoRestore"
+$restoredDatabaseName = "MySampleDatabase_GeoRestore"
 $pointInTimeRestoreDatabaseName = "MySampleDatabase_10MinutesAgo"
 $deletedDatabaseRestoreName = "MySampleDatabase_DeletedRestore"
 # The ip address range that you want to allow to access your server
@@ -41,29 +41,13 @@ $database = New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
     -DatabaseName $databaseName `
     -RequestedServiceObjectiveName "S0" 
 
-# Restore database from latest geo-redundant backup into existing server 
-# Check to see that backups are created and ready to restore from geo-redundant backup (this may take 10-15 minutes)
-# Important: If no backup exists, you will get an error indicating that no backups exist for the server specified
+Start-Sleep -minutes 600
 
-Get-AzSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $serverName 
-Get-AzSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $serverName -DatabaseName $databaseName
-
-# Do not continue until a backup exists
-
-Restore-AzSqlDatabase `
-    -FromGeoBackup `
-    -ResourceGroupName $resourceGroupName `
-    -ServerName $serverName `
-    -TargetDatabaseName $geoRestoreDatabaseName `
-    -ResourceId $database.ResourceID `
-    -Edition "Standard" `
-    -ServiceObjectiveName "S0"
-
-# Restore database to its state 10 minutes ago
+# Restore database to its state 7 minutes ago
 # Note: Point-in-time restore requires database to be at least 5 minutes old
 Restore-AzSqlDatabase `
       -FromPointInTimeBackup `
-      -PointInTime (Get-Date).AddMinutes(-10) `
+      -PointInTime (Get-Date).AddMinutes(-7) `
       -ResourceGroupName $resourceGroupName `
       -ServerName $serverName `
       -TargetDatabaseName $pointInTimeRestoreDatabaseName `
