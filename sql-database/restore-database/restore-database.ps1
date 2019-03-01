@@ -60,7 +60,7 @@ Remove-AzSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $serverNa
 
 # Restore deleted database 
 $deleteddatabase = Get-AzSqlDeletedDatabaseBackup -ResourceGroupName $resourceGroupName -ServerName $serverName -DatabaseName $databaseName
-$deleteddatabase
+
 # Do not continue until the cmdlet returns information about the deleted database.
 Restore-AzSqlDatabase -FromDeletedDatabaseBackup `
     -ResourceGroupName $resourceGroupName `
