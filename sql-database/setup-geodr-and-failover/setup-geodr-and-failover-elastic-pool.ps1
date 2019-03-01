@@ -23,7 +23,7 @@ $primaryPoolName = "PrimaryPool"
 $secondarypoolname = "SecondaryPool"
 
 # Set subscription 
-Set-AzContext -Subscription $subscriptionId 
+Set-AzContext -SubscriptionId $subscriptionId 
 
 # Create two new resource groups
 $primaryResourceGroup = New-AzResourceGroup -Name $primaryResourceGroupName -Location $primaryLocation

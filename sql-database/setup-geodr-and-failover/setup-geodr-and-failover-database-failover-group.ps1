@@ -21,7 +21,7 @@ $secondaryStartIp = "0.0.0.0"
 $secondaryEndIp = "0.0.0.0"
 
 # Set subscription 
-Set-AzContext -Subscription $subscriptionId 
+Set-AzContext -SubscriptionId $subscriptionId 
 
 # Create two new resource groups
 $primaryResourceGroup = New-AzResourceGroup -Name $primaryResourceGroupName -Location $primaryLocation
