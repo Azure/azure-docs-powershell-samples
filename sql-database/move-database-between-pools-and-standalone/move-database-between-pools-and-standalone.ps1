@@ -19,7 +19,7 @@ $startIp = "0.0.0.0"
 $endIp = "0.0.0.0"
 
 # Set subscription 
-Set-AzContext -Subscription $subscriptionId 
+Set-AzContext -SubscriptionId $subscriptionId 
 
 # Create a new resource group
 $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location
