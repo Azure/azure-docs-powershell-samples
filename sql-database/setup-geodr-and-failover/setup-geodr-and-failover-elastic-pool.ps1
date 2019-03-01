@@ -6,8 +6,8 @@ $secondaryResourceGroupName = "mySecondaryResourceGroup-$(Get-Random)"
 $primaryLocation = "westus2"
 $secondaryLocation = "eastus"
 # The logical server names have to be unique in the system
-$primaryservername = "primary-server-$(Get-Random)"
-$secondaryservername = "secondary-server-$(Get-Random)"
+$primaryServerName = "primary-server-$(Get-Random)"
+$secondaryServerName = "secondary-server-$(Get-Random)"
 # Set an admin login and password for your servers
 $adminSqlLgin = "SqlAdmin"
 $password = "ChangeYourAdminPassword1"
@@ -26,39 +26,39 @@ $secondarypoolname = "SecondaryPool"
 Set-AzContext -Subscription $subscriptionId 
 
 # Create two new resource groups
-$primaryResourceGroupName = New-AzResourceGroup -Name $primaryResourceGroupName -Location $primaryLocation
-$secondaryResourceGroupName = New-AzResourceGroup -Name $secondaryResourceGroupName -Location $secondaryLocation
+$primaryResourceGroup = New-AzResourceGroup -Name $primaryResourceGroupName -Location $primaryLocation
+$secondaryResourceGroup = New-AzResourceGroup -Name $secondaryResourceGroupName -Location $secondaryLocation
 
 # Create two new logical servers with a system wide unique server name
 
-$primaryserver = New-AzSqlServer -ResourceGroupName $primaryResourceGroupName `
-    -ServerName $primaryservername `
+$primaryServer = New-AzSqlServer -ResourceGroupName $primaryResourceGroupName `
+    -ServerName $primaryServerName `
     -Location $primaryLocation `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminSqlLgin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
-$secondaryserver = New-AzSqlServer -ResourceGroupName $secondaryResourceGroupName `
-    -ServerName $secondaryservername `
+$secondaryServer = New-AzSqlServer -ResourceGroupName $secondaryResourceGroupName `
+    -ServerName $secondaryServerName `
     -Location $secondaryLocation `
     -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminSqlLgin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 
 # Create a server firewall rule for each server that allows access from the specified IP range
-$primaryserverfirewallrule = New-AzSqlServerFirewallRule -ResourceGroupName $primaryResourceGroupName `
-    -ServerName $primaryservername `
+$primaryServerFirewallRule = New-AzSqlServerFirewallRule -ResourceGroupName $primaryResourceGroupName `
+    -ServerName $primaryServerName `
     -FirewallRuleName "AllowedIPs" -StartIpAddress $primaryStartIp -EndIpAddress $primaryEndIp
-$secondaryserverfirewallrule = New-AzSqlServerFirewallRule -ResourceGroupName $secondaryResourceGroupName `
-    -ServerName $secondaryservername `
+$secondaryServerFirewallRule = New-AzSqlServerFirewallRule -ResourceGroupName $secondaryResourceGroupName `
+    -ServerName $secondaryServerName `
     -FirewallRuleName "AllowedIPs" -StartIpAddress $secondaryStartIp -EndIpAddress $secondaryEndIp
 
 # Create a pool in each of the servers
-$primarypool = New-AzSqlElasticPool -ResourceGroupName $primaryResourceGroupName `
-    -ServerName $primaryservername `
+$primaryPool = New-AzSqlElasticPool -ResourceGroupName $primaryResourceGroupName `
+    -ServerName $primaryServerName `
     -ElasticPoolName $primaryPoolName `
     -Edition "Standard" `
     -Dtu 50 `
     -DatabaseDtuMin 10 `
     -DatabaseDtuMax 50
-$secondarypool = New-AzSqlElasticPool -ResourceGroupName $secondaryResourceGroupName `
-    -ServerName $secondaryservername `
-    -ElasticPoolName $secondarypoolname `
+$secondaryPool = New-AzSqlElasticPool -ResourceGroupName $secondaryResourceGroupName `
+    -ServerName $secondaryServerName `
+    -ElasticPoolName $secondaryPoolName `
     -Edition "Standard" `
     -Dtu 50 `
     -DatabaseDtuMin 10 `
@@ -66,32 +66,32 @@ $secondarypool = New-AzSqlElasticPool -ResourceGroupName $secondaryResourceGroup
 
 # Create a blank database in the pool on the primary server
 $database = New-AzSqlDatabase  -ResourceGroupName $primaryResourceGroupName `
-    -ServerName $primaryservername `
+    -ServerName $primaryServerName `
     -DatabaseName $databaseName `
     -ElasticPoolName $primaryPoolName
 
 # Establish Active Geo-Replication
 $database = Get-AzSqlDatabase -ResourceGroupName $primaryResourceGroupName `
-    -ServerName $primaryservername `
+    -ServerName $primaryServerName `
     -DatabaseName $databaseName
 $database | New-AzSqlDatabaseSecondary -PartnerResourceGroupName $secondaryResourceGroupName `
-    -PartnerServerName $secondaryservername `
-    -SecondaryElasticPoolName $secondarypoolname `
+    -PartnerServerName $secondaryServerName `
+    -SecondaryElasticPoolName $secondaryPoolName `
     -AllowConnections "All"
 
 # Initiate a planned failover
 $database = Get-AzSqlDatabase -ResourceGroupName $secondaryResourceGroupName `
-    -ServerName $secondaryservername `
+    -ServerName $secondaryServerName `
     -DatabaseName $databaseName 
 $database | Set-AzSqlDatabaseSecondary -PartnerResourceGroupName $primaryResourceGroupName -Failover
 
     
 # Monitor Geo-Replication config and health after failover
 $database = Get-AzSqlDatabase -ResourceGroupName $secondaryResourceGroupName `
-    -ServerName $secondaryservername `
+    -ServerName $secondaryServerName `
     -DatabaseName $databaseName
 $database | Get-AzSqlDatabaseReplicationLink -PartnerResourceGroupName $primaryResourceGroupName `
-    -PartnerServerName $primaryservername
+    -PartnerServerName $primaryServerName
 
 # Clean up deployment 
 # Remove-AzResourceGroup -ResourceGroupName $primaryResourceGroupName
