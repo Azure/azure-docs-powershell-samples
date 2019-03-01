@@ -43,7 +43,7 @@ $database = New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
 
 Start-Sleep -second 600
 
-# Restore database to its state 7 minutes ago
+# Restore database to its state 2 minutes ago
 # Note: Point-in-time restore requires database to be at least 5 minutes old
 Restore-AzSqlDatabase `
       -FromPointInTimeBackup `
