@@ -3,8 +3,8 @@ $SubscriptionId = ''
 # Set the resource group name and location for your serverw
 $primaryResourceGroupName = "myPrimaryResourceGroup-$(Get-Random)"
 $secondaryResourceGroupName = "mySecondaryResourceGroup-$(Get-Random)"
-$primaryLocation = "West US"
-$secondaryLocation = "East US"
+$primaryLocation = "westus2"
+$secondaryLocation = "eastus"
 # The logical server names have to be unique in the system
 $primaryservername = "primary-server-$(Get-Random)"
 $secondaryservername = "secondary-server-$(Get-Random)"
@@ -23,7 +23,7 @@ $primaryPoolName = "PrimaryPool"
 $secondarypoolname = "SecondaryPool"
 
 # Set subscription 
-Select-AzSubscription -Subscription $subscriptionId 
+Set-AzContext -Subscription $subscriptionId 
 
 # Create two new resource groups
 $primaryResourceGroupName = New-AzResourceGroup -Name $primaryResourceGroupName -Location $primaryLocation

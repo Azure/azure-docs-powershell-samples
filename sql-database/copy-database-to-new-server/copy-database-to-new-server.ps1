@@ -3,10 +3,10 @@
 $SubscriptionId = ''
 # Set the resource group name and location for your source server
 $sourceResourceGroupName = "mySourceResourceGroup-$(Get-Random)"
-$sourceResourceGroupLocation = "West US"
+$sourceResourceGroupLocation = "westus2"
 # Set the resource group name and location for your target server
 $targetResourceGroupname = "myTargetResourceGroup-$(Get-Random)"
-$targetResourceGroupLocation = "South Central US"
+$targetResourceGroupLocation = "eastus"
 # Set an admin login and password for your server
 $adminSqlLogin = "SqlAdmin"
 $password = "ChangeYourAdminPassword1"
@@ -23,7 +23,7 @@ $targetStartIp = "0.0.0.0"
 $targetEndIp = "0.0.0.0"
 
 # Set subscription 
-Select-AzSubscription -Subscription $subscriptionId 
+Set-AzContext -Subscription $subscriptionId 
 
 # Create two new resource groups
 $sourceResourceGroup = New-AzResourceGroup -Name $sourceResourceGroupName -Location $sourceResourceGroupLocation

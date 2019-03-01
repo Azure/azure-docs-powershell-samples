@@ -21,7 +21,7 @@ $startip = "0.0.0.0"
 $endip = "0.0.0.0"
 
 # Set subscription 
-Select-AzSubscription -Subscription $subscriptionId 
+Set-AzContext -Subscription $subscriptionId 
 
 # Create a resource group
 $resourcegroup = New-AzResourceGroup -Name $resourceGroupName -Location $location

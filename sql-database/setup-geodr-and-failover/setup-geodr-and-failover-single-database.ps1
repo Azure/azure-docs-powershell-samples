@@ -2,10 +2,10 @@
 $SubscriptionId = ''
 # Set the resource group name and location for your primary server
 $primaryResourceGroupName = "myPrimaryResourceGroup-$(Get-Random)"
-$primaryLocation = "West US"
+$primaryLocation = "westus2"
 # Set the resource group name and location for your secondary server
 $secondaryResourceGroupName = "mySecondaryResourceGroup-$(Get-Random)"
-$secondaryLocation = "East US"
+$secondaryLocation = "eastus"
 # Set an admin login and password for your servers
 $adminSqlLogin = "SqlAdmin"
 $password = "ChangeYourAdminPassword1"
@@ -21,7 +21,7 @@ $secondaryStartIp = "0.0.0.0"
 $secondaryEndIp = "0.0.0.0"
 
 # Set subscription 
-Select-AzSubscription -Subscription $subscriptionId 
+Set-AzContext -Subscription $subscriptionId 
 
 # Create two new resource groups
 $primaryResourceGroup = New-AzResourceGroup -Name $primaryResourceGroupName -Location $primaryLocation

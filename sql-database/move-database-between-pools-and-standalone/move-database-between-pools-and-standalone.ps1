@@ -2,7 +2,7 @@
 $SubscriptionId = ''
 # Set the resource group name and location for your server
 $resourceGroupName = "myResourceGroup-$(Get-Random)"
-$location = "West US"
+$location = "westus2"
 # Set elastic poool names
 $firstPoolName = "MyFirstPool"
 $secondPoolName = "MySecondPool"
@@ -19,7 +19,7 @@ $startIp = "0.0.0.0"
 $endIp = "0.0.0.0"
 
 # Set subscription 
-Select-AzSubscription -Subscription $subscriptionId 
+Set-AzContext -Subscription $subscriptionId 
 
 # Create a new resource group
 $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location

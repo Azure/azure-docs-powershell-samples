@@ -20,7 +20,7 @@ $storageAccountName = $("sql$(Get-Random)")
 $notificationEmailReceipient = "changeto@your.email;changeto@your.email"
 
 # Set subscription 
-Select-AzSubscription -Subscription $subscriptionId 
+Set-AzContext -Subscription $subscriptionId 
 
 # Create a new resource group
 $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location
