@@ -78,6 +78,8 @@ New-AzSqlInstance -Name $instanceName `
                       -StorageSizeInGB $maxStorage -VCore $vCores -Edition $edition `
                       -ComputeGeneration $computeGeneration -LicenseType $license
 
+# This script will take a minimum of 3 hours to create a new managed instance in a new virtual network. 
+# A second managed instance is created much faster.
 
 # Clean up deployment 
 # Remove-AzResourceGroup -ResourceGroupName $resourceGroupName
