@@ -1,4 +1,4 @@
-﻿# Connect-AzAccount
+# Connect-AzAccount
 $SubscriptionId = ''
 # Set the resource group name and location for your server
 $resourceGroupName = "myResourceGroup-$(Get-Random)"

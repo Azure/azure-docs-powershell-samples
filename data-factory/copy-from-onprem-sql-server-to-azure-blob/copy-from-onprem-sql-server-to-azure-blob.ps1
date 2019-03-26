@@ -1,7 +1,7 @@
-﻿$resourceGroupName = "<Resource group name>"
+$resourceGroupName = "<Resource group name>"
 $dataFactoryName = "<Data factory name>" # must be globally unique
-$storageAccountName = "<Azure storage account name>"
-$storageAccountKey = "<Azure storage account key>"
+$storageAccountName = "<Az.Storage account name>"
+$storageAccountKey = "<Az.Storage account key>"
 $sqlServerName = "<SQL server name>"
 $sqlDatabaseName = "SQL Server database name"
 $sqlTableName = "emp" # create the emp table if it does not already exist in your database with ID, FirstName, and LastName columns of type String. 
@@ -13,20 +13,20 @@ $pipelineName = "SqlServerToBlobPipeline"
 $dataFactoryRegion = "East US"
 
 # Create a resource group
-New-AzureRmResourceGroup -Name $resourceGroupName -Location $dataFactoryRegion
+New-AzResourceGroup -Name $resourceGroupName -Location $dataFactoryRegion
 
 # create a data factory
-$df = Set-AzureRmDataFactoryV2 -ResourceGroupName $resourceGroupName -Name $dataFactoryName -Location $dataFactoryRegion
+$df = Set-AzDataFactory -ResourceGroupName $resourceGroupName -Name $dataFactoryName -Location $dataFactoryRegion
 
 # create a self-hosted integration runtime
-Set-AzureRmDataFactoryV2IntegrationRuntime -Name $integrationRuntimeName -Type SelfHosted -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName
+Set-AzDataFactoryIntegrationRuntime -Name $integrationRuntimeName -Type SelfHosted -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName
 
 # get the authorization key from the created integration runtime in the cloud
-Get-AzureRmDataFactoryV2IntegrationRuntimeKey -Name $integrationRuntimeName -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName | ConvertTo-Json
+Get-AzDataFactoryIntegrationRuntimeKey -Name $integrationRuntimeName -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName | ConvertTo-Json
 
 # IMPORTANT: Install self-hosted integration runtime on your machine and use one of the keys to register the IR installed on your machine with the cloud service
 
-# create an Azure storage linked service
+# create an Az.Storage linked service
 
 ## JSON definition of the linked service. 
 $storageLinkedServiceDefinition = @"
@@ -44,11 +44,11 @@ $storageLinkedServiceDefinition = @"
 }
 "@
 
-## IMPORTANT: stores the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2LinkedService command. 
+## IMPORTANT: stores the JSON definition in a file that will be used by the Set-AzDataFactoryLinkedService command. 
 $storageLinkedServiceDefinition | Out-File c:\AzureStorageLinkedService.json
 
 ## Creates a linked service in the data factory
-Set-AzureRmDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "AzureStorageLinkedService" -File c:\AzureStorageLinkedService.json
+Set-AzDataFactoryLinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "AzureStorageLinkedService" -File c:\AzureStorageLinkedService.json
 
 # create an on-premises SQL Server linked service
 
@@ -72,14 +72,14 @@ $sqlServerLinkedServiceDefinition = @"
 }
 "@
 
-## IMPORTANT: stores the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2LinkedService command. 
+## IMPORTANT: stores the JSON definition in a file that will be used by the Set-AzDataFactoryLinkedService command. 
 $sqlServerLinkedServiceDefinition | Out-File c:\SqlServerLinkedService.json
 
 ## Encrypt SQL Server credentials 
-New-AzureRmDataFactoryV2LinkedServiceEncryptCredential -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -IntegrationRuntimeName $integrationRuntimeName -File "c:\SqlServerLinkedService.json" > c:\EncryptedSqlServerLinkedService.json
+New-AzDataFactoryLinkedServiceEncryptCredential -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -IntegrationRuntimeName $integrationRuntimeName -File "c:\SqlServerLinkedService.json" > c:\EncryptedSqlServerLinkedService.json
 
 # Create a SQL Server linked service
-Set-AzureRmDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName "EncryptedSqlServerLinkedService" -File "c:\EncryptedSqlServerLinkedService.json"
+Set-AzDataFactoryLinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName "EncryptedSqlServerLinkedService" -File "c:\EncryptedSqlServerLinkedService.json"
 
 
 # Create a source dataset for source SQL Server Database
@@ -115,11 +115,11 @@ $sourceSqlServerDatasetDefiniton = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2Dataset command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryDataset command. 
 $sourceSqlServerDatasetDefiniton | Out-File c:\SqlServerDataset.json
 
 # Create an Azure Blob dataset in the data factory
-Set-AzureRmDataFactoryV2Dataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "SqlServerDataset" -File "c:\SqlServerDataset.json"
+Set-AzDataFactoryDataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "SqlServerDataset" -File "c:\SqlServerDataset.json"
 
 # Create a dataset for sink Azure Blob Storage
 
@@ -143,11 +143,11 @@ $sinkBlobDatasetDefiniton = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2Dataset command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryDataset command. 
 $sinkBlobDatasetDefiniton | Out-File c:\AzureBlobDataset.json
 
 ## Create the Azure Blob dataset
-Set-AzureRmDataFactoryV2Dataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "AzureBlobDataset" -File "c:\AzureBlobDataset.json"
+Set-AzDataFactoryDataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "AzureBlobDataset" -File "c:\AzureBlobDataset.json"
 
 
 # Create a pipeline in the data factory
@@ -187,19 +187,19 @@ $pipelineDefinition = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2Pipeline command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryPipeline command. 
 $pipelineDefinition | Out-File c:\SqlServerToBlobPipeline.json
 
 ## Create a pipeline in the data factory
-Set-AzureRmDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$pipelineName" -File "c:\SqlServerToBlobPipeline.json"
+Set-AzDataFactoryPipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$pipelineName" -File "c:\SqlServerToBlobPipeline.json"
 
 
 # start the pipeline run
-$runId = Invoke-AzureRmDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineName $pipelineName
+$runId = Invoke-AzDataFactoryPipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineName $pipelineName
 
 # Check the pipeline run status until it finishes the copy operation
 while ($True) {
-    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineRunId $runId -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
+    $result = Get-AzDataFactoryActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineRunId $runId -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
 
     if (($result | Where-Object { $_.Status -eq "InProgress" } | Measure-Object).count -ne 0) {
         Write-Host "Pipeline run status: In Progress" -foregroundcolor "Yellow"
@@ -213,7 +213,7 @@ while ($True) {
 }
 
 # Get the activity run details 
-    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName `
+    $result = Get-AzDataFactoryActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName `
         -PipelineRunId $runId `
         -RunStartedAfter (Get-Date).AddMinutes(-10) `
         -RunStartedBefore (Get-Date).AddMinutes(10) `
@@ -229,7 +229,7 @@ while ($True) {
     }
 
 # To remove the data factory from the resource gorup
-# Remove-AzureRmDataFactoryV2 -Name $dataFactoryName -ResourceGroupName $resourceGroupName
+# Remove-AzDataFactory -Name $dataFactoryName -ResourceGroupName $resourceGroupName
 # 
 # To remove the whole resource group
-# Remove-AzureRmResourceGroup  -Name $resourceGroupName
+# Remove-AzResourceGroup  -Name $resourceGroupName

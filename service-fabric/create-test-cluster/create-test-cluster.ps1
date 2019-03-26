@@ -1,6 +1,6 @@
-Login-AzureRmAccount
-Get-AzureRmSubscription
-Set-AzureRmContext -SubscriptionId "<yourSubscriptionID>"
+Login-AzAccount
+Get-AzSubscription
+Set-AzContext -SubscriptionId "<yourSubscriptionID>"
 
 # Certificate variables.
 $certpwd="Password#1234" | ConvertTo-SecureString -AsPlainText -Force
@@ -21,7 +21,7 @@ $subname="$clustername.$clusterloc.cloudapp.azure.com"
 $clustersize=3 
 
 # Create the Service Fabric cluster.
-New-AzureRmServiceFabricCluster -Name $clustername -ResourceGroupName $groupname -Location $clusterloc `
+New-AzServiceFabricCluster -Name $clustername -ResourceGroupName $groupname -Location $clusterloc `
 -ClusterSize $clustersize -VmUserName $adminuser -VmPassword $adminpwd -CertificateSubjectName $subname `
 -CertificatePassword $certpwd -CertificateOutputFolder $certfolder `
 -OS WindowsServer2016DatacenterwithContainers -VmSku $vmsku

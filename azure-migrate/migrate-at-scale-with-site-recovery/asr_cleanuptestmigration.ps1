@@ -27,7 +27,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     if ($protectedItem -ne $null) {
         if ($protectedItem.AllowedOperations.Contains('TestFailoverCleanup')) {
             #Start the test failover operation
-            $testFailoverCleanUpJob = Start-AzureRmRecoveryServicesAsrTestFailoverCleanupJob `
+            $testFailoverCleanUpJob = Start-AzRecoveryServicesAsrTestFailoverCleanupJob `
                 -ReplicationProtectedItem $protectedItem
             $reportItem.TestFailoverCleanUpJobId = $testFailoverCleanUpJob.ID
         } else {

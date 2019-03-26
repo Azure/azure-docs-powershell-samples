@@ -8,13 +8,13 @@ $myEndpoint = "<your-endpoint-URL>"
 $myResourceGroup = "<resource-group-name>"
 
 # Create resource group
-New-AzureRmResourceGroup -Name $myResourceGroup -Location westus2
+New-AzResourceGroup -Name $myResourceGroup -Location westus2
 
 # Create custom topic
-New-AzureRmEventGridTopic -ResourceGroupName $myResourceGroup -Name $myTopic -Location westus2 
+New-AzEventGridTopic -ResourceGroupName $myResourceGroup -Name $myTopic -Location westus2 
 
 # Subscribe to the custom event. Include the resource group that contains the custom topic.
-New-AzureRmEventGridSubscription `
+New-AzEventGridSubscription `
   -EventSubscriptionName demoSubscription `
   -Endpoint $myEndpoint `
   -ResourceGroupName $myResourceGroup `

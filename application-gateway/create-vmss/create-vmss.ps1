@@ -1,44 +1,44 @@
 # Create a resource group
-New-AzureRmResourceGroup -Name myResourceGroupAG -Location eastus
+New-AzResourceGroup -Name myResourceGroupAG -Location eastus
 
 # Create network resources
-$backendSubnetConfig = New-AzureRmVirtualNetworkSubnetConfig `
+$backendSubnetConfig = New-AzVirtualNetworkSubnetConfig `
   -Name myBackendSubnet `
   -AddressPrefix 10.0.1.0/24
-$agSubnetConfig = New-AzureRmVirtualNetworkSubnetConfig `
+$agSubnetConfig = New-AzVirtualNetworkSubnetConfig `
   -Name myAGSubnet `
   -AddressPrefix 10.0.2.0/24
-$vnet = New-AzureRmVirtualNetwork `
+$vnet = New-AzVirtualNetwork `
   -ResourceGroupName myResourceGroupAG `
   -Location eastus `
   -Name myVNet `
   -AddressPrefix 10.0.0.0/16 `
   -Subnet $backendSubnetConfig, $agSubnetConfig
-$pip = New-AzureRmPublicIpAddress `
+$pip = New-AzPublicIpAddress `
   -ResourceGroupName myResourceGroupAG `
   -Location eastus `
   -Name myAGPublicIPAddress `
   -AllocationMethod Dynamic
 
 # Create IP configurations and frontend port
-$vnet = Get-AzureRmVirtualNetwork `
+$vnet = Get-AzVirtualNetwork `
   -ResourceGroupName myResourceGroupAG `
   -Name myVNet
 $subnet=$vnet.Subnets[0]
-$gipconfig = New-AzureRmApplicationGatewayIPConfiguration `
+$gipconfig = New-AzApplicationGatewayIPConfiguration `
   -Name myAGIPConfig `
   -Subnet $subnet
-$fipconfig = New-AzureRmApplicationGatewayFrontendIPConfig `
+$fipconfig = New-AzApplicationGatewayFrontendIPConfig `
   -Name myAGFrontendIPConfig `
   -PublicIPAddress $pip
-$frontendport = New-AzureRmApplicationGatewayFrontendPort `
+$frontendport = New-AzApplicationGatewayFrontendPort `
   -Name myFrontendPort `
   -Port 80
 
 # Create the backend pool and settings
-$defaultPool = New-AzureRmApplicationGatewayBackendAddressPool `
+$defaultPool = New-AzApplicationGatewayBackendAddressPool `
   -Name appGatewayBackendPool 
-$poolSettings = New-AzureRmApplicationGatewayBackendHttpSettings `
+$poolSettings = New-AzApplicationGatewayBackendHttpSettings `
   -Name myPoolSettings `
   -Port 80 `
   -Protocol Http `
@@ -46,12 +46,12 @@ $poolSettings = New-AzureRmApplicationGatewayBackendHttpSettings `
   -RequestTimeout 120
 
 # Create the default listener and rule
-$defaultlistener = New-AzureRmApplicationGatewayHttpListener `
+$defaultlistener = New-AzApplicationGatewayHttpListener `
   -Name mydefaultListener `
   -Protocol Http `
   -FrontendIPConfiguration $fipconfig `
   -FrontendPort $frontendport
-$frontendRule = New-AzureRmApplicationGatewayRequestRoutingRule `
+$frontendRule = New-AzApplicationGatewayRequestRoutingRule `
   -Name rule1 `
   -RuleType Basic `
   -HttpListener $defaultlistener `
@@ -59,11 +59,11 @@ $frontendRule = New-AzureRmApplicationGatewayRequestRoutingRule `
   -BackendHttpSettings $poolSettings
 
 # Create the application gateway
-$sku = New-AzureRmApplicationGatewaySku `
+$sku = New-AzApplicationGatewaySku `
   -Name WAF_Medium `
   -Tier WAF `
   -Capacity 2
-$appgw = New-AzureRmApplicationGateway `
+$appgw = New-AzApplicationGateway `
   -Name myAppGateway `
   -ResourceGroupName myResourceGroupAG `
   -Location eastus `
@@ -77,39 +77,39 @@ $appgw = New-AzureRmApplicationGateway `
   -Sku $sku 
 
 # Create a virtual machine scale set
-$vnet = Get-AzureRmVirtualNetwork `
+$vnet = Get-AzVirtualNetwork `
   -ResourceGroupName myResourceGroupAG `
   -Name myVNet
-$appgw = Get-AzureRmApplicationGateway `
+$appgw = Get-AzApplicationGateway `
   -ResourceGroupName myResourceGroupAG `
   -Name myAppGateway
-$backendPool = Get-AzureRmApplicationGatewayBackendAddressPool `
+$backendPool = Get-AzApplicationGatewayBackendAddressPool `
   -Name appGatewayBackendPool `
   -ApplicationGateway $appgw
-$ipConfig = New-AzureRmVmssIpConfig `
+$ipConfig = New-AzVmssIpConfig `
   -Name myVmssIPConfig `
   -SubnetId $vnet.Subnets[1].Id `
   -ApplicationGatewayBackendAddressPoolsId $backendPool.Id
-$vmssConfig = New-AzureRmVmssConfig `
+$vmssConfig = New-AzVmssConfig `
   -Location eastus `
   -SkuCapacity 2 `
   -SkuName Standard_DS2 `
   -UpgradePolicyMode Automatic
-Set-AzureRmVmssStorageProfile $vmssConfig `
+Set-AzVmssStorageProfile $vmssConfig `
   -ImageReferencePublisher MicrosoftWindowsServer `
   -ImageReferenceOffer WindowsServer `
   -ImageReferenceSku 2016-Datacenter `
   -ImageReferenceVersion latest
-Set-AzureRmVmssOsProfile $vmssConfig `
+Set-AzVmssOsProfile $vmssConfig `
   -AdminUsername azureuser `
   -AdminPassword "Azure123456!" `
   -ComputerNamePrefix myvmss
-Add-AzureRmVmssNetworkInterfaceConfiguration `
+Add-AzVmssNetworkInterfaceConfiguration `
   -VirtualMachineScaleSet $vmssConfig `
   -Name myVmssNetConfig `
   -Primary $true `
   -IPConfiguration $ipConfig
-New-AzureRmVmss `
+New-AzVmss `
   -ResourceGroupName myResourceGroupAG `
   -Name myvmss `
   -VirtualMachineScaleSet $vmssConfig
@@ -117,17 +117,17 @@ New-AzureRmVmss `
 # Install IIS
 $publicSettings = @{ "fileUris" = (,"https://raw.githubusercontent.com/davidmu1/samplescripts/master/appgatewayurl.ps1"); 
   "commandToExecute" = "powershell -ExecutionPolicy Unrestricted -File appgatewayurl.ps1" }
-$vmss = Get-AzureRmVmss -ResourceGroupName myResourceGroupAG -VMScaleSetName myvmss
-Add-AzureRmVmssExtension -VirtualMachineScaleSet $vmss `
+$vmss = Get-AzVmss -ResourceGroupName myResourceGroupAG -VMScaleSetName myvmss
+Add-AzVmssExtension -VirtualMachineScaleSet $vmss `
   -Name "customScript" `
   -Publisher "Microsoft.Compute" `
   -Type "CustomScriptExtension" `
   -TypeHandlerVersion 1.8 `
   -Setting $publicSettings
-Update-AzureRmVmss `
+Update-AzVmss `
   -ResourceGroupName myResourceGroupAG `
   -Name myvmss `
   -VirtualMachineScaleSet $vmss
 
 # Get the IP address
-Get-AzureRmPublicIPAddress -ResourceGroupName myResourceGroupAG -Name myAGPublicIPAddress
+Get-AzPublicIPAddress -ResourceGroupName myResourceGroupAG -Name myAGPublicIPAddress

@@ -14,7 +14,7 @@ function Get-Credential { return $creds }
 Describe "hdinsight-hadoop-dotnet-csharp-mapreduce" {
     # Use testdrive since there is a downloaded file
     in $TestDrive {
-        It "Runs a C# streaming MapReduce job using Start-AzureRmHDInsightJob" {
+        It "Runs a C# streaming MapReduce job using Start-AzHDInsightJob" {
             Mock Read-host { $clusterName }
             # Test that the job succeeded
             (Start-MapReduce)[0].State | Should be "SUCCEEDED"

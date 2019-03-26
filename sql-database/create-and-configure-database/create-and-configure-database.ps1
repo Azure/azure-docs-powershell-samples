@@ -1,4 +1,4 @@
-﻿# Connect-AzAccount
+# Connect-AzAccount
 # The SubscriptionId in which to create these objects
 $SubscriptionId = ''
 # Set the resource group name and location for your server

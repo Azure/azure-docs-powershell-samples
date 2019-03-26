@@ -3,7 +3,7 @@ $myEndpoint = "<your-endpoint-URL>"
 
 # Select the Azure subscription you want to subscribe to. You need this command only if the 
 # current subscription is not the one you wish to subscribe to.
-Set-AzureRmContext -Subscription "<subscription-name-or-ID>"
+Set-AzContext -Subscription "<subscription-name-or-ID>"
 
 # Subscribe to the Azure subscription. The command creates the subscription for the currently selected Azure subscription. 
-New-AzureRmEventGridSubscription -Endpoint $myEndpoint -EventSubscriptionName demoSubscriptionToAzureSub
+New-AzEventGridSubscription -Endpoint $myEndpoint -EventSubscriptionName demoSubscriptionToAzureSub

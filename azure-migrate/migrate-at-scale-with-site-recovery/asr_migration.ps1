@@ -25,7 +25,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     if ($protectedItem -ne $null) {
         if ($protectedItem.AllowedOperations.Contains('UnplannedFailover')) {
             $processor.Logger.LogTrace("Starting UnplannedFailover operation for item '$($sourceMachineName)'")
-            $targetFailoverJob = Start-AzureRmRecoveryServicesAsrUnplannedFailoverJob `
+            $targetFailoverJob = Start-AzRecoveryServicesAsrUnplannedFailoverJob `
                 -ReplicationProtectedItem $protectedItem `
                 -Direction PrimaryToRecovery
 
