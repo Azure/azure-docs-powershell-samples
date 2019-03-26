@@ -14,7 +14,7 @@ function Get-Credential { return $creds }
 Describe "hdinsight-mahout" {
     # Use testdrive since there is a downloaded file
     in $TestDrive {
-        It "Runs a MapReduce job using Start-AzureRmHDInsightJob" {
+        It "Runs a MapReduce job using Start-AzHDInsightJob" {
             Mock Read-host { $clusterName }
             # Test that the job succeeded
             (Start-MahoutJob)[0].State | Should be "SUCCEEDED"

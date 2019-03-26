@@ -59,7 +59,7 @@ Describe "hdinsight-python" {
             '.\pig_python.py' | Should not Contain "`r`n"
         }
 
-        It "Uploads the python files to Azure storage" {
+        It "Uploads the python files to Az.Storage" {
             # Test that the job succeeded
             { Add-PythonFiles } | Should not throw
         }

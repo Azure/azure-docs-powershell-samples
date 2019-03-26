@@ -9,10 +9,10 @@ $myEndpoint = "<your-endpoint-URL>"
 $myResourceGroup = "<resource-group-name>"
 
 # Create resource group
-$resourceGroupID = (New-AzureRmResourceGroup -Name $myResourceGroup -Location westus2).ResourceId
+$resourceGroupID = (New-AzResourceGroup -Name $myResourceGroup -Location westus2).ResourceId
 
 # Subscribe to the resource group. Provide the name of the resource group you want to subscribe to.
-New-AzureRmEventGridSubscription `
+New-AzEventGridSubscription `
   -ResourceId $resourceGroupID `
   -Endpoint $myEndpoint `
   -EventSubscriptionName demoSubscriptionToResourceGroup

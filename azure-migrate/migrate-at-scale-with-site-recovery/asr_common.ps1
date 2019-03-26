@@ -10,33 +10,33 @@ class AsrCommon
     [psobject] GetAndEnsureVaultContext($vaultName)
     {
         $this.Logger.LogTrace("Ensuring services vault context '$($vaultName)'")
-        $targetVault = Get-AzureRmRecoveryServicesVault -Name $vaultName
+        $targetVault = Get-AzRecoveryServicesVault -Name $vaultName
         if ($targetVault -eq $null)
         {
             $this.Logger.LogError("Vault with name '$($vaultName)' unable to find")
         }
-        Set-AzureRmRecoveryServicesAsrVaultContext -Vault $targetVault
+        Set-AzRecoveryServicesAsrVaultContext -Vault $targetVault
         return $targetVault
     }
 
     [psobject] GetFabricServer($sourceConfigurationServer)
     {
         $this.Logger.LogTrace("Getting fabric server for configuration server '$($sourceConfigurationServer)'")
-        $fabricServer = Get-AzureRmRecoveryServicesAsrFabric -FriendlyName $sourceConfigurationServer
+        $fabricServer = Get-AzRecoveryServicesAsrFabric -FriendlyName $sourceConfigurationServer
         return $fabricServer
     }
 
     [psobject] GetProtectionContainer($fabricServer)
     {
         $this.Logger.LogTrace("Getting protection container reference for fabric server '$($fabricServer.Name)-$($fabricServer.FriendlyName)'")
-        $protectionContainer = Get-AzureRmRecoveryServicesAsrProtectionContainer -Fabric $fabricServer
+        $protectionContainer = Get-AzRecoveryServicesAsrProtectionContainer -Fabric $fabricServer
         return $protectionContainer
     }
 
     [psobject] GetProtectableItem($protectionContainer, $sourceMachineName)
     {
         $this.Logger.LogTrace("Getting protectable item reference '$($sourceMachineName)'")
-        $protectableVM = Get-AzureRmRecoveryServicesAsrProtectableItem `
+        $protectableVM = Get-AzRecoveryServicesAsrProtectableItem `
             -ProtectionContainer $protectionContainer `
             -FriendlyName $sourceMachineName
         return $protectableVM
@@ -45,7 +45,7 @@ class AsrCommon
     [psobject] GetProtectedItem($protectionContainer, $sourceMachineName)
     {
         $this.Logger.LogTrace("Getting protected item reference '$($sourceMachineName)'")
-        $protectedItem = Get-AzureRmRecoveryServicesAsrReplicationProtectedItem `
+        $protectedItem = Get-AzRecoveryServicesAsrReplicationProtectedItem `
             -ProtectionContainer $protectionContainer `
             -FriendlyName $sourceMachineName
         return $protectedItem

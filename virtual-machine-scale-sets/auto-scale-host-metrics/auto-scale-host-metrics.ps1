@@ -31,7 +31,7 @@ $myRuleScaleOut = New-AzAutoscaleRule `
   -Operator "GreaterThan" `
   -Threshold 70 `
   -ScaleActionDirection "Increase" `
-  –ScaleActionScaleType "ChangeCount" `
+  â€“ScaleActionScaleType "ChangeCount" `
   -ScaleActionValue 3 `
   -ScaleActionCooldown 00:05:00
 
@@ -47,7 +47,7 @@ $myRuleScaleIn = New-AzAutoscaleRule `
   -TimeWindow 00:05:00 `
   -ScaleActionCooldown 00:05:00 `
   -ScaleActionDirection "Decrease" `
-  –ScaleActionScaleType "ChangeCount" `
+  â€“ScaleActionScaleType "ChangeCount" `
   -ScaleActionValue 1
 
 # Create the autoscale profle that includes the scale out and scale in rules

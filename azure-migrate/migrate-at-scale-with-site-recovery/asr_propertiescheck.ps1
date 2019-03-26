@@ -62,9 +62,9 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $protectedItem = $asrCommon.GetProtectedItem($protectionContainer, $sourceMachineName)
 
         $apiVersion = "2018-01-10"
-        #Using 'Get-AzureRmResource -ResourceId $protectedItem.ID -ApiVersion $apiVersion' returns $null after 5.x AzureRM.Resources module version        
+        #Using 'Get-AzResource -ResourceId $protectedItem.ID -ApiVersion $apiVersion' returns $null after 5.x Az.Resources module version        
         $resourceName = [string]::Concat($vaultServer.Name, "/", $fabricServer.Name, "/", $protectionContainer.Name, "/", $protectedItem.Name)
-        $resourceRawData = Get-AzureRmResource `
+        $resourceRawData = Get-AzResource `
              -ResourceGroupName $vaultServer.ResourceGroupName `
              -ResourceType  $protectedItem.Type `
              -ResourceName $resourceName `
@@ -73,7 +73,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         #RESOURCE_GROUP
         try {
             #$resourceRawData.Properties.providerSpecificDetails.recoveryAzureResourceGroupId
-            $targetResourceGroup = Get-AzureRmResourceGroup -Name $targetPostFailoverResourceGroup
+            $targetResourceGroup = Get-AzResourceGroup -Name $targetPostFailoverResourceGroup
             CheckParameter $processor.Logger 'TARGET_RESOURCE_GROUP' $targetResourceGroup.ResourceId $resourceRawData.Properties.providerSpecificDetails.recoveryAzureResourceGroupId
             $reportItem.TargetPostFailoverResourceGroupCheck = "DONE"
         } catch {
@@ -84,7 +84,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
 
         #$resourceRawData.Properties.providerSpecificDetails.RecoveryAzureStorageAccount
         try {
-            $RecoveryAzureStorageAccountRef = Get-AzureRmResource -ResourceId $resourceRawData.Properties.providerSpecificDetails.RecoveryAzureStorageAccount
+            $RecoveryAzureStorageAccountRef = Get-AzResource -ResourceId $resourceRawData.Properties.providerSpecificDetails.RecoveryAzureStorageAccount
             CheckParameter $processor.Logger 'TARGET_STORAGE_ACCOUNT' $targetPostFailoverStorageAccountName $RecoveryAzureStorageAccountRef.Name
             $reportItem.TargetPostFailoverStorageAccountNameCheck = "DONE"
         } catch {
@@ -111,7 +111,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
             if ($targetAvailabilitySet -eq '' -and $actualAvailabilitySet -eq '') {
                 $reportItem.TargetAvailabilitySetCheck = "DONE"
             } else {
-                $targetAvailabilitySetObj = Get-AzureRmAvailabilitySet `
+                $targetAvailabilitySetObj = Get-AzAvailabilitySet `
                     -ResourceGroupName $targetPostFailoverResourceGroup `
                     -Name $targetAvailabilitySet
                 CheckParameter $processor.Logger 'AVAILABILITY_SET' $targetAvailabilitySetObj.Id $actualAvailabilitySet
@@ -159,7 +159,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         # #$resourceRawData.Properties.providerSpecificDetails.vmNics[0].recoveryVMNetworkId
         # $reportItem.targetPostFailoverVNET = "DONE"
         try {
-            $VNETRef = Get-AzureRmResource -ResourceId $resourceRawData.Properties.providerSpecificDetails.vmNics[0].recoveryVMNetworkId
+            $VNETRef = Get-AzResource -ResourceId $resourceRawData.Properties.providerSpecificDetails.vmNics[0].recoveryVMNetworkId
             CheckParameter $processor.Logger 'TARGET_VNET' $VNETRef.ResourceId $resourceRawData.Properties.providerSpecificDetails.vmNics[0].recoveryVMNetworkId
             $reportItem.TargetPostFailoverVNETCheck = "DONE"
         } catch {

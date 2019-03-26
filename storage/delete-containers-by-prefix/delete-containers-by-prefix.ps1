@@ -32,7 +32,7 @@ Write-Host "Containers to be deleted"
 $listOfContainersToDelete | select Name
 
 # delete the containers; this pipes the result of the listing of the containers to delete
-#    into the Remove-AzureStorageContainer command. It handles all of the containers in the list.
+#    into the Remove-AzStorageContainer command. It handles all of the containers in the list.
 Write-Host "Deleting containers"
 $listOfContainersToDelete | Remove-AzStorageContainer -Context $ctx 
 

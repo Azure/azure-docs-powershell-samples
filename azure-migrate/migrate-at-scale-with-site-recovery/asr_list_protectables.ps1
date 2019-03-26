@@ -15,12 +15,12 @@ class ProtectableItemInfo
     [string]$ProtectionStatus
 }
 
-$currentContext = Get-AzureRmContext
+$currentContext = Get-AzContext
 $currentSubscription = $currentContext.Subscription
 if ($currentSubscription.Id -ne $subscriptionId)
 {
-    Set-AzureRmContext -Subscription $subscriptionId
-    $currentContext = Get-AzureRmContext
+    Set-AzContext -Subscription $subscriptionId
+    $currentContext = Get-AzContext
     $currentSubscription = $currentContext.Subscription
     if ($currentSubscription.Id -ne $subscriptionId)
     {
@@ -28,19 +28,19 @@ if ($currentSubscription.Id -ne $subscriptionId)
     }
 }
 
-$targetVault = Get-AzureRmRecoveryServicesVault -Name $VaultName
+$targetVault = Get-AzRecoveryServicesVault -Name $VaultName
 if ($targetVault -eq $null)
 {
     LogError("Vault with name '$($vaultName)' unable to find")
 }
 
-Set-AzureRmRecoveryServicesAsrVaultContext -Vault $targetVault
-$fabricServer = Get-AzureRmRecoveryServicesAsrFabric `
+Set-AzRecoveryServicesAsrVaultContext -Vault $targetVault
+$fabricServer = Get-AzRecoveryServicesAsrFabric `
     -FriendlyName $ConfigurationServer
-$protectionContainer = Get-AzureRmRecoveryServicesAsrProtectionContainer `
+$protectionContainer = Get-AzRecoveryServicesAsrProtectionContainer `
     -Fabric $fabricServer
     
-$items = Get-AzureRmRecoveryServicesAsrProtectableItem `
+$items = Get-AzRecoveryServicesAsrProtectableItem `
     -ProtectionContainer $protectionContainer
 
 $protectedItemStatusArray = New-Object System.Collections.Generic.List[System.Object]

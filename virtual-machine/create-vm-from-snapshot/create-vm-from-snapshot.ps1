@@ -26,9 +26,9 @@ $virtualMachineSize = 'Standard_DS3'
 Select-AzSubscription -SubscriptionId $SubscriptionId
 
 $snapshot = Get-AzSnapshot -ResourceGroupName $resourceGroupName -SnapshotName $snapshotName
- 
+Â 
 $diskConfig = New-AzDiskConfig -Location $snapshot.Location -SourceResourceId $snapshot.Id -CreateOption Copy
- 
+Â 
 $disk = New-AzDisk -Disk $diskConfig -ResourceGroupName $resourceGroupName -DiskName $osDiskName
 
 #Initialize virtual machine configuration

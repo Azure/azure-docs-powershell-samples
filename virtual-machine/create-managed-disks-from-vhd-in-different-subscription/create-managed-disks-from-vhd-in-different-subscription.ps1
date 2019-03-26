@@ -33,6 +33,6 @@ $storageAccountId = '/subscriptions/yourSubscriptionId/resourceGroups/yourResour
 Select-AzSubscription -SubscriptionId $SubscriptionId
 
 $diskConfig = New-AzDiskConfig -AccountType $storageType -Location $location -CreateOption Import -StorageAccountId $storageAccountId -SourceUri $sourceVHDURI
- 
+Â 
 New-AzDisk -Disk $diskConfig -ResourceGroupName $resourceGroupName -DiskName $diskName
- 
+Â 

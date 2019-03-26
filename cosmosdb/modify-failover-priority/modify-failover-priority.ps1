@@ -3,7 +3,7 @@ $resourceGroupName = "myResourceGroup"
 $resourceGroupLocation = "South Central US"
 
 # Create the resource group
-New-AzureRmResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
+New-AzResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
 
 # Database name
 $DBName = "testdb"
@@ -25,7 +25,7 @@ $DBProperties = @{"databaseAccountOfferType"="Standard";
                           "consistencyPolicy"=$consistencyPolicy}
 
 # Create the database
-New-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
+New-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
                     -ApiVersion "2015-04-08" `
                     -ResourceGroupName $resourceGroupName `
                     -Location $resourceGroupLocation `
@@ -39,7 +39,7 @@ $failoverPolicies = @(@{"locationName"="South Central US";
                         "failoverPriority"=0})
 
 # Update an existing database with the failover policies
-Invoke-AzureRmResourceAction -Action failoverPriorityChange `
+Invoke-AzResourceAction -Action failoverPriorityChange `
     -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
     -ApiVersion "2015-04-08" `
     -ResourceGroupName "<resource-group-name>" `

@@ -78,13 +78,13 @@ class CsvProcessor
     [void] EnsureSubscription($subscriptionId)
     {
         $this.Logger.LogTrace("Checking if current subscription equals to '$($subscriptionId)'")
-        $currentContext = Get-AzureRmContext
+        $currentContext = Get-AzContext
         $currentSubscription = $currentContext.Subscription
         if ($currentSubscription.Id -ne $subscriptionId)
         {
             $this.Logger.LogTrace("Setting context subscription '$($subscriptionId)'")
-            Set-AzureRmContext -Subscription $subscriptionId
-            $currentContext = Get-AzureRmContext
+            Set-AzContext -Subscription $subscriptionId
+            $currentContext = Get-AzContext
             $currentSubscription = $currentContext.Subscription
             if ($currentSubscription.Id -ne $subscriptionId)
             {
