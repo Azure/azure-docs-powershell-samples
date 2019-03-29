@@ -3,3 +3,4 @@
 #.vscode/
 .vs/
 !input_template.csv
+!samplecsv.csv
