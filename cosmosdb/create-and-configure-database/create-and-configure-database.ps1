@@ -3,7 +3,7 @@ $resourceGroupName = "myResourceGroup"
 $resourceGroupLocation = "South Central US"
 
 # Create the resource group
-New-AzureRmResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
+New-AzResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
 
 # Database name
 $DBName = "testdb"
@@ -29,7 +29,7 @@ $DBProperties = @{"databaseAccountOfferType"="Standard";
                           "ipRangeFilter"=$iprangefilter}
 
 # Create the database
-New-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
+New-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
                     -ApiVersion "2015-04-08" `
                     -ResourceGroupName $resourceGroupName `
                     -Location $resourceGroupLocation `

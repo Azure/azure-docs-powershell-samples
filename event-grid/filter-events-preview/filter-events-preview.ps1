@@ -12,19 +12,19 @@ $topicName = "<your-topic-name>"
 $myResourceGroup= "<resource-group-name>"
 
 # Create the resource group
-New-AzureRmResourceGroup -Name $myResourceGroup -Location westus2
+New-AzResourceGroup -Name $myResourceGroup -Location westus2
 
 # Create custom topic
-New-AzureRmEventGridTopic -ResourceGroupName $myResourceGroup -Location westus2 -Name $topicName
+New-AzEventGridTopic -ResourceGroupName $myResourceGroup -Location westus2 -Name $topicName
 
 # Get resource ID of custom topic
-$topicid = (Get-AzureRmEventGridTopic -ResourceGroupName $myResourceGroup -Name $topicName).Id
+$topicid = (Get-AzEventGridTopic -ResourceGroupName $myResourceGroup -Name $topicName).Id
 
 # Set the operator type, field and values for the filtering
 $AdvFilter1=@{operator="StringIn"; key="Data.color"; Values=@('blue', 'red', 'green')}
 
 # Subscribe to the custom topic. Filter based on a value in the event data.
-New-AzureRmEventGridSubscription `
+New-AzEventGridSubscription `
   -ResourceId $topicid `
   -EventSubscriptionName demoSubWithFilter `
   -Endpoint $myEndpoint `

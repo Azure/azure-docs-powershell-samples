@@ -3,13 +3,13 @@ $subscriptionId = <Specify your subscription ID>
 $labName = <Specify your lab name>
 
 
-‘List all the operations/actions for a resource provider.
+â€˜List all the operations/actions for a resource provider.
 Get-AzProviderOperation -OperationSearchString "Microsoft.DevTestLab/*"
 
-‘List actions in a particular role.
+â€˜List actions in a particular role.
 (Get-AzRoleDefinition "DevTest Labs User").Actions
 
-‘Create custom role.
+â€˜Create custom role.
 $policyRoleDef = (Get-AzRoleDefinition "DevTest Labs User")
 $policyRoleDef.Id = $null
 $policyRoleDef.Name = "Policy Contributor"

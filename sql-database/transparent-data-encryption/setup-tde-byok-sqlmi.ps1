@@ -1,8 +1,8 @@
 # Log in to your Azure account:
-Connect-AzureRmAccount
+Connect-AzAccount
 
 # If there are multiple subscriptions, choose the one where AKV is created: 
-Set-AzureRmContext -SubscriptionId "subscription ID"
+Set-AzContext -SubscriptionId "subscription ID"
 
 # Install the preview version of AzureRM.Sql PowerShell package 4.11.6-preview if you are running this PowerShell locally (uncomment below):
 # Install-Module -Name AzureRM.Sql -RequiredVersion 4.11.6-preview -AllowPrerelease
@@ -11,22 +11,22 @@ Set-AzureRmContext -SubscriptionId "subscription ID"
 
 # Create Resource (name the resource and specify the location)
 $location = "westus2" # specify the location
-New-AzureRmResourceGroup -Name "MyRG" -Location $location
+New-AzResourceGroup -Name "MyRG" -Location $location
 
 # Create new Azure Key Vault with soft-delete option turned on (change name, RG and region): 
-New-AzureRmKeyVault -VaultName "MyKeyVault" -ResourceGroupName "MyRG" -Location $location -EnableSoftDelete
+New-AzKeyVault -VaultName "MyKeyVault" -ResourceGroupName "MyRG" -Location $location -EnableSoftDelete
 
 # Create Managed Service Identity for the Managed Instance: 
-$instance = Set-AzureRmSqlManagedInstance -ResourceGroupName "MyRG" -Name "MyManagedInstance" -AssignIdentity
+$instance = Set-AzSqlManagedInstance -ResourceGroupName "MyRG" -Name "MyManagedInstance" -AssignIdentity
 
 # Authorize Managed Instance to use the AKV (wrap/unwrap key and get public part of key, if public part exists): 
-Set-AzureRmKeyVaultAccessPolicy -VaultName "MyKeyVault" -ServicePrincipalName $instance.Identity -PermissionsToKeys get,wrapKey,unwrapKey
+Set-AzKeyVaultAccessPolicy -VaultName "MyKeyVault" -ServicePrincipalName $instance.Identity -PermissionsToKeys get,wrapKey,unwrapKey
 
 # Allow access from trusted Azure services: 
-Update-AzureRmKeyVaultNetworkRuleSet -VaultName "MyKeyVault" -Bypass AzureServices
+Update-AzKeyVaultNetworkRuleSet -VaultName "MyKeyVault" -Bypass AzureServices
 
 # Turn the network rules ON by setting the default action to Deny: 
-Update-AzureRmKeyVaultNetworkRuleSet -VaultName "MyKeyVault" -DefaultAction Deny
+Update-AzKeyVaultNetworkRuleSet -VaultName "MyKeyVault" -DefaultAction Deny
 
 
 # 2. Provide TDE Protector key (skip if already done)
@@ -43,7 +43,7 @@ $key = Add-AzureKeyVaultKey -VaultName 'MyKeyVault' -Name 'MyTDEKey' -KeyFilePat
 
 # Assign the key to the Managed Instance:
 # $key = 'https://contoso.vault.azure.net/keys/contosokey/01234567890123456789012345678901'
-Add-AzureRmSqlManagedInstanceKeyVaultKey -KeyId $key -ManagedInstanceName "MyManagedInstance" -ResourceGroupName "MyRG"
+Add-AzSqlManagedInstanceKeyVaultKey -KeyId $key -ManagedInstanceName "MyManagedInstance" -ResourceGroupName "MyRG"
 
 # Set TDE operation mode to BYOK: 
-Set-AzureRmSqlManagedInstanceTransparentDataEncryptionProtector -Type AzureKeyVault -ManagedInstanceName "MyManagedInstance" -ResourceGroup "MyRG"
+Set-AzSqlManagedInstanceTransparentDataEncryptionProtector -Type AzureKeyVault -ManagedInstanceName "MyManagedInstance" -ResourceGroup "MyRG"

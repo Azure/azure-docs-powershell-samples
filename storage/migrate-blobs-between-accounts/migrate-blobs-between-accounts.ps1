@@ -1,6 +1,6 @@
 # Run the script in a new open Powershell window, which has not run other cmdlets, or AzCopy performance could suffer .
 # Need install Azure PowerShell before runing the script: https://github.com/Azure/azure-powershell/releases
-# Need install AzCopy before runing the script: https://docs.microsoft.com/azure/storage/common/storage-use-azcopy
+# Need install AzCopy before runing the script: https://docs.microsoft.com/Az.Storage/common/storage-use-azcopy
 # Do not modify the Source or Destination accounts while the copy is running
 
 param (

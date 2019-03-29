@@ -21,10 +21,10 @@ $subname="$clustername.$clusterloc.cloudapp.azure.com"
 $clustersize=5 
 
 # Set the context to the subscription Id where the cluster will be created
-Select-AzureRmSubscription -SubscriptionId $subscriptionId
+Select-AzSubscription -SubscriptionId $subscriptionId
 
 # Create the Service Fabric cluster.
-New-AzureRmServiceFabricCluster -Name $clustername -ResourceGroupName $groupname -Location $clusterloc `
+New-AzServiceFabricCluster -Name $clustername -ResourceGroupName $groupname -Location $clusterloc `
 -ClusterSize $clustersize -VmUserName $adminuser -VmPassword $adminpwd -CertificateSubjectName $subname `
 -CertificatePassword $certpwd -CertificateOutputFolder $certfolder `
 -OS WindowsServer2016DatacenterwithContainers -VmSku $vmsku -KeyVaultName $vaultname

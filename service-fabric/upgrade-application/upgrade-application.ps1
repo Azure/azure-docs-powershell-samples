@@ -1,4 +1,4 @@
-﻿## Variables
+## Variables
 $ApplicationPackagePath = "C:\Users\sfuser\documents\visual studio 2017\Projects\Voting\Voting\pkg\Debug"
 $ApplicationName = "fabric:/Voting"
 $ApplicationTypeName = "VotingType"

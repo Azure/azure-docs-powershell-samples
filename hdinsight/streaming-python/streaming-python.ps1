@@ -4,17 +4,17 @@ function Start-PythonExample {
 
     # Login to your Azure subscription
     # Is there an active Azure subscription?
-    $sub = Get-AzureRmSubscription -ErrorAction SilentlyContinue
+    $sub = Get-AzSubscription -ErrorAction SilentlyContinue
     if(-not($sub))
     {
-        Add-AzureRmAccount
+        Add-AzAccount
     }
 
     # Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
     # Get the login (HTTPS) credentials for the cluster
     $creds=Get-Credential -Message "Enter the login for the cluster" -UserName "admin"
-    $clusterInfo = Get-AzureRmHDInsightCluster -ClusterName $clusterName
+    $clusterInfo = Get-AzHDInsightCluster -ClusterName $clusterName
     $storageInfo = $clusterInfo.DefaultStorageAccount.split('.')
     $defaultStoreageType = $storageInfo[1]
     $defaultStorageName = $storageInfo[0]
@@ -30,21 +30,21 @@ function Start-PythonExample {
             # Get the blob storage information for the cluster
             $resourceGroup = $clusterInfo.ResourceGroup
             $storageContainer=$clusterInfo.DefaultStorageContainer
-            $storageAccountKey=(Get-AzureRmStorageAccountKey `
+            $storageAccountKey=(Get-AzStorageAccountKey `
                 -Name $defaultStorageName `
                 -ResourceGroupName $resourceGroup)[0].Value
             # Create a storage context and upload the file
-            $context = New-AzureStorageContext `
+            $context = New-AzStorageContext `
                 -StorageAccountName $defaultStorageName `
                 -StorageAccountKey $storageAccountKey
             # Upload the mapper.py file
-            Set-AzureStorageBlobContent `
+            Set-AzStorageBlobContent `
                 -File .\mapper.py `
                 -Blob "mapper.py" `
                 -Container $storageContainer `
                 -Context $context
             # Upload the reducer.py file
-            Set-AzureStorageBlobContent `
+            Set-AzStorageBlobContent `
                 -File .\reducer.py `
                 -Blob "reducer.py" `
                 -Container $storageContainer `
@@ -55,11 +55,11 @@ function Start-PythonExample {
             # Get the root of the HDInsight cluster azuredatalakestore
             $clusterRoot=$clusterInfo.DefaultStorageRootPath
             # Upload the files. Prepend the destination with the cluster root
-            Import-AzureRmDataLakeStoreItem -AccountName $defaultStorageName `
+            Import-AzDataLakeStoreItem -AccountName $defaultStorageName `
                 -Path .\mapper.py `
                 -Destination "$clusterRoot/mapper.py" `
                 -Force
-            Import-AzureRmDataLakeStoreItem -AccountName $defaultStorageName `
+            Import-AzDataLakeStoreItem -AccountName $defaultStorageName `
                 -Path .\reducer.py `
                 -Destination "$clusterRoot/reducer.py" `
                 -Force
@@ -73,7 +73,7 @@ function Start-PythonExample {
     # Note: This assumes that the mapper.py and reducer.py
     #       are in the root of default storage. If you put them in a
     #       subdirectory, change the -Files parameter to the correct path.
-    $jobDefinition = New-AzureRmHDInsightStreamingMapReduceJobDefinition `
+    $jobDefinition = New-AzHDInsightStreamingMapReduceJobDefinition `
         -Files "/mapper.py", "/reducer.py" `
         -Mapper "mapper.py" `
         -Reducer "reducer.py" `
@@ -82,14 +82,14 @@ function Start-PythonExample {
 
     # Start the job
     Write-Progress -Activity $activity -Status "Starting the MapReduce job..."
-    $job = Start-AzureRmHDInsightJob `
+    $job = Start-AzHDInsightJob `
         -ClusterName $clusterName `
         -JobDefinition $jobDefinition `
         -HttpCredential $creds
 
     # Wait for the job to complete
     Write-Progress -Activity $activity -Status "Waiting for the job to complete..."
-    Wait-AzureRmHDInsightJob `
+    Wait-AzHDInsightJob `
         -JobId $job.JobId `
         -ClusterName $clusterName `
         -HttpCredential $creds
@@ -102,15 +102,15 @@ function Start-PythonExample {
             # Get the blob storage information for the cluster
             $resourceGroup = $clusterInfo.ResourceGroup
             $storageContainer=$clusterInfo.DefaultStorageContainer
-            $storageAccountKey=(Get-AzureRmStorageAccountKey `
+            $storageAccountKey=(Get-AzStorageAccountKey `
                 -Name $defaultStorageName `
                 -ResourceGroupName $resourceGroup)[0].Value
             # Create a storage context and download the file
-            $context = New-AzureStorageContext `
+            $context = New-AzStorageContext `
                 -StorageAccountName $defaultStorageName `
                 -StorageAccountKey $storageAccountKey
             # Download the file
-            Get-AzureStorageBlobContent `
+            Get-AzStorageBlobContent `
                 -Container $storageContainer `
                 -Blob "example/wordcountout/part-00000" `
                 -Context $context `
@@ -126,7 +126,7 @@ function Start-PythonExample {
             # NOTE: Unlike getting a blob, this just gets the content and no
             #       file is created locally.
             $sourcePath=$clusterRoot + "example/wordcountout/part-00000"
-            Get-AzureRmDataLakeStoreItemContent -Account $defaultStorageName -Path $sourcePath -Confirm
+            Get-AzDataLakeStoreItemContent -Account $defaultStorageName -Path $sourcePath -Confirm
         }
         default {
             Throw "Unknown storage type: $defaultStoreageType"

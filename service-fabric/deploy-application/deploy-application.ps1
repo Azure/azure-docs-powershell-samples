@@ -1,4 +1,4 @@
-﻿# Variables
+# Variables
 $endpoint = 'mysftestcluster.southcentralus.cloudapp.azure.com:19000'
 $thumbprint = '2779F0BB9A969FB88E04915FFE7955D0389DA7AF'
 $packagepath="C:\Users\sfuser\Documents\Visual Studio 2017\Projects\MyApplication\MyApplication\pkg\Release"

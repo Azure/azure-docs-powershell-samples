@@ -15,6 +15,7 @@ function add-pythonfiles {
 
     # Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
+
     $clusterInfo = Get-AzHDInsightCluster -ClusterName $clusterName
     $resourceGroup = $clusterInfo.ResourceGroup
     $storageAccountName=$clusterInfo.DefaultStorageAccount.split('.')[0]
@@ -70,6 +71,7 @@ function start-hivejob {
     Write-Progress -Activity $activity -Status "Starting query..."
 
     # Start defined Azure HDInsight job on specified cluster.
+
     $job = Start-AzHDInsightJob `
         -ClusterName $clusterName `
         -JobDefinition $jobDefinition `
@@ -134,6 +136,7 @@ function start-pigjob {
 
     # Progress bar (optional)
     Write-Progress -Activity $activity -Status "Starting job..."
+
 
     # Start defined Azure HDInsight job on specified cluster.
     $job = Start-AzHDInsightJob `

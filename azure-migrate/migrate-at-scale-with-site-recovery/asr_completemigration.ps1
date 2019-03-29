@@ -28,12 +28,12 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         if ($protectedItem.AllowedOperations.Contains('Commit')) {
             #Start the failover operation
             $processor.Logger.LogTrace("Starting Commit operation for item '$($sourceMachineName)'")
-            $commitFailoverJob = Start-AzureRmRecoveryServicesAsrCommitFailoverJob `
+            $commitFailoverJob = Start-AzRecoveryServicesAsrCommitFailoverJob `
                 -ReplicationProtectedItem $protectedItem
             $initialStartDate = Get-Date
             while (($commitFailoverJob.State -ne 'Succeeded') -and ($diffInMilliseconds -le $TimeOutInCommitJobInSeconds)) {
                 Write-Host "." -NoNewline 
-                $commitFailoverJob = Get-AzureRmRecoveryServicesAsrJob -Name $commitFailoverJob.Name
+                $commitFailoverJob = Get-AzRecoveryServicesAsrJob -Name $commitFailoverJob.Name
                 $currentDate = Get-Date
 
                 $diff = $currentDate - $initialStartDate
@@ -49,7 +49,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         if ($protectedItem.AllowedOperations.Contains('DisableProtection')) {
             #Start the failover operation
             $processor.Logger.LogTrace("Starting DisableProtection operation for item '$($sourceMachineName)'")
-            $disableReplicationJob = Remove-AzureRmRecoveryServicesAsrReplicationProtectedItem `
+            $disableReplicationJob = Remove-AzRecoveryServicesAsrReplicationProtectedItem `
                 -InputObject $protectedItem
 
             $reportItem.DisableReplicationJobId = $disableReplicationJob.ID
