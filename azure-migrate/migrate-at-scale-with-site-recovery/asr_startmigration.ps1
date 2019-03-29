@@ -26,12 +26,14 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $sourceConfigurationServer = $csvItem.CONFIGURATION_SERVER
     $targetPostFailoverResourceGroup = $csvItem.TARGET_RESOURCE_GROUP
     $targetPostFailoverStorageAccountName = $csvItem.TARGET_STORAGE_ACCOUNT
+    $targetPostFailoverLogStorageAccountName = $csvItem.TARGET_LOGSTORAGE_ACCOUNT 
     $targetPostFailoverVNET = $csvItem.TARGET_VNET
     $targetPostFailoverSubnet = $csvItem.TARGET_SUBNET
     $sourceMachineName = $csvItem.SOURCE_MACHINE_NAME
     $replicationPolicy = $csvItem.REPLICATION_POLICY
     $targetMachineName = $csvItem.TARGET_MACHINE_NAME
     $targetStorageAccountRG = $csvItem.TARGET_STORAGE_ACCOUNT_RG
+    $targetLogStorageAccountRG = $csvItem.TARGET_LOGSTORAGE_ACCOUNT_RG
     $targetVNETRG = $csvItem.TARGET_VNET_RG
 
     $vaultServer = $asrCommon.GetAndEnsureVaultContext($vaultName)
@@ -45,15 +47,19 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     if ($protectableVM.ReplicationProtectedItemId -eq $null) {
         $processor.Logger.LogTrace("Starting protection for item '$($sourceMachineName)'")
         #Assumption storage are already created
-        $targetPostFailoverStorageAccount = Get-AzStorageAccount `
+        $targetPostFailoverStorageAccount = Get-AzureRmStorageAccount `
             -Name $targetPostFailoverStorageAccountName `
             -ResourceGroupName $targetStorageAccountRG
 
-        $targetResourceGroupObj = Get-AzResourceGroup -Name $targetPostFailoverResourceGroup
-        $targetVnetObj = Get-AzVirtualNetwork `
+        $targetPostFailoverLogStorageAccount = Get-AzureRmStorageAccount `
+            -Name $targetPostFailoverLogStorageAccountName `
+            -ResourceGroupName $targetLogStorageAccountRG
+
+        $targetResourceGroupObj = Get-AzureRmResourceGroup -Name $targetPostFailoverResourceGroup
+        $targetVnetObj = Get-AzureRmVirtualNetwork `
             -Name $targetPostFailoverVNET `
             -ResourceGroupName $targetVNETRG 
-        $targetPolicyMap  =  Get-AzRecoveryServicesAsrProtectionContainerMapping `
+        $targetPolicyMap  =  Get-AzureRmRecoveryServicesAsrProtectionContainerMapping `
             -ProtectionContainer $protectionContainer | Where-Object { $_.PolicyFriendlyName -eq $replicationPolicy }
         if ($targetPolicyMap -eq $null) {
             $processor.Logger.LogErrorAndThrow("Policy map '$($replicationPolicy)' was not found")
@@ -69,12 +75,13 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         }
 
         $processor.Logger.LogTrace( "Starting replication Job for source '$($sourceMachineName)'")
-        $replicationJob = New-AzRecoveryServicesAsrReplicationProtectedItem `
+        $replicationJob = New-AzureRmRecoveryServicesAsrReplicationProtectedItem `
             -VMwareToAzure `
             -ProtectableItem $protectableVM `
             -Name (New-Guid).Guid `
             -ProtectionContainerMapping $targetPolicyMap `
             -RecoveryAzureStorageAccountId $targetPostFailoverStorageAccount.Id `
+	    -LogStorageAccountId $targetPostFailoverLogStorageAccount.Id `
             -ProcessServer $sourceProcessServerObj `
             -Account $sourceAccountObj `
             -RecoveryResourceGroupId $targetResourceGroupObj.ResourceId `
@@ -82,10 +89,10 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
             -RecoveryAzureSubnetName $targetPostFailoverSubnet `
             -RecoveryVmName $targetMachineName
 
-        $replicationJobObj = Get-AzRecoveryServicesAsrJob -Name $replicationJob.Name
+        $replicationJobObj = Get-AzureRmRecoveryServicesAsrJob -Name $replicationJob.Name
         while ($replicationJobObj.State -eq 'NotStarted') {
             Write-Host "." -NoNewline 
-            $replicationJobObj = Get-AzRecoveryServicesAsrJob -Name $replicationJob.Name
+            $replicationJobObj = Get-AzureRmRecoveryServicesAsrJob -Name $replicationJob.Name
         }
         $reportItem.ReplicationJobId = $replicationJob.Name
 
@@ -99,7 +106,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
             $processor.Logger.LogTrace("ReplicationJob initiated")      
         }
     } else {
-        $protectedItem = Get-AzRecoveryServicesAsrReplicationProtectedItem `
+        $protectedItem = Get-AzureRmRecoveryServicesAsrReplicationProtectedItem `
             -ProtectionContainer $protectionContainer `
             -FriendlyName $sourceMachineName
         $reportItem.ProtectionState = $protectedItem.ProtectionState
