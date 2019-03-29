@@ -26,12 +26,14 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $sourceConfigurationServer = $csvItem.CONFIGURATION_SERVER
     $targetPostFailoverResourceGroup = $csvItem.TARGET_RESOURCE_GROUP
     $targetPostFailoverStorageAccountName = $csvItem.TARGET_STORAGE_ACCOUNT
+    $targetPostFailoverLogStorageAccountName = $csvItem.TARGET_LOGSTORAGE_ACCOUNT 
     $targetPostFailoverVNET = $csvItem.TARGET_VNET
     $targetPostFailoverSubnet = $csvItem.TARGET_SUBNET
     $sourceMachineName = $csvItem.SOURCE_MACHINE_NAME
     $replicationPolicy = $csvItem.REPLICATION_POLICY
     $targetMachineName = $csvItem.TARGET_MACHINE_NAME
     $targetStorageAccountRG = $csvItem.TARGET_STORAGE_ACCOUNT_RG
+    $targetLogStorageAccountRG = $csvItem.TARGET_LOGSTORAGE_ACCOUNT_RG
     $targetVNETRG = $csvItem.TARGET_VNET_RG
 
     $vaultServer = $asrCommon.GetAndEnsureVaultContext($vaultName)
@@ -48,6 +50,10 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $targetPostFailoverStorageAccount = Get-AzStorageAccount `
             -Name $targetPostFailoverStorageAccountName `
             -ResourceGroupName $targetStorageAccountRG
+
+        $targetPostFailoverLogStorageAccount = Get-AzStorageAccount `
+            -Name $targetPostFailoverLogStorageAccountName `
+            -ResourceGroupName $targetLogStorageAccountRG
 
         $targetResourceGroupObj = Get-AzResourceGroup -Name $targetPostFailoverResourceGroup
         $targetVnetObj = Get-AzVirtualNetwork `
@@ -75,6 +81,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
             -Name (New-Guid).Guid `
             -ProtectionContainerMapping $targetPolicyMap `
             -RecoveryAzureStorageAccountId $targetPostFailoverStorageAccount.Id `
+	    -LogStorageAccountId $targetPostFailoverLogStorageAccount.Id `
             -ProcessServer $sourceProcessServerObj `
             -Account $sourceAccountObj `
             -RecoveryResourceGroupId $targetResourceGroupObj.ResourceId `

@@ -55,7 +55,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
                     -RecoveryNicStaticIPAddress $targetPrivateIP `
                     -RecoveryNetworkId $nicdetails.RecoveryVMNetworkId `
                     -RecoveryNicSubnetName $targetSubnet `
-                    -UseManagedDisk $False `
+                    -UseManagedDisk $True `
                     -Size $targetMachineSize
             } else {
                 $targetAvailabilitySetObj = Get-AzAvailabilitySet `
@@ -68,7 +68,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
                     -RecoveryNicStaticIPAddress $targetPrivateIP `
                     -RecoveryNetworkId $nicdetails.RecoveryVMNetworkId `
                     -RecoveryNicSubnetName $targetSubnet `
-                    -UseManagedDisk $False `
+                    -UseManagedDisk $True `
                     -RecoveryAvailabilitySet $targetAvailabilitySetObj.Id `
                     -Size $targetMachineSize
             }
