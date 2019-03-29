@@ -49,26 +49,26 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
             $processor.Logger.LogTrace("Creating job to set machine properties...")
             $nicDetails = $protectedItem.NicDetailsList[0]
             if (($targetAvailabilitySet -eq '') -or ($targetAvailabilitySet -eq $null)) {
-                $updatePropertiesJob = Set-AzRecoveryServicesAsrReplicationProtectedItem `
+                $updatePropertiesJob = Set-AzureRmRecoveryServicesAsrReplicationProtectedItem `
                     -InputObject $protectedItem `
                     -PrimaryNic $nicDetails.NicId `
                     -RecoveryNicStaticIPAddress $targetPrivateIP `
                     -RecoveryNetworkId $nicdetails.RecoveryVMNetworkId `
                     -RecoveryNicSubnetName $targetSubnet `
-                    -UseManagedDisk $False `
+                    -UseManagedDisk $True `
                     -Size $targetMachineSize
             } else {
-                $targetAvailabilitySetObj = Get-AzAvailabilitySet `
+                $targetAvailabilitySetObj = Get-AzureRmAvailabilitySet `
                     -ResourceGroupName $targetPostFailoverResourceGroup `
                     -Name $targetAvailabilitySet
     
-                $updatePropertiesJob = Set-AzRecoveryServicesAsrReplicationProtectedItem `
+                $updatePropertiesJob = Set-AzureRmRecoveryServicesAsrReplicationProtectedItem `
                     -InputObject $protectedItem `
                     -PrimaryNic $nicDetails.NicId `
                     -RecoveryNicStaticIPAddress $targetPrivateIP `
                     -RecoveryNetworkId $nicdetails.RecoveryVMNetworkId `
                     -RecoveryNicSubnetName $targetSubnet `
-                    -UseManagedDisk $False `
+                    -UseManagedDisk $True `
                     -RecoveryAvailabilitySet $targetAvailabilitySetObj.Id `
                     -Size $targetMachineSize
             }
