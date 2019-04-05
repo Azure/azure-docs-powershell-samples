@@ -29,15 +29,17 @@ Update-AzKeyVaultNetworkRuleSet -VaultName "MyKeyVault" -DefaultAction Deny
 
 # 2. Provide TDE Protector key (skip if already done)
 
-# Generate new key directly in Azure Key Vault (recommended for test purposes only - uncomment below):
-# $key = Add-AzureKeyVaultKey -VaultName MyKeyVault -Name MyTDEKey -Destination Software -Size 2048
-
-# Alternatively, the recommended way is to import an existing key from a .pfx file:
-$securepfxpwd = ConvertTo-SecureString -String "MyPa$$w0rd" -AsPlainText -Force 
-$key = Add-AzKeyVaultKey -VaultName "MyKeyVault" -Name "MyTDEKey" -KeyFilePath "c:\some_path\mytdekey.pfx" -KeyFilePassword $securepfxpwd
+# The recommended way is to import an existing key from a .pfx file:
+$keypath = "c:\some_path\mytdekey.pfx" # Supply your desired path and name
+$securepfxpwd = ConvertTo-SecureString -String (New-Guid).Guid -AsPlainText -Force 
+# Specify a universally unique VaultName, and then specify the Key Name
+$key = Add-AzKeyVaultKey -VaultName "MyKeyVault" -Name "MyTDEKey" -KeyFilePath $keypath -KeyFilePassword $securepfxpwd
 
 # ...or get an existing key from the vault:
 # $key = Get-AzKeyVaultKey -VaultName "MyKeyVault" -Name "MyTDEKey"
+
+# Alternatively, generate a new key directly in Azure Key Vault (recommended for test purposes only - uncomment below):
+# $key = Add-AzureKeyVaultKey -VaultName MyKeyVault -Name MyTDEKey -Destination Software -Size 2048
 
 # 3. Set up BYOK TDE on Managed Instance:
 
