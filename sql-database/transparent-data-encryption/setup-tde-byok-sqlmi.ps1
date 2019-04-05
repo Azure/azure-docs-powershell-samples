@@ -9,15 +9,15 @@ Set-AzContext -SubscriptionId "subscription ID"
 
 # 1. Create Resource and setup Azure Key Vault (skip if already done)
 
-# Create Resource (name the resource and specify the location)
+# Create Resource group (name the resource and specify the location)
 $location = "westus2" # specify the location
-New-AzResourceGroup -Name "MyRG" -Location $location
+New-AzResourceGroup -Name "MyRG" -Location $location # specify a new RG name
 
-# Create new Azure Key Vault with soft-delete option turned on (change name, RG and region): 
+# Create new Azure Key Vault with a globally unique VaultName and soft-delete option turned on (change VaultName and RG Name): 
 New-AzKeyVault -VaultName "MyKeyVault" -ResourceGroupName "MyRG" -Location $location -EnableSoftDelete
 
 # Authorize Managed Instance to use the AKV (wrap/unwrap key and get public part of key, if public part exists): 
-$objectid = (Get-AzResource -ResourceGroupName "MyRG" -Name "MyManagedInstance").Identity.PrincipalId
+$objectid = (Set-AzSqlInstance -ResourceGroupName "MyRG" -Name "MyManagedInstance" -AssignIdentity).Identity.PrincipalId
 Set-AzKeyVaultAccessPolicy -BypassObjectIdValidation -VaultName "MyKeyVault" -ObjectId $objectid -PermissionsToKeys get,wrapKey,unwrapKey
 
 # Allow access from trusted Azure services: 
@@ -32,7 +32,6 @@ Update-AzKeyVaultNetworkRuleSet -VaultName "MyKeyVault" -DefaultAction Deny
 # The recommended way is to import an existing key from a .pfx file:
 $keypath = "c:\some_path\mytdekey.pfx" # Supply your desired path and name
 $securepfxpwd = ConvertTo-SecureString -String (New-Guid).Guid -AsPlainText -Force 
-# Specify a universally unique VaultName, and then specify the Key Name
 $key = Add-AzKeyVaultKey -VaultName "MyKeyVault" -Name "MyTDEKey" -KeyFilePath $keypath -KeyFilePassword $securepfxpwd
 
 # ...or get an existing key from the vault:
