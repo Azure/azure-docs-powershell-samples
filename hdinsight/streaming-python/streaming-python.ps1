@@ -3,12 +3,7 @@ function Start-PythonExample {
     $ErrorActionPreference = "Stop"
 
     # Login to your Azure subscription
-    # Is there an active Azure subscription?
-    $sub = Get-AzSubscription -ErrorAction SilentlyContinue
-    if(-not($sub))
-    {
-        Add-AzAccount
-    }
+    Connect-AzAccount
 
     # Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
