@@ -7,36 +7,32 @@ function add-pythonfiles {
     $sub = Get-AzSubscription -ErrorAction SilentlyContinue
     if(-not($sub))
     {
-        Add-AzAccount
+        Connect-AzAccount
     }
+
+    # Revise file path as needed
+    $pathToStreamingFile = ".\hiveudf.py"
 
     # Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
-    $pathToStreamingFile = ".\streaming.py"
-    $pathToJythonFile = ".\pig_python.py"
 
     $clusterInfo = Get-AzHDInsightCluster -ClusterName $clusterName
     $resourceGroup = $clusterInfo.ResourceGroup
     $storageAccountName=$clusterInfo.DefaultStorageAccount.split('.')[0]
     $container=$clusterInfo.DefaultStorageContainer
     $storageAccountKey=(Get-AzStorageAccountKey `
-        -Name $storageAccountName `
-    -ResourceGroupName $resourceGroup)[0].Value
+       -ResourceGroupName $resourceGroup `
+       -Name $storageAccountName)[0].Value
 
-    #Create a storage content and upload the file
+    # Create an Azure Storage context
     $context = New-AzStorageContext `
         -StorageAccountName $storageAccountName `
         -StorageAccountKey $storageAccountKey
 
+    # Upload local files to an Azure Storage blob
     Set-AzStorageBlobContent `
         -File $pathToStreamingFile `
-        -Blob "streaming.py" `
-        -Container $container `
-        -Context $context
-
-    Set-AzStorageBlobContent `
-        -File $pathToJythonFile `
-        -Blob "pig_python.py" `
+        -Blob "hiveudf.py" `
         -Container $container `
         -Context $context
 }
@@ -50,44 +46,59 @@ function start-hivejob {
     $sub = Get-AzSubscription -ErrorAction SilentlyContinue
     if(-not($sub))
     {
-        Add-AzAccount
+        Connect-AzAccount
     }
 
     # Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
     $creds=Get-Credential -UserName "admin" -Message "Enter the login for the cluster"
 
-    # If using a Windows-based HDInsight cluster, change the USING statement to:
-    # "USING 'D:\Python27\python.exe streaming.py' AS " +
-    $HiveQuery = "add file wasbs:///streaming.py;" +
+    $HiveQuery = "add file wasbs:///hiveudf.py;" +
                     "SELECT TRANSFORM (clientid, devicemake, devicemodel) " +
-                    "USING 'python streaming.py' AS " +
+                    "USING 'python hiveudf.py' AS " +
                     "(clientid string, phoneLabel string, phoneHash string) " +
                     "FROM hivesampletable " +
                     "ORDER BY clientid LIMIT 50;"
 
+    # Create Hive job object
     $jobDefinition = New-AzHDInsightHiveJobDefinition `
         -Query $HiveQuery
-    
+
     # For status bar updates
     $activity="Hive query"
+
+    # Progress bar (optional)
     Write-Progress -Activity $activity -Status "Starting query..."
+
+    # Start defined Azure HDInsight job on specified cluster.
+
     $job = Start-AzHDInsightJob `
         -ClusterName $clusterName `
         -JobDefinition $jobDefinition `
         -HttpCredential $creds
+
+    # Progress bar (optional)
     Write-Progress -Activity $activity -Status "Waiting on query to complete..."
+
+    # Wait for completion or failure of specified job
     Wait-AzHDInsightJob `
         -JobId $job.JobId `
         -ClusterName $clusterName `
         -HttpCredential $creds
+
     # Uncomment the following to see stderr output
-    # Get-AzHDInsightJobOutput `
-    #   -Clustername $clusterName `
-    #   -JobId $job.JobId `
-    #   -HttpCredential $creds `
-    #   -DisplayOutputType StandardError
+    <#
+    Get-AzHDInsightJobOutput `
+       -Clustername $clusterName `
+       -JobId $job.JobId `
+       -HttpCredential $creds `
+       -DisplayOutputType StandardError
+    #>
+
+    # Progress bar (optional)
     Write-Progress -Activity $activity -Status "Retrieving output..."
+
+    # Gets the log output
     Get-AzHDInsightJobOutput `
         -Clustername $clusterName `
         -JobId $job.JobId `
@@ -103,41 +114,58 @@ function start-pigjob {
     $sub = Get-AzSubscription -ErrorAction SilentlyContinue
     if(-not($sub))
     {
-        Add-AzAccount
+        Connect-AzAccount
     }
 
     # Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
     $creds=Get-Credential -UserName "admin" -Message "Enter the login for the cluster"
 
-    $PigQuery = "Register wasbs:///pig_python.py using jython as myfuncs;" +
+
+    $PigQuery = "Register wasbs:///pigudf.py using jython as myfuncs;" +
                 "LOGS = LOAD 'wasbs:///example/data/sample.log' as (LINE:chararray);" +
                 "LOG = FILTER LOGS by LINE is not null;" +
                 "DETAILS = foreach LOG generate myfuncs.create_structure(LINE);" +
                 "DUMP DETAILS;"
 
+    # Create Pig job object
     $jobDefinition = New-AzHDInsightPigJobDefinition -Query $PigQuery
 
     # For status bar updates
     $activity="Pig job"
+
+    # Progress bar (optional)
     Write-Progress -Activity $activity -Status "Starting job..."
+
+
+    # Start defined Azure HDInsight job on specified cluster.
     $job = Start-AzHDInsightJob `
         -ClusterName $clusterName `
         -JobDefinition $jobDefinition `
         -HttpCredential $creds
 
+    # Progress bar (optional)
     Write-Progress -Activity $activity -Status "Waiting for the Pig job to complete..."
+
+    # Wait for completion or failure of specified job
     Wait-AzHDInsightJob `
         -Job $job.JobId `
         -ClusterName $clusterName `
         -HttpCredential $creds
+
     # Uncomment the following to see stderr output
-    # Get-AzHDInsightJobOutput `
-    #    -Clustername $clusterName `
-    #    -JobId $job.JobId `
-    #    -HttpCredential $creds `
-    #    -DisplayOutputType StandardError
+    <#
+    Get-AzHDInsightJobOutput `
+        -Clustername $clusterName `
+        -JobId $job.JobId `
+        -HttpCredential $creds `
+        -DisplayOutputType StandardError
+    #>
+
+    # Progress bar (optional)
     Write-Progress -Activity $activity "Retrieving output..."
+
+    # Gets the log output
     Get-AzHDInsightJobOutput `
         -Clustername $clusterName `
         -JobId $job.JobId `
