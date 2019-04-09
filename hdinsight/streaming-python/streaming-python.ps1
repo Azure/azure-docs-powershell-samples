@@ -1,12 +1,13 @@
 function Start-PythonExample {
     # Script should stop on failures
     $ErrorActionPreference = "Stop"
-
+    ### Snippet lines 5-134 in https://docs.microsoft.com/azure/hdinsight/hadoop/apache-hadoop-streaming-python
     # Login to your Azure subscription
     Connect-AzAccount
 
     # Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
+    
     # Get the login (HTTPS) credentials for the cluster
     $creds=Get-Credential -Message "Enter the login for the cluster" -UserName "admin"
     $clusterInfo = Get-AzHDInsightCluster -ClusterName $clusterName
@@ -126,11 +127,16 @@ function Start-PythonExample {
         default {
             Throw "Unknown storage type: $defaultStoreageType"
         }
+        
     }
+    
 }
 
+### End snippet
+### Snippet lines 138-140 in https://docs.microsoft.com/azure/hdinsight/hadoop/apache-hadoop-streaming-python
 function fix-lineending($original_file) {
     # Set $original_file to the python file path
     $text = [IO.File]::ReadAllText($original_file) -replace "`r`n", "`n"
     [IO.File]::WriteAllText($original_file, $text)
 }
+### End snippet
