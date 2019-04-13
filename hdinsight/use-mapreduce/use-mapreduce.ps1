@@ -3,8 +3,9 @@ function Start-MapReduce {
     $ErrorActionPreference = "Stop"
     
     # Login to your Azure subscription
-    # Is there an active Azure subscription?
-    Connect-AzAccount
+    $context = Get-AzContext
+    if ($context -eq $null) {Connect-AzAccount}
+    $context
 
     # Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
