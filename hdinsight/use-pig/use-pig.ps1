@@ -3,7 +3,9 @@ function Start-PigJob {
     $ErrorActionPreference = "Stop"
     
     # Login to your Azure subscription
-    Connect-AzAccount
+    $context = Get-AzContext
+    if ($context -eq $null) {Connect-AzAccount}
+    $context
 
     # Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
@@ -17,7 +19,6 @@ function Start-PigJob {
     "FREQUENCIES = foreach GROUPEDLEVELS generate group as LOGLEVEL, COUNT(FILTEREDLEVELS.LOGLEVEL) as COUNT;" +
     "RESULT = order FREQUENCIES by COUNT desc;" +
     "DUMP RESULT;"
-
 
     #Create a new HDInsight Pig Job definition
     $pigJobDefinition = New-AzHDInsightPigJobDefinition `
