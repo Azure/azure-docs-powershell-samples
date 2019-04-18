@@ -3,11 +3,12 @@ function New-HDInsightAndVNet {
     $ErrorActionPreference = "Stop"
 
     # Login to your Azure subscription
-    $sub = Get-AzSubscription -ErrorAction SilentlyContinue
-    if(-not($sub))
+    $context = Get-AzContext
+    if ($context -eq $null) 
     {
-        Add-AzAccount
+        Connect-AzAccount
     }
+    $context
 
     # If you have multiple subscriptions, uncomment the following
     # and use it to set the subscription used in this script

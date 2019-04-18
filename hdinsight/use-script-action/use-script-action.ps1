@@ -3,12 +3,12 @@ function new-hdinsightwithscriptaction {
     $ErrorActionPreference = "Stop"
 
     # Login to your Azure subscription
-    # Is there an active Azure subscription?
-    $sub = Get-AzSubscription -ErrorAction SilentlyContinue
-    if(-not($sub))
+    $context = Get-AzContext
+    if ($context -eq $null) 
     {
-        Add-AzAccount
+        Connect-AzAccount
     }
+    $context
 
     # If you have multiple subscriptions, set the one to use
     # $subscriptionID = "<subscription ID to use>"
@@ -95,12 +95,12 @@ function use-scriptactionwithcluster {
     $ErrorActionPreference = "Stop"
 
     # Login to your Azure subscription
-    # Is there an active Azure subscription?
-    $sub = Get-AzSubscription -ErrorAction SilentlyContinue
-    if(-not($sub))
+    $context = Get-AzContext
+    if ($context -eq $null) 
     {
-        Add-AzAccount
+        Connect-AzAccount
     }
+    $context
 
     # Get information for the HDInsight cluster
     $clusterName = Read-Host -Prompt "Enter the name of the HDInsight cluster"
