@@ -4,8 +4,7 @@ function New-HDInsightAndVNet {
 
     # Login to your Azure subscription
     $context = Get-AzContext
-    if ($context -eq $null) 
-    {
+    if ($context -eq $null)  {
         Connect-AzAccount
     }
     $context
