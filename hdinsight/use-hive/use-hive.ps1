@@ -3,12 +3,12 @@ function Start-HiveJob {
     $ErrorActionPreference = "Stop"
     
     # Login to your Azure subscription
-    # Is there an active Azure subscription?
-    $sub = Get-AzSubscription -ErrorAction SilentlyContinue
-    if(-not($sub))
+    $context = Get-AzContext
+    if ($context -eq $null) 
     {
-        Add-AzAccount
+        Connect-AzAccount
     }
+    $context
     
     #Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
@@ -48,12 +48,12 @@ function Start-HiveJobInvoke {
     $ErrorActionPreference = "Stop"
 
     # Login to your Azure subscription
-    # Is there an active Azure subscription?
-    $sub = Get-AzSubscription -ErrorAction SilentlyContinue
-    if(-not($sub))
+    $context = Get-AzContext
+    if ($context -eq $null) 
     {
-        Add-AzAccount
+        Connect-AzAccount
     }
+    $context
 
     #Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
