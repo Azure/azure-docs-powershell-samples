@@ -23,7 +23,7 @@ $consistencyPolicy = @{"defaultConsistencyLevel"="BoundedStaleness";
                        "maxStalenessPrefix"="200"}
 
 # Create a Gremlin API Cosmos DB account
-$Capability= "EnableGremlinâ€
+$Capability= "EnableGremlin"
 
 $capabilities= @(@{"name"=$Capability})
 
