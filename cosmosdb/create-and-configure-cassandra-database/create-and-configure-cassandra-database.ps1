@@ -23,7 +23,7 @@ $consistencyPolicy = @{"defaultConsistencyLevel"="BoundedStaleness";
                        "maxStalenessPrefix"="200"}
 
 # Create an Azure Cosmos DB Cassandra API account
-$Capability= "EnableCassandraâ€
+$Capability= "EnableCassandra"
 
 $capabilities= @(@{"name"=$Capability})
 
