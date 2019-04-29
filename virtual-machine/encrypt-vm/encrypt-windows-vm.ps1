@@ -6,7 +6,7 @@ $rgName = "myResourceGroup"
 #Region
 $location = "East US"
 #Password to place w/in the KeyVault
-$securePassword = ConvertTo-SecureString -String "P@ssword!" -AsPlainText -Force
+$securePassword = ConvertTo-SecureString -String "Password@16digits" -AsPlainText -Force
 #Name for the Azure AD Application
 $appName = "My App"
 #Name for the VM to be encrypt
@@ -25,22 +25,22 @@ New-AzKeyVault `
     -EnabledForDiskEncryption
 
 # Create a key in your Key Vault
-Add-AzureKeyVaultKey `
+Add-AzKeyVaultKey `
     -VaultName $keyVaultName `
     -Name "myKey" `
     -Destination "Software"
 
 # Put the password in the Key Vault as a Key Vault Secret so we can use it later
 # We should never put passwords in scripts.
-Set-AzureKeyVaultSecret -VaultName $keyVaultName -Name adminCreds -SecretValue $securePassword
-Set-AzureKeyVaultSecret -VaultName $keyVaultName -Name protectValue -SecretValue $password
+Set-AzKeyVaultSecret -VaultName $keyVaultName -Name adminCreds -SecretValue $securePassword
+Set-AzKeyVaultSecret -VaultName $keyVaultName -Name protectValue -SecretValue $securePassword
 
 
 # Create Azure Active Directory app and service principal
 $app = New-AzADApplication -DisplayName $appName `
     -HomePage "https://myapp0.contoso.com" `
     -IdentifierUris "https://contoso.com/myapp0" `
-    -Password (Get-AzureKeyVaultSecret -VaultName $keyVaultName -Name adminCreds).SecretValue
+    -Password (Get-AzKeyVaultSecret -VaultName $keyVaultName -Name adminCreds).SecretValue
 
 New-AzADServicePrincipal -ApplicationId $app.ApplicationId
 
@@ -51,7 +51,7 @@ Set-AzKeyVaultAccessPolicy -VaultName $keyvaultName `
     -PermissionsToSecrets get,list,set,delete,backup,restore,recover,purge
 
 # Create PSCredential object for VM
-$cred = New-Object System.Management.Automation.PSCredential($vmAdminName, (Get-AzureKeyVaultSecret -VaultName $keyVaultName -Name adminCreds).SecretValue)
+$cred = New-Object System.Management.Automation.PSCredential($vmAdminName, (Get-AzKeyVaultSecret -VaultName $keyVaultName -Name adminCreds).SecretValue)
 
 # Create a virtual machine
 New-AzVM `
@@ -70,14 +70,14 @@ New-AzVM `
 $keyVault = Get-AzKeyVault -VaultName $keyVaultName -ResourceGroupName $rgName;
 $diskEncryptionKeyVaultUrl = $keyVault.VaultUri;
 $keyVaultResourceId = $keyVault.ResourceId;
-$keyEncryptionKeyUrl = (Get-AzureKeyVaultKey -VaultName $keyVaultName -Name "myKey").Key.kid;
+$keyEncryptionKeyUrl = (Get-AzKeyVaultKey -VaultName $keyVaultName -Name "myKey").Key.kid;
 
 # Encrypt our virtual machine
 Set-AzVMDiskEncryptionExtension `
     -ResourceGroupName $rgName `
     -VMName $vmName `
     -AadClientID $app.ApplicationId `
-    -AadClientSecret (Get-AzureKeyVaultSecret -VaultName $keyVaultName -Name adminCreds).SecretValueText `
+    -AadClientSecret (Get-AzKeyVaultSecret -VaultName $keyVaultName -Name adminCreds).SecretValueText `
     -DiskEncryptionKeyVaultUrl $diskEncryptionKeyVaultUrl `
     -DiskEncryptionKeyVaultId $keyVaultResourceId `
     -KeyEncryptionKeyUrl $keyEncryptionKeyUrl `
