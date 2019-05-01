@@ -8,6 +8,12 @@ __CHECKLIST__
     Filling in this checklist is mandatory! If you don't, your pull request
     will be rejected without further review. All required checkboxes must be green
     for pull request processing to begin.
+
+    At MINIMUM you MUST test on PowerShell 5.1 on Windows, and ONE (1) platform with PowerShell 6.x.
+    You can test on PowerShell 6.x on Linux in a controlled environment by using Cloud Shell.
+
+    Testing on all 3 platforms is recommended, but make sure you mark the platforms you tested on.
+    This can help identify platform-related issues if they arise.
 -->
 
 - [ ] This pull request was tested on:
