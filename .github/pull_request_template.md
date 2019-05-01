@@ -1,8 +1,8 @@
-__DESCRIPTION__
+## DESCRIPTION
 
 <!-- Please include a brief description of your changes. -->
 
-__CHECKLIST__
+## CHECKLIST
 
 <!--
     Filling in this checklist is mandatory! If you don't, your pull request
