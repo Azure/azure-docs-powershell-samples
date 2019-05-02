@@ -3,43 +3,43 @@ function Start-MahoutJob {
     $ErrorActionPreference = "Stop"
 ##### Start snippet line 5
     # Login to your Azure subscription
-    # Is there an active Azure subscription?
-    $sub = Get-AzureRmSubscription -ErrorAction SilentlyContinue
-    if(-not($sub))
+    $context = Get-AzContext
+    if ($context -eq $null) 
     {
-        Add-AzureRmAccount
+        Connect-AzAccount
     }
+    $context
 
     # If you have multiple subscriptions, set the one to use
     # $subscriptionID = "<subscription ID to use>"
-    # Select-AzureRmSubscription -SubscriptionId $subscriptionID
+    # Select-AzSubscription -SubscriptionId $subscriptionID
 
     # Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
     $creds=Get-Credential -UserName "admin" -Message "Enter the login for the cluster"
 
     #Get the cluster info so we can get the resource group, storage, etc.
-    $clusterInfo = Get-AzureRmHDInsightCluster -ClusterName $clusterName
+    $clusterInfo = Get-AzHDInsightCluster -ClusterName $clusterName
     $resourceGroup = $clusterInfo.ResourceGroup
     $storageAccountName = $clusterInfo.DefaultStorageAccount.split('.')[0]
     $container = $clusterInfo.DefaultStorageContainer
-    $storageAccountKey = (Get-AzureRmStorageAccountKey `
+    $storageAccountKey = (Get-AzStorageAccountKey `
         -Name $storageAccountName `
     -ResourceGroupName $resourceGroup)[0].Value
 
     #Create a storage context and upload the file
-    $context = New-AzureStorageContext `
+    $context = New-AzStorageContext `
         -StorageAccountName $storageAccountName `
         -StorageAccountKey $storageAccountKey
 
     #Use Hive to figure out the path to the mahout examples
     #Because the file name/path has a version number in it that changes
     $queryString = "!ls /usr/hdp/current/mahout-client"
-    $hiveJobDefinition = New-AzureRmHDInsightHiveJobDefinition -Query $queryString
-    $hiveJob=Start-AzureRmHDInsightJob -ClusterName $clusterName -JobDefinition $hiveJobDefinition -HttpCredential $creds
-    wait-azurermhdinsightjob -ClusterName $clusterName -JobId $hiveJob.JobId -HttpCredential $creds > $null
+    $hiveJobDefinition = New-AzHDInsightHiveJobDefinition -Query $queryString
+    $hiveJob=Start-AzHDInsightJob -ClusterName $clusterName -JobDefinition $hiveJobDefinition -HttpCredential $creds
+    wait-Azhdinsightjob -ClusterName $clusterName -JobId $hiveJob.JobId -HttpCredential $creds > $null
     #Get the files returned from Hive
-    $files=get-azurermhdinsightjoboutput -clustername $clusterName -JobId $hiveJob.JobId -DefaultContainer $container -DefaultStorageAccountName $storageAccountName -DefaultStorageAccountKey $storageAccountKey -HttpCredential $creds
+    $files=get-Azhdinsightjoboutput -clustername $clusterName -JobId $hiveJob.JobId -DefaultContainer $container -DefaultStorageAccountName $storageAccountName -DefaultStorageAccountKey $storageAccountKey -HttpCredential $creds
     #Find the file that starts with mahout-examples and ends in job.jar
     $jarFile = $files | select-string "mahout-examples.+job\.jar" | % {$_.Matches.Value}
     #Add the full path
@@ -55,44 +55,44 @@ function Start-MahoutJob {
                     "--tempDir", "/example/temp"
 
     # Create the job definition
-    $jobDefinition = New-AzureRmHDInsightMapReduceJobDefinition `
+    $jobDefinition = New-AzHDInsightMapReduceJobDefinition `
         -JarFile $jarFile `
         -ClassName "org.apache.mahout.cf.taste.hadoop.item.RecommenderJob" `
         -Arguments $jobArguments
 
     # Start the job
-    $job = Start-AzureRmHDInsightJob `
+    $job = Start-AzHDInsightJob `
         -ClusterName $clusterName `
         -JobDefinition $jobDefinition `
         -HttpCredential $creds
 
     # Wait on the job to complete
     Write-Host "Wait for the job to complete ..." -ForegroundColor Green
-    Wait-AzureRmHDInsightJob `
+    Wait-AzHDInsightJob `
             -ClusterName $clusterName `
             -JobId $job.JobId `
             -HttpCredential $creds
 
     # Write out any error information
     Write-Host "STDERR"
-    Get-AzureRmHDInsightJobOutput `
+    Get-AzHDInsightJobOutput `
             -Clustername $clusterName `
             -JobId $job.JobId `
             -HttpCredential $creds `
             -DisplayOutputType StandardError
 
     # Download the output
-    Get-AzureStorageBlobContent `
+    Get-AzStorageBlobContent `
             -Blob example/out/part-r-00000 `
             -Container $container `
             -Destination output.txt `
             -Context $context
     #Download movie and user files for use in displaying results
-    Get-AzureStorageBlobContent -blob "HdiSamples/HdiSamples/MahoutMovieData/moviedb.txt" `
+    Get-AzStorageBlobContent -blob "HdiSamples/HdiSamples/MahoutMovieData/moviedb.txt" `
             -Container $container `
             -Destination moviedb.txt `
             -Context $context
-    Get-AzureStorageBlobContent -blob "HdiSamples/HdiSamples/MahoutMovieData/user-ratings.txt" `
+    Get-AzStorageBlobContent -blob "HdiSamples/HdiSamples/MahoutMovieData/user-ratings.txt" `
             -Container $container `
             -Destination user-ratings.txt `
             -Context $context

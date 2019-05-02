@@ -275,7 +275,7 @@ $containers | ForEach-Object {
             break
         }
 
-        #Set-StrictMode will cause Get-AzureStorageBlob returns result in different data types when there is only one blob
+        #Set-StrictMode will cause Get-AzStorageBlob returns result in different data types when there is only one blob
         if($Blobs.GetType().Name -eq "AzureStorageBlob") {
             $Token = $Null
         } else {

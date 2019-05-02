@@ -3,31 +3,31 @@ function Start-MapReduce {
     $ErrorActionPreference = "Stop"
     
     # Login to your Azure subscription
-    # Is there an active Azure subscription?
-    $sub = Get-AzureRmSubscription -ErrorAction SilentlyContinue
-    if(-not($sub))
+    $context = Get-AzContext
+    if ($context -eq $null) 
     {
-        Add-AzureRmAccount
+        Connect-AzAccount
     }
+    $context
 
     # Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
     $creds=Get-Credential -Message "Enter the login for the cluster"
 
     #Get the cluster info so we can get the resource group, storage, etc.
-    $clusterInfo = Get-AzureRmHDInsightCluster -ClusterName $clusterName
+    $clusterInfo = Get-AzHDInsightCluster -ClusterName $clusterName
     $resourceGroup = $clusterInfo.ResourceGroup
     $storageAccountName=$clusterInfo.DefaultStorageAccount.split('.')[0]
     $container=$clusterInfo.DefaultStorageContainer
     #NOTE: This assumes that the storage account is in the same resource
     #      group as the cluster. If it is not, change the
     #      --ResourceGroupName parameter to the group that contains storage.
-    $storageAccountKey=(Get-AzureRmStorageAccountKey `
+    $storageAccountKey=(Get-AzStorageAccountKey `
         -Name $storageAccountName `
     -ResourceGroupName $resourceGroup)[0].Value
 
     #Create a storage context
-    $context = New-AzureStorageContext `
+    $context = New-AzStorageContext `
         -StorageAccountName $storageAccountName `
         -StorageAccountKey $storageAccountKey
 
@@ -36,7 +36,7 @@ function Start-MapReduce {
     # -JarFile = the JAR containing the MapReduce application
     # -ClassName = the class of the application
     # -Arguments = The input file, and the output directory
-    $wordCountJobDefinition = New-AzureRmHDInsightMapReduceJobDefinition `
+    $wordCountJobDefinition = New-AzHDInsightMapReduceJobDefinition `
         -JarFile "/example/jars/hadoop-mapreduce-examples.jar" `
         -ClassName "wordcount" `
         -Arguments `
@@ -45,25 +45,25 @@ function Start-MapReduce {
 
     #Submit the job to the cluster
     Write-Host "Start the MapReduce job..." -ForegroundColor Green
-    $wordCountJob = Start-AzureRmHDInsightJob `
+    $wordCountJob = Start-AzHDInsightJob `
         -ClusterName $clusterName `
         -JobDefinition $wordCountJobDefinition `
         -HttpCredential $creds
 
     #Wait for the job to complete
     Write-Host "Wait for the job to complete..." -ForegroundColor Green
-    Wait-AzureRmHDInsightJob `
+    Wait-AzHDInsightJob `
         -ClusterName $clusterName `
         -JobId $wordCountJob.JobId `
         -HttpCredential $creds
     # Download the output
-    Get-AzureStorageBlobContent `
+    Get-AzStorageBlobContent `
         -Blob 'example/data/WordCountOutput/part-r-00000' `
         -Container $container `
         -Destination output.txt `
         -Context $context
     # Print the output of the job.
-    Get-AzureRmHDInsightJobOutput `
+    Get-AzHDInsightJobOutput `
         -Clustername $clusterName `
         -JobId $wordCountJob.JobId `
         -HttpCredential $creds

@@ -11,7 +11,7 @@ $creds = New-Object -TypeName System.Management.Automation.PSCredential -Argumen
 function Get-Credential { return $creds }
 
 Describe "hdinsight-hadoop-use-pig-powershell" {
-    It "Runs a Pig query using Start-AzureRmHDInsightJob" {
+    It "Runs a Pig query using Start-AzHDInsightJob" {
         Mock Read-Host { $clusterName }
         # Test that the data we received starts with the expected date column
         (Start-PigJob $clusterName $creds)[-1].StartsWith("(TRACE,816)") | Should be True

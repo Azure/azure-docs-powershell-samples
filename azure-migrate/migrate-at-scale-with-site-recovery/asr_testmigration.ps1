@@ -32,12 +32,12 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         if ($protectedItem.AllowedOperations.Contains('TestFailover')) {
             $processor.Logger.LogTrace("Starting TestFailover operation for item '$($sourceMachineName)'")
             #Get details of the test failover virtual network to be used
-            $targetTestFailoverVNETObj = Get-AzureRmVirtualNetwork `
+            $targetTestFailoverVNETObj = Get-AzVirtualNetwork `
                 -Name $targetTestFailoverVNET `
                 -ResourceGroupName $targetVNETRG 
 
             #Start the test failover operation
-            $testFailoverJob = Start-AzureRmRecoveryServicesAsrTestFailoverJob `
+            $testFailoverJob = Start-AzRecoveryServicesAsrTestFailoverJob `
                 -ReplicationProtectedItem $protectedItem `
                 -AzureVMNetworkId $targetTestFailoverVNETObj.Id `
                 -Direction PrimaryToRecovery

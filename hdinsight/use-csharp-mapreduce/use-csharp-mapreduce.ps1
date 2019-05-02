@@ -3,12 +3,12 @@ function Start-MapReduce {
     $ErrorActionPreference = "Stop"
     
     # Login to your Azure subscription
-    # Is there an active Azure subscription?
-    $sub = Get-AzureRmSubscription -ErrorAction SilentlyContinue
-    if(-not($sub))
+    $context = Get-AzContext
+    if ($context -eq $null) 
     {
-        Add-AzureRmAccount
+        Connect-AzAccount
     }
+    $context
 
     # Get HDInsight info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
@@ -21,7 +21,7 @@ function Start-MapReduce {
     $activity="C# MapReduce example"
     Write-Progress -Activity $activity -Status "Getting cluster information..."
     #Get HDInsight info so we can get the resource group, storage, etc.
-    $clusterInfo = Get-AzureRmHDInsightCluster -ClusterName $clusterName
+    $clusterInfo = Get-AzHDInsightCluster -ClusterName $clusterName
     $resourceGroup = $clusterInfo.ResourceGroup
     $storageActArr=$clusterInfo.DefaultStorageAccount.split('.')
     $storageAccountName=$storageActArr[0]
@@ -31,7 +31,7 @@ function Start-MapReduce {
     #Define the MapReduce job
     # Note: using "/mapper.exe" and "/reducer.exe" looks in the root
     #       of default storage.
-    $jobDef=New-AzureRmHDInsightStreamingMapReduceJobDefinition `
+    $jobDef=New-AzHDInsightStreamingMapReduceJobDefinition `
         -Files "/mapper.exe","/reducer.exe" `
         -Mapper "mapper.exe" `
         -Reducer "reducer.exe" `
@@ -40,14 +40,14 @@ function Start-MapReduce {
 
     # Start the job
     Write-Progress -Activity $activity -Status "Starting MapReduce job..."
-    $job=Start-AzureRmHDInsightJob `
+    $job=Start-AzHDInsightJob `
         -ClusterName $clusterName `
         -JobDefinition $jobDef `
         -HttpCredential $creds
 
     #Wait for the job to complete
     Write-Progress -Activity $activity -Status "Waiting for the job to complete..."
-    Wait-AzureRmHDInsightJob `
+    Wait-AzHDInsightJob `
         -ClusterName $clusterName `
         -JobId $job.JobId `
         -HttpCredential $creds
@@ -59,27 +59,27 @@ function Start-MapReduce {
         # Azure Data Lake Store
         # Fie path is the root of the HDInsight storage + $outputPath
         $filePath=$clusterInfo.DefaultStorageRootPath + $outputPath + "/part-00000"
-        Export-AzureRmDataLakeStoreItem `
+        Export-AzDataLakeStoreItem `
             -Account $storageAccountName `
             -Path $filePath `
             -Destination output.txt
     } else {
-        # Azure Storage account
+        # Az.Storage account
         # Get the container
         $container=$clusterInfo.DefaultStorageContainer
         #NOTE: This assumes that the storage account is in the same resource
         #      group as HDInsight. If it is not, change the
         #      --ResourceGroupName parameter to the group that contains storage.
-        $storageAccountKey=(Get-AzureRmStorageAccountKey `
+        $storageAccountKey=(Get-AzStorageAccountKey `
             -Name $storageAccountName `
         -ResourceGroupName $resourceGroup)[0].Value
 
         #Create a storage context
-        $context = New-AzureStorageContext `
+        $context = New-AzStorageContext `
             -StorageAccountName $storageAccountName `
             -StorageAccountKey $storageAccountKey
         # Download the file
-        Get-AzureStorageBlobContent `
+        Get-AzStorageBlobContent `
             -Blob 'example/wordcountoutput/part-00000' `
             -Container $container `
             -Destination output.txt `

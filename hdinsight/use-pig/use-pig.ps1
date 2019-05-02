@@ -3,12 +3,12 @@ function Start-PigJob {
     $ErrorActionPreference = "Stop"
     
     # Login to your Azure subscription
-    # Is there an active Azure subscription?
-    $sub = Get-AzureRmSubscription -ErrorAction SilentlyContinue
-    if(-not($sub))
+    $context = Get-AzContext
+    if ($context -eq $null) 
     {
-        Add-AzureRmAccount
+        Connect-AzAccount
     }
+    $context
 
     # Get cluster info
     $clusterName = Read-Host -Prompt "Enter the HDInsight cluster name"
@@ -25,27 +25,27 @@ function Start-PigJob {
 
 
     #Create a new HDInsight Pig Job definition
-    $pigJobDefinition = New-AzureRmHDInsightPigJobDefinition `
+    $pigJobDefinition = New-AzHDInsightPigJobDefinition `
         -Query $QueryString `
         -Arguments "-w"
 
     # Start the Pig job on the HDInsight cluster
     Write-Host "Start the Pig job ..." -ForegroundColor Green
-    $pigJob = Start-AzureRmHDInsightJob `
+    $pigJob = Start-AzHDInsightJob `
         -ClusterName $clusterName `
         -JobDefinition $pigJobDefinition `
         -HttpCredential $creds
 
     # Wait for the Pig job to complete
     Write-Host "Wait for the Pig job to complete ..." -ForegroundColor Green
-    Wait-AzureRmHDInsightJob `
+    Wait-AzHDInsightJob `
         -ClusterName $clusterName `
         -JobId $pigJob.JobId `
         -HttpCredential $creds
 
     # Display the output of the Pig job.
     Write-Host "Display the standard output ..." -ForegroundColor Green
-    Get-AzureRmHDInsightJobOutput `
+    Get-AzHDInsightJobOutput `
         -ClusterName $clusterName `
         -JobId $pigJob.JobId `
         -HttpCredential $creds

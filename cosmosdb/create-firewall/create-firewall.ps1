@@ -11,7 +11,7 @@ $locations = @(@{"locationName"="East US";
                  "failoverPriority"=1})
 
 # Create the resource group
-New-AzureRmResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
+New-AzResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
 
 # Consistency policy
 $consistencyPolicy = @{"maxIntervalInSeconds"="10"; 
@@ -24,7 +24,7 @@ $DBProperties = @{"databaseAccountOfferType"="Standard";
                   "consistencyPolicy"=$consistencyPolicy;}
 
 # Create the database
-New-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
+New-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
                     -ApiVersion "2015-04-08" `
                     -ResourceGroupName $resourceGroupName `
                     -Location $resourceGroupLocation `
@@ -36,7 +36,7 @@ $updateDBProperties = @{"databaseAccountOfferType"="Standard";
                         "ipRangeFilter"="10.0.0.1";}
 
 # Update the database with the properties
-Set-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
+Set-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
     -ApiVersion "2015-04-08" `
     -ResourceGroupName $resourceGroupName `
     -Name $DBName `

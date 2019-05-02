@@ -1,91 +1,72 @@
-# Login-AzureRmAccount
+# Connect-AzAccount
+$SubscriptionId = ''
 # Set the resource group name and location for your primary server
-$primaryresourcegroupname = "myPrimaryResourceGroup-$(Get-Random)"
-$primarylocation = "eastus"
+$primaryResourceGroupName = "myPrimaryResourceGroup-$(Get-Random)"
+$primaryLocation = "westus2"
 # Set the resource group name and location for your secondary server
-$secondarylocation = "southcentralus"
+$secondaryResourceGroupName = "mySecondaryResourceGroup-$(Get-Random)"
+$secondaryLocation = "eastus"
 # Set an admin login and password for your servers
-$adminlogin = "ServerAdmin"
+$adminSqlLogin = "SqlAdmin"
 $password = "ChangeYourAdminPassword1"
-# Set failover group name - the failover group name has to be unique in the system
-$failovergroupname = "failovergroupname-$(Get-Random)"
 # Set server names - the logical server names have to be unique in the system
-$primaryservername = "primary-server-$(Get-Random)"
-$secondaryservername = "secondary-server-$(Get-Random)"
+$primaryServerName = "primary-server-$(Get-Random)"
+$secondaryServerName = "secondary-server-$(Get-Random)"
 # The sample database name
-$databasename = "mySampleDatabase"
+$databaseName = "mySampleDatabase"
 # The ip address range that you want to allow to access your servers
-$primarystartip = "0.0.0.0"
-$primaryendip = "0.0.0.0"
-$secondarystartip = "0.0.0.0"
-$secondaryendip = "0.0.0.0"
+$primaryStartIp = "0.0.0.0"
+$primaryEndIp = "0.0.0.0"
+$secondaryStartIp = "0.0.0.0"
+$secondaryEndIp = "0.0.0.0"
 
-# Create new resource group
-$primaryresourcegroup = New-AzureRmResourceGroup -Name $primaryresourcegroupname -Location $primarylocation
-$primaryresourcegroup
+# Set subscription 
+Set-AzContext -SubscriptionId $subscriptionId 
+
+# Create two new resource groups
+$primaryResourceGroup = New-AzResourceGroup -Name $primaryResourceGroupName -Location $primaryLocation
+$secondaryResourceGroup = New-AzResourceGroup -Name $secondaryResourceGroupName -Location $secondaryLocation
+
 # Create two new logical servers with a system wide unique server name
-$primaryserver = New-AzureRmSqlServer -ResourceGroupName $primaryresourcegroupname `
+$primaryServer = New-AzSqlServer -ResourceGroupName $primaryResourceGroupName `
+    -ServerName $primaryServerName `
+    -Location $primaryLocation `
+    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminSqlLogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
+$secondaryServer = New-AzSqlServer -ResourceGroupName $secondaryResourceGroupName `
+    -ServerName $secondaryServerName `
+    -Location $secondaryLocation `
+    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminSqlLogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
+
+# Create a server firewall rule for each server that allows access from the specified IP range
+$primaryserverfirewallrule = New-AzSqlServerFirewallRule -ResourceGroupName $primaryResourceGroupName `
     -ServerName $primaryservername `
-    -Location $primarylocation `
-    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
-$primaryserver
-$secondaryserver = New-AzureRmSqlServer -ResourceGroupName $primaryresourcegroupname `
+    -FirewallRuleName "AllowedIPs" -StartIpAddress $primaryStartIp -EndIpAddress $primaryEndIp
+$secondaryserverfirewallrule = New-AzSqlServerFirewallRule -ResourceGroupName $secondaryResourceGroupName `
     -ServerName $secondaryservername `
-    -Location $secondarylocation `
-    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
-$secondaryserver
-# Create a server firewall rule that allows access from the specified IP range
-$primaryserverfirewallrule = New-AzureRmSqlServerFirewallRule -ResourceGroupName $primaryresourcegroupname `
-    -ServerName $primaryservername `
-    -FirewallRuleName "AllowedIPs" -StartIpAddress $primarystartip -EndIpAddress $primaryendip
-$primaryserverfirewallrule
-$secondaryserverfirewallrule = New-AzureRmSqlServerFirewallRule -ResourceGroupName $primaryresourcegroupname `
-    -ServerName $secondaryservername `
-    -FirewallRuleName "AllowedIPs" -StartIpAddress $secondarystartip -EndIpAddress $secondaryendip
-$secondaryserverfirewallrule
+    -FirewallRuleName "AllowedIPs" -StartIpAddress $secondaryStartIp -EndIpAddress $secondaryEndIp
+
 # Create a blank database with S0 performance level on the primary server
-$database = New-AzureRmSqlDatabase  -ResourceGroupName $primaryresourcegroupname `
-    -ServerName $primaryservername `
-    -DatabaseName $databasename -RequestedServiceObjectiveName "S0"
-$database
-# Create failover group
-$failovergroup = New-AzureRMSqlDatabaseFailoverGroup `
-      –ResourceGroupName $primaryresourcegroupname `
-      -ServerName $primaryservername `
-      -PartnerServerName $secondaryservername  `
-      –FailoverGroupName $failovergroupname `
-      –FailoverPolicy Automatic `
-      -GracePeriodWithDataLossHours 2
-$failovergroup
-# Add database to failover group
-$failovergroup = Get-AzureRmSqlDatabase `
-   -ResourceGroupName $primaryresourcegroupname `
-   -ServerName $primaryservername `
-   -DatabaseName $databasename | `
-   Add-AzureRmSqlDatabaseToFailoverGroup `
-   -ResourceGroupName $primaryresourcegroupname ` `
-   -ServerName $primaryservername `
-   -FailoverGroupName $failovergroupname
-$failovergroup
+$database = New-AzSqlDatabase  -ResourceGroupName $primaryResourceGroupName `
+    -ServerName $primaryServerName `
+    -DatabaseName $databaseName -RequestedServiceObjectiveName "S0"
+
+# Establish Active Geo-Replication
+$database = Get-AzSqlDatabase -DatabaseName $databaseName -ResourceGroupName $primaryResourceGroupName -ServerName $primaryServerName
+$database | New-AzSqlDatabaseSecondary -PartnerResourceGroupName $secondaryResourceGroupName -PartnerServerName $secondaryServerName -AllowConnections "All"
+
 # Initiate a planned failover
-Switch-AzureRMSqlDatabaseFailoverGroup `
-   -ResourceGroupName $primaryresourcegroupname  `
-   -ServerName $secondaryservername `
-   -FailoverGroupName $failovergroupname 
+$database = Get-AzSqlDatabase -DatabaseName $databaseName -ResourceGroupName $secondaryResourceGroupName -ServerName $secondaryServerName
+$database | Set-AzSqlDatabaseSecondary -PartnerResourceGroupName $primaryResourceGroupName -Failover
 
 # Monitor Geo-Replication config and health after failover
-Get-AzureRMSqlDatabaseFailoverGroup `
-   -ResourceGroupName $primaryresourcegroupname  `
-   -ServerName $primaryservername 
-Get-AzureRMSqlDatabaseFailoverGroup `
-   -ResourceGroupName $primaryresourcegroupname  `
-   -ServerName $secondaryservername 
+$database = Get-AzSqlDatabase -DatabaseName $databaseName -ResourceGroupName $secondaryResourceGroupName -ServerName $secondaryServerName
+$database | Get-AzSqlDatabaseReplicationLink -PartnerResourceGroupName $primaryResourceGroupName -PartnerServerName $primaryServerName
 
 # Remove the replication link after the failover
-Remove-AzureRmSqlDatabaseFailoverGroup `
-   -ResourceGroupName $primaryresourcegroupname  `
-   -ServerName $secondaryservername `
-   -FailoverGroupName $failovergroupname
+$database = Get-AzSqlDatabase -DatabaseName $databaseName -ResourceGroupName $secondaryResourceGroupName -ServerName $secondaryServerName
+$secondaryLink = $database | Get-AzSqlDatabaseReplicationLink -PartnerResourceGroupName $primaryResourceGroupName -PartnerServerName $primaryServerName
+$secondaryLink | Remove-AzSqlDatabaseSecondary
 
 # Clean up deployment 
-# Remove-AzureRmResourceGroup -ResourceGroupName $primaryresourcegroupname
+#Remove-AzResourceGroup -ResourceGroupName $primaryResourceGroupName
+#Remove-AzResourceGroup -ResourceGroupName $secondaryResourceGroupName

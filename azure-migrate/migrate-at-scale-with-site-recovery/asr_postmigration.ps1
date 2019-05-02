@@ -26,28 +26,28 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
 
     #Get target VM obj
     $processor.Logger.LogTrace("Getting target VM reference for VM '$($targetMachineName)' in resource group $($targetPostFailoverResourceGroup)")
-    $targetVmObj = Get-AzureRmVm `
+    $targetVmObj = Get-AzVm `
         -Name $targetMachineName `
         -ResourceGroupName $targetPostFailoverResourceGroup
 
     $processor.Logger.LogTrace("Getting Network Security Group reference for '$($targetNsgName)' in resource group '$($targetNsgResourceGroup)'")
-    $targetNsgObj = Get-AzureRmNetworkSecurityGroup `
+    $targetNsgObj = Get-AzNetworkSecurityGroup `
         -Name $targetNsgName `
         -ResourceGroupName $targetNsgResourceGroup
 
     $networkInterfaceId = $targetVmObj.NetworkProfile[0].NetworkInterfaces[0].Id
     $processor.Logger.LogTrace("Getting Raw Resource information for network interface '$($networkInterfaceId)'")
-    $networkInterfaceResourceObj = Get-AzureRmResource `
+    $networkInterfaceResourceObj = Get-AzResource `
         -ResourceId $networkInterfaceId
 
     $processor.Logger.LogTrace("Getting Network Interface reference for network interface '$($networkInterfaceResourceObj.Name)' in resource group '$($networkInterfaceResourceObj.ResourceGroupName)'")
-    $networkInterfaceObj = Get-AzureRmNetworkInterface `
+    $networkInterfaceObj = Get-AzNetworkInterface `
         -Name $networkInterfaceResourceObj.Name `
         -ResourceGroupName $networkInterfaceResourceObj.ResourceGroupName
 
     $processor.Logger.LogTrace("Setting Network Security Group to Network Interface '$($networkInterfaceResourceObj.Name)'")
     $networkInterfaceObj.NetworkSecurityGroup = $targetNsgObj
-    Set-AzureRmNetworkInterface -NetworkInterface $networkInterfaceObj
+    Set-AzNetworkInterface -NetworkInterface $networkInterfaceObj
 
     $processor.Logger.LogTrace("Network Security Group set for item '$($sourceMachineName)' in VM '$($targetMachineName)'")
     

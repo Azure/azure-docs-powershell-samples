@@ -10,8 +10,8 @@ $diskName = 'yourDiskName'
 #Provide the size of the disks in GB. It should be greater than the VHD file size.
 $diskSize = '128'
 
-#Provide the storage type for Managed Disk. PremiumLRS or StandardLRS.
-$storageType = 'PremiumLRS'
+#Provide the storage type for Managed Disk. Premium_LRS or Standard_LRS.
+$storageType = 'Premium_LRS'
 
 #Provide the Azure region (e.g. westus) where Managed Disk will be located.
 #This location should be same as the storage account where VHD file is stored
@@ -33,6 +33,6 @@ $storageAccountId = '/subscriptions/yourSubscriptionId/resourceGroups/yourResour
 Select-AzSubscription -SubscriptionId $SubscriptionId
 
 $diskConfig = New-AzDiskConfig -AccountType $storageType -Location $location -CreateOption Import -StorageAccountId $storageAccountId -SourceUri $sourceVHDURI
- 
+Â 
 New-AzDisk -Disk $diskConfig -ResourceGroupName $resourceGroupName -DiskName $diskName
- 
+Â 

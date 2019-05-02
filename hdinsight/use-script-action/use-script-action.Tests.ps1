@@ -57,7 +57,7 @@ Describe "hdinsight-hadoop-customize-cluster-linux" {
         $clusterInfo[-1].Name | Should be $clusterName
 
         # Verify that the script action was applied
-        (get-azurermhdinsightscriptactionhistory -ClusterName $clusterName)[0].name | Should be "Install Giraph"
+        (get-Azhdinsightscriptactionhistory -ClusterName $clusterName)[0].name | Should be "Install Giraph"
     }
 
     It "Can run a script action against an existing cluster" {

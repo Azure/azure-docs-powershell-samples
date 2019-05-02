@@ -1,38 +1,43 @@
-﻿# Login-AzureRmAccount
+# Connect-AzAccount
+# The SubscriptionId in which to create these objects
+$SubscriptionId = ''
 # Set the resource group name and location for your server
-$resourcegroupname = "myResourceGroup-$(Get-Random)"
-$location = "southcentralus"
+$resourceGroupName = "myResourceGroup-$(Get-Random)"
+$location = "westus2"
 # Set an admin login and password for your server
-$adminlogin = "ServerAdmin"
+$adminSqlLogin = "SqlAdmin"
 $password = "ChangeYourAdminPassword1"
 # Set server name - the logical server name has to be unique in the system
-$servername = "server-$(Get-Random)"
+$serverName = "server-$(Get-Random)"
 # The sample database name
-$databasename = "mySampleDatabase"
+$databaseName = "mySampleDatabase"
 # The ip address range that you want to allow to access your server
-$startip = "0.0.0.0"
-$endip = "0.0.0.0"
+$startIp = "0.0.0.0"
+$endIp = "0.0.0.0"
+
+# Set subscription 
+Set-AzContext -SubscriptionId $subscriptionId 
 
 # Create a resource group
-$resourcegroup = New-AzureRmResourceGroup -Name $resourcegroupname -Location $location
+$resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location
 
 # Create a server with a system wide unique server name
-$server = New-AzureRmSqlServer -ResourceGroupName $resourcegroupname `
-    -ServerName $servername `
+$server = New-AzSqlServer -ResourceGroupName $resourceGroupName `
+    -ServerName $serverName `
     -Location $location `
-    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
+    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminSqlLogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 
 # Create a server firewall rule that allows access from the specified IP range
-$serverfirewallrule = New-AzureRmSqlServerFirewallRule -ResourceGroupName $resourcegroupname `
-    -ServerName $servername `
-    -FirewallRuleName "AllowedIPs" -StartIpAddress $startip -EndIpAddress $endip
+$serverFirewallRule = New-AzSqlServerFirewallRule -ResourceGroupName $resourceGroupName `
+    -ServerName $serverName `
+    -FirewallRuleName "AllowedIPs" -StartIpAddress $startIp -EndIpAddress $endIp
 
 # Create a blank database with an S0 performance level
-$database = New-AzureRmSqlDatabase  -ResourceGroupName $resourcegroupname `
-    -ServerName $servername `
-    -DatabaseName $databasename `
+$database = New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
+    -ServerName $serverName `
+    -DatabaseName $databaseName `
     -RequestedServiceObjectiveName "S0" `
     -SampleName "AdventureWorksLT"
 
 # Clean up deployment 
-# Remove-AzureRmResourceGroup -ResourceGroupName $resourcegroupname
+# Remove-AzResourceGroup -ResourceGroupName $resourceGroupName

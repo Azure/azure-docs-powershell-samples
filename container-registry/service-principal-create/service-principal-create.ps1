@@ -13,10 +13,10 @@ $secpassw = New-Object Microsoft.Azure.Commands.ActiveDirectory.PSADPasswordCred
 
 # Get a reference to the container registry; need its fully qualified ID
 # when assigning the role to the principal in a subsequent command.
-$registry = Get-AzureRmContainerRegistry -ResourceGroupName $resourceGroup -Name $registryName
+$registry = Get-AzContainerRegistry -ResourceGroupName $resourceGroup -Name $registryName
 
 # Create the service principal
-$sp = New-AzureRmADServicePrincipal -DisplayName $servicePrincipalName -PasswordCredential $secpassw
+$sp = New-AzADServicePrincipal -DisplayName $servicePrincipalName -PasswordCredential $secpassw
 
 # Sleep a few seconds to allow the service principal to propagate throughout
 # Azure Active Directory
@@ -27,7 +27,7 @@ Start-Sleep 30
 # acrpull:     pull only
 # acrpush:     push and pull
 # Owner:       push, pull, and assign roles
-$role = New-AzureRmRoleAssignment -ObjectId $sp.Id -RoleDefinitionName acrpull -Scope $registry.Id
+$role = New-AzRoleAssignment -ObjectId $sp.Id -RoleDefinitionName acrpull -Scope $registry.Id
 
 # Output the service principal's credentials; use these in your services and
 # applications to authenticate to the container registry.
