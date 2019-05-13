@@ -6,7 +6,8 @@ $rgName = "myResourceGroup"
 #Region
 $location = "East US"
 #Password to place w/in the KeyVault
-$securePassword = ConvertTo-SecureString -String "P@ssword!" -AsPlainText -Force
+$password = $([guid]::NewGuid()).Guid)
+$securePassword = ConvertTo-SecureString -String $password -AsPlainText -Force
 #Name for the Azure AD Application
 $appName = "My App"
 #Name for the VM to be encrypt
