@@ -17,7 +17,7 @@ $ContainerProperties = @{
             "conflictResolutionPath"="/myResolutionPath"
         }
     }; 
-    "options"=@{ "Throughput"="400" }
+    "options"=@{ "Throughput"= 400 }
 } 
 New-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers" `
     -ApiVersion "2015-04-08" -ResourceGroupName $resourceGroupName `
