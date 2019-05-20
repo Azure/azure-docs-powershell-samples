@@ -1,4 +1,4 @@
-# Create an Azure Cosmos Account for Core (SQL) API
+# Create an Azure Cosmos Account for SQL (Core) API
 $resourceGroupName = "myResourceGroup"
 $location = "West US"
 $accountName = "mycosmosaccount" # must be lower case.

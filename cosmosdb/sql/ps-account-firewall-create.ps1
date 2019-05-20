@@ -1,4 +1,4 @@
-# Create an Azure Cosmos Account for Core (SQL) API
+# Create an Azure Cosmos Account for SQL (Core) API with IP Firewall
 $resourceGroupName = "myResourceGroup"
 $location = "West US"
 $accountName = "mycosmosaccount" # must be lower case.
@@ -17,7 +17,7 @@ $consistencyPolicy = @{
     "maxStalenessPrefix"=100000
 }
 
-$CosmosDBProperties = @{
+$accountProperties = @{
     "databaseAccountOfferType"="Standard";
     "locations"=$locations;
     "consistencyPolicy"=$consistencyPolicy;
@@ -27,4 +27,4 @@ $CosmosDBProperties = @{
 
 New-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
     -ApiVersion "2015-04-08" -ResourceGroupName $resourceGroupName -Location $location `
-    -Name $accountName -PropertyObject $CosmosDBProperties
+    -Kind "GlobalDocumentDB" -Name $accountName -PropertyObject $accountProperties -Force
