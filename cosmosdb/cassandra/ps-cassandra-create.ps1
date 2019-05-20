@@ -14,9 +14,6 @@ $locations = @(
     @{ "locationName"="East US 2"; "failoverPriority"=1 }
 )
 
-# Add an IP range filter to the properties
-# $ipRangeFilter = @{ "ipRangeFilter"="10.0.0.1" }
-
 $consistencyPolicy = @{
     "defaultConsistencyLevel"="BoundedStaleness";
     "maxIntervalInSeconds"=300;
@@ -27,8 +24,6 @@ $accountProperties = @{
     "capabilities"= @( @{ "name"="EnableCassandra" } );
     "databaseAccountOfferType"="Standard";
     "locations"=$locations;
-    # uncomment to add IP Firewall
-    # "ipRangeFilter"= $ipRangeFilter;
     "consistencyPolicy"=$consistencyPolicy;
     "enableMultipleWriteLocations"="true"
 }

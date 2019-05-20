@@ -11,9 +11,6 @@ $locations = @(
     @{ "locationName"="East US"; "failoverPriority"=1 }
 )
 
-# Add an IP range filter to the properties
-# $ipRangeFilter = @{ "ipRangeFilter"="10.0.0.1" }
-
 $consistencyPolicy = @{
     "defaultConsistencyLevel"="BoundedStaleness";
     "maxIntervalInSeconds"=300;
@@ -23,8 +20,6 @@ $consistencyPolicy = @{
 $CosmosDBProperties = @{
     "databaseAccountOfferType"="Standard";
     "locations"=$locations;
-    # uncomment to enable
-    # "ipRangeFilter"= $ipRangeFilter;
     "consistencyPolicy"=$consistencyPolicy;
     "enableMultipleWriteLocations"="true"
 }

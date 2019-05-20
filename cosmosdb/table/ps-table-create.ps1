@@ -12,17 +12,12 @@ $locations = @(
     @{ "locationName"="East US 2"; "failoverPriority"=1 }
 )
 
-# Add an IP range filter to the properties
-#$ipRangeFilter = @{ "ipRangeFilter"="10.0.0.1" }
-
 $consistencyPolicy = @{ "defaultConsistencyLevel"="Session" }
 
 $accountProperties = @{
     "capabilities"= @( @{ "name"="EnableTable" } );
     "databaseAccountOfferType"="Standard";
     "locations"=$locations;
-    #uncomment to enable
-    #"ipRangeFilter"= $ipRangeFilter;
     "consistencyPolicy"=$consistencyPolicy;
     "enableMultipleWriteLocations"="true"
 }

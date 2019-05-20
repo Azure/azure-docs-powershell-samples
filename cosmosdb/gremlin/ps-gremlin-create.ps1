@@ -13,17 +13,12 @@ $locations = @(
     @{ "locationName"="East US 2"; "failoverPriority"=1 }
 )
 
-# Add an IP range filter to the properties
-# $ipRangeFilter = @{ "ipRangeFilter"="10.0.0.1" }
-
 $consistencyPolicy = @{ "defaultConsistencyLevel"="Session" }
 
 $accountProperties = @{
     "capabilities"= @( @{ "name"="EnableGremlin" } );
     "databaseAccountOfferType"="Standard";
     "locations"=$locations;
-    # Add an IP range filter to the properties
-    # $ipRangeFilter = @{ "ipRangeFilter"="10.0.0.1" }
     "consistencyPolicy"=$consistencyPolicy;
     "enableMultipleWriteLocations"="true"
 }
