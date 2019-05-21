@@ -4,10 +4,14 @@
 $resourceGroupName = "myResourceGroup"
 $accountName = "mycosmosaccount"
 
-$failoverPolicies = @(
+$failoverRegions = @(
     @{ "locationName"="East US"; "failoverPriority"=0 },
     @{ "locationName"="West US"; "failoverPriority"=1 }
 )
+
+$failoverPolicies = @{ 
+    "failoverPolicies"= $failoverRegions
+}
 
 Invoke-AzResourceAction -Action failoverPriorityChange `
     -ResourceType "Microsoft.DocumentDb/databaseAccounts" -ApiVersion "2015-04-08" `
