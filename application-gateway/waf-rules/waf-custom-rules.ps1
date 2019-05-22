@@ -1,7 +1,3 @@
-#Prerequisites
-Connect-AzAccount
-Select-AzSubscription -Subscription <your subscription>
-
 #Set up variables
 $rgname = "CustomRulesTest"
 $location = "East US"
