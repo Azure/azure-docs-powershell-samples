@@ -3,6 +3,8 @@
 # Updating location with failoverPriority = 0 will trigger a failover
 $resourceGroupName = "myResourceGroup"
 $accountName = "mycosmosaccount"
+$resourceType = "Microsoft.DocumentDb/databaseAccounts"
+$apiVersion = "2015-04-08"
 
 $failoverRegions = @(
     @{ "locationName"="East US"; "failoverPriority"=0 },
@@ -14,5 +16,5 @@ $failoverPolicies = @{
 }
 
 Invoke-AzResourceAction -Action failoverPriorityChange `
-    -ResourceType "Microsoft.DocumentDb/databaseAccounts" -ApiVersion "2015-04-08" `
+    -ResourceType $resourceType -ApiVersion $apiVersion `
     -ResourceGroupName $resourceGroupName -Name $accountName -Parameters $failoverPolicies
