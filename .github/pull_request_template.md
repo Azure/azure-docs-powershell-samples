@@ -28,7 +28,7 @@
 - [ ] All required imports are at the top of the script, below prerequisites.
 - [ ] All user-set variables are at the top of the script, below imports.
 - [ ] All identifiers which must be universally unique are guaranteed to be so.
-- [ ] All scripts use UNIX-style line endings (LF) ([Instructions](https://help.github.com/en/articles/dealing-with-line-endings)
+- [ ] All scripts use UNIX-style line endings (LF) ([Instructions](https://help.github.com/en/articles/dealing-with-line-endings))
 
 ### Optional
   
