@@ -99,7 +99,7 @@ elseif((Get-Item $AzCopyPath).BaseName -eq "AzCopy")
     $FileItemVersion = (Get-Item $AzCopyPath).VersionInfo
     $FilePath = ("{0}.{1}.{2}.{3}" -f  $FileItemVersion.FileMajorPart,  $FileItemVersion.FileMinorPart,  $FileItemVersion.FileBuildPart,  $FileItemVersion.FilePrivatePart)
 
-    if([version] $FilePath -lt "7.0.0.2")
+    if(([version] $FilePath -lt "7.0.0.2") -and ([version] $FilePath -ne "0.0.0.0")) 
     {
         $AzCopyPath = Read-Host "Version of AzCopy found at provided path is of a lower, unsupported version. Please input the full filePath of the AzCopy.exe that is version 7.0.0.2 or higher, e.g.: C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe"
     }
@@ -159,7 +159,7 @@ do{
 
         # Get AzCopy command for transfer one container
         $destContainer = $destCtx.StorageAccount.CreateCloudBlobClient().GetContainerReference($container.Name)
-        $azCopyCmd = [string]::Format("""{0}"" /source:{1} /dest:{2} /sourcekey:""{3}"" /destkey:""{4}"" /snapshot /y /s /synccopy",$AzCopyPath, $container.CloudBlobContainer.Uri.AbsoluteUri, $destContainer.Uri.AbsoluteUri, $srcStorageAccountKey, $DestStorageAccountKey)
+        $azCopyCmd = [string]::Format("""{0}"" /source:{1} /dest:{2} /sourcekey:""{3}"" /destkey:""{4}"" /snapshot /y /s /synccopy",$AzCopyPath, $container.CloudBlobContainer.Uri.AbsoluteUri, [System.String]::Format("{0}/{1}", $destCtx.BlobEndPoint.TrimEnd('/'), $container.Name), $srcStorageAccountKey, $DestStorageAccountKey)
     
         # Execute the AzCopy command first time
         Write-Host "$azCopyCmd"
