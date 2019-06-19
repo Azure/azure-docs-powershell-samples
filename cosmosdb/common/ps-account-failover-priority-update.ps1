@@ -1,14 +1,14 @@
-# Change the failover priority for an Azure Cosmos Account
-# Assume West US = 0 and East US = 1, the script below will flip them
-# Updating location with failoverPriority = 0 will trigger a failover
+# Change the failover priority for a single-master Azure Cosmos Account
+# Assume West US 2 = 0 and East US 2 = 1, the script below will flip them
+# Note: Updating location with failoverPriority = 0 triggers a failover to the new region
 $resourceGroupName = "myResourceGroup"
 $accountName = "mycosmosaccount"
 $resourceType = "Microsoft.DocumentDb/databaseAccounts"
 $apiVersion = "2015-04-08"
 
 $failoverRegions = @(
-    @{ "locationName"="East US"; "failoverPriority"=0 },
-    @{ "locationName"="West US"; "failoverPriority"=1 }
+    @{ "locationName"="East US 2"; "failoverPriority"=0 },
+    @{ "locationName"="West US 2"; "failoverPriority"=1 }
 )
 
 $failoverPolicies = @{ 
