@@ -14,7 +14,19 @@ Get-AzResource -ResourceType $databaseThroughputResourceType `
     -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
     -Name $databaseThroughputResourceName  | Select-Object Properties
 
+if($error[0].Exception.Message.Split(",")[0].Split(":")[1].Replace("`"","") -eq "NotFound")
+{
+    Write-Host "Throughput not set on database resource"
+    $error.Clear()
+}
+
 # Get the throughput for a graph (returns RU/s or error)
 Get-AzResource -ResourceType $graphThroughputResourceType `
     -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
     -Name $graphThroughputResourceName  | Select-Object Properties
+
+if($error[0].Exception.Message.Split(",")[0].Split(":")[1].Replace("`"","") -eq "NotFound")
+{
+    Write-Host "Throughput not set on graph resource"
+    $error.Clear()
+}

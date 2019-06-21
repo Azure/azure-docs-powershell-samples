@@ -14,7 +14,19 @@ Get-AzResource -ResourceType $keyspaceThroughputResourceType `
     -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
     -Name $keyspaceThroughputResourceName | Select-Object Properties
 
+if($error[0].Exception.Message.Split(",")[0].Split(":")[1].Replace("`"","") -eq "NotFound")
+{
+    Write-Host "Throughput not set on keyspace resource"
+    $error.Clear()
+}
+
 # Get the throughput for a table (returns RU/s or error if not set)
 Get-AzResource -ResourceType $tableThroughputResourceType `
     -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
     -Name $tableThroughputResourceName | Select-Object Properties
+
+if($error[0].Exception.Message.Split(",")[0].Split(":")[1].Replace("`"","") -eq "NotFound")
+{
+    Write-Host "Throughput not set on table resource"
+    $error.Clear()
+}
