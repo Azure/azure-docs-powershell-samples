@@ -1,8 +1,8 @@
 # Create a Cosmos SQL API container with large partition key support (version 2)
 $apiVersion = "2015-04-08"
 $location = "West US 2"
-$resourceGroupName = "mjbArmTest" #"myResourceGroup"
-$accountName = "mjb-test-lp" #"mycosmosaccount"
+$resourceGroupName = "myResourceGroup"
+$accountName = "mycosmosaccount"
 $databaseName = "database1"
 $containerName = "container1"
 $databaseResourceName = $accountName + "/sql/" + $databaseName
