@@ -3,7 +3,7 @@ $SubscriptionId = '<replace with your subscription id>'
 # Set the resource group name and location for your server
 $resourceGroupName = "myResourceGroup-$(Get-Random)"
 $location = "westus2"
-# Set elastic poool names
+# Set elastic pool names
 $firstPoolName = "MyFirstPool"
 $secondPoolName = "MySecondPool"
 # Set an admin login and password for your server
