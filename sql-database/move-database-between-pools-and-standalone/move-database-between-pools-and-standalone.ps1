@@ -1,5 +1,5 @@
 # Connect-AzAccount
-$SubscriptionId = ''
+$SubscriptionId = '<replace with your subscription id>'
 # Set the resource group name and location for your server
 $resourceGroupName = "myResourceGroup-$(Get-Random)"
 $location = "westus2"
@@ -8,7 +8,7 @@ $firstPoolName = "MyFirstPool"
 $secondPoolName = "MySecondPool"
 # Set an admin login and password for your server
 $adminSqlLogin = "SqlAdmin"
-$password = "ChangeYourAdminPassword1"
+$password = "<EnterYourComplexPasswordHere>"
 # The logical server name has to be unique in the system
 $serverName = "server-$(Get-Random)"
 # The sample database names
@@ -58,8 +58,8 @@ $firstDatabase = New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
     -ElasticPoolName $firstPoolName
 $secondDatabase = New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
     -ServerName $serverName `
-    -DatabaseName "MySecondSampleDatabase" `
-    -ElasticPoolName "MySecondPool"
+    -DatabaseName $secondDatabaseName `
+    -ElasticPoolName $secondPoolName
 
 # Move the database to the second pool
 $firstDatabase = Set-AzSqlDatabase -ResourceGroupName $resourceGroupName `
