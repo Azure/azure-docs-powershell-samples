@@ -13,8 +13,6 @@
     Not formatting checkboxes correctly may break automated tools and delay PR processing.
 -->
 
-### Required
-
 - [ ] This pull request was tested on __both of__:
   - [ ] PowerShell 5.1 (Windows)
   - [ ] PowerShell 6.x ([Latest PowerShell](https://github.com/PowerShell/PowerShell/releases))
