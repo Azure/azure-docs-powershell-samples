@@ -18,7 +18,6 @@
 - [ ] This pull request was tested on __both of__:
   - [ ] PowerShell 5.1 (Windows)
   - [ ] PowerShell 6.x ([Latest PowerShell](https://github.com/PowerShell/PowerShell/releases))
-- [ ] The scripts in this pull request use only `Az` commands.
 - [ ] Scripts do not contain static passwords or other secret tokens.
 - [ ] All Azure resource identifiers which must be universally unique are guaranteed to be so.
 
