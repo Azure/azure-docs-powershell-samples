@@ -33,5 +33,7 @@
 -->
 
 Platform:
+
 Powershell version: `$PSVersionTable.PSVersion`
+
 Az version: `(Get-InstalledModule -Name Az).Version`
