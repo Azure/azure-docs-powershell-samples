@@ -24,8 +24,8 @@ Set-AzVirtualNetwork -VirtualNetwork $vnet
 
 #create Public IP for jumpbox and LB
 $LBPipName = $RG + "PublicIP"
-$LBPip = New-AzPublicIpAddress -Name $LBPipNameÂ  -ResourceGroupName $RG -Location $Location -AllocationMethod Static -Sku Standard
-$JumpBoxpip = New-AzPublicIpAddress -Name "JumpHostPublicIP"Â  -ResourceGroupName $RG -Location $Location -AllocationMethod Static -Sku Basic
+$LBPip = New-AzPublicIpAddress -Name $LBPipName  -ResourceGroupName $RG -Location $Location -AllocationMethod Static -Sku Standard
+$JumpBoxpip = New-AzPublicIpAddress -Name "JumpHostPublicIP"  -ResourceGroupName $RG -Location $Location -AllocationMethod Static -Sku Basic
 
 # Create an inbound network security group rule for port 3389
 $nsgRuleRDP = New-AzNetworkSecurityRuleConfig -Name myNetworkSecurityGroupRuleSSH  -Protocol Tcp -Direction Inbound -Priority 1000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 3389 -Access Allow
