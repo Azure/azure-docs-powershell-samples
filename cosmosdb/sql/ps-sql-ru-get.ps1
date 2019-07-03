@@ -14,19 +14,7 @@ Get-AzResource -ResourceType $databaseThroughputResourceType `
     -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
     -Name $databaseThroughputResourceName  | Select-Object Properties
 
-if($error[0].Exception.Message.Split(",")[0].Split(":")[1].Replace("`"","") -eq "NotFound")
-{
-    Write-Host "Throughput not set on database resource"
-    $error.Clear()
-}
-
 # Check if throughput is set at container level (returns RU/s or error)
 Get-AzResource -ResourceType $containerThroughputResourceType `
     -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
     -Name $containerThroughputResourceName  | Select-Object Properties
-
-if($error[0].Exception.Message.Split(",")[0].Split(":")[1].Replace("`"","") -eq "NotFound")
-{
-    Write-Host "Throughput not set on container resource"
-    $error.Clear()
-}
