@@ -1,13 +1,13 @@
 # Set variables for your server and database
-$ResourceGroupName = "myResourceGroup" # to randomize: "myResourceGroup-$(Get-Random)"
+$ResourceGroupName = "myResourceGroup-$(Get-Random)"
 $Location = "westus2"
 $AdminLogin = "azureuser"
-$Password = "ChangeYourAdminPassword1"
-$ServerName = "mysqlserver" # to randomize: "mysqlserver-$(Get-Random)"
+$Password = 'openssl rand -base64 16'
+$ServerName = "mysqlserver-$(Get-Random)"
 $DatabaseName = "mySampleDatabase"
 $drLocation = "eastus2"
-$drServerName = "mysqlsecondary" # to randomize: "mysqlsecondary-$(Get-Random)"
-$FailoverGroupName = "failovergrouptutorial" # to randomize: "failovergrouptutorial-$(Get-Random)"
+$drServerName = "mysqlsecondary-$(Get-Random)"
+$FailoverGroupName = "failovergrouptutorial-$(Get-Random)"
 
 # The ip address range that you want to allow to access your server 
 # Leaving at 0.0.0.0 will prevent outside-of-azure connections
@@ -16,6 +16,7 @@ $endIp = "0.0.0.0"
 
 # Connect to Azure
 Connect-AzAccount
+
 # Set subscription ID
 Set-AzContext -SubscriptionId $subscriptionId 
 
@@ -90,3 +91,6 @@ Switch-AzSqlDatabaseFailoverGroup `
 
 # Clean up resources by removing the resource group
 # Remove-AzResourceGroup -ResourceGroupName $ResourceGroupName
+
+# Echo random password
+echo $password
