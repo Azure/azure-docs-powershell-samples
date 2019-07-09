@@ -1,18 +1,28 @@
 # Set variables for your server and database
-$ResourceGroupName = "myResourceGroup-$(Get-Random)"
-$Location = "westus2"
-$AdminLogin = "azureuser"
-$Password = 'openssl rand -base64 16'
-$ServerName = "mysqlserver-$(Get-Random)"
-$DatabaseName = "mySampleDatabase"
-$drLocation = "eastus2"
+$subscriptionId = '<SubscriptionID>'
+$resourceGroupName = "myResourceGroup-$(Get-Random)"
+$location = "east us 2"
+$adminLogin = "azureuser"
+$password = "PASSWORD"+(New-Guid).Guid
+$serverName = "mysqlserver-$(Get-Random)"
+$databaseName = "mySampleDatabase"
+$drLocation = "Central US"
 $drServerName = "mysqlsecondary-$(Get-Random)"
-$FailoverGroupName = "failovergrouptutorial-$(Get-Random)"
+$failoverGroupName = "failovergrouptutorial-$(Get-Random)"
+
 
 # The ip address range that you want to allow to access your server 
 # Leaving at 0.0.0.0 will prevent outside-of-azure connections
 $startIp = "0.0.0.0"
 $endIp = "0.0.0.0"
+
+# Show randomized variables
+Write-host "Resource group name is" $resourceGroupName 
+Write-host "Password is" $password  
+Write-host "Server name is" $serverName 
+Write-host "DR Server name is" $drServerName 
+Write-host "Failover group name is" $failoverGroupName
+
 
 # Connect to Azure
 Connect-AzAccount
@@ -21,76 +31,93 @@ Connect-AzAccount
 Set-AzContext -SubscriptionId $subscriptionId 
 
 # Create a resource group
-$resourceGroup = New-AzResourceGroup -Name $ResourceGroupName -Location $Location
+Write-host "Creating resource group..."
+New-AzResourceGroup -Name $resourceGroupName -Location $location -Tag @{Owner="SQLDB-Samples"}
+Write-host "Resource group = " $resourceGroupName
+
 
 # Create a server with a system wide unique server name
-$server = New-AzSqlServer -ResourceGroupName $ResourceGroupName `
-   -ServerName $ServerName `
-   -Location $Location `
+Write-host "Creating primary logical server..."
+New-AzSqlServer -ResourceGroupName $resourceGroupName `
+   -ServerName $serverName `
+   -Location $location `
    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential `
-   -ArgumentList $AdminLogin, $(ConvertTo-SecureString ring $Password -AsPlainText -Force))
+   -ArgumentList $adminLogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
+Write-host "Primary logical server = " $serverName
 
 # Create a server firewall rule that allows access from the specified IP range
-$serverFirewallRule = New-AzSqlServerFirewallRule -ResourceGroupName $ResourceGroupName `
-   -ServerName $ServerName `
+Write-host "Configuring firewall for primary logical server..."
+New-AzSqlServerFirewallRule -ResourceGroupName $resourceGroupName `
+   -ServerName $serverName `
    -FirewallRuleName "AllowedIPs" -StartIpAddress $startIp -EndIpAddress $endIp
+Write-host "Firewall configured" 
 
 # Create General Purpose Gen4 database with 1 vCore
-$database = New-AzSqlDatabase  -ResourceGroupName $ResourceGroupName `
-   -ServerName $ServerName `
-   -DatabaseName $DatabaseName `
+Write-host "Creating a gen4 1 vCore database..."
+New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
+   -ServerName $serverName `
+   -DatabaseName $databaseName `
    -Edition GeneralPurpose `
    -VCore 1 `
    -ComputeGeneration Gen4  `
    -MinimumCapacity 1 `
-   -SampleName "AdventureWorksLT" `
+   -SampleName "AdventureWorksLT"
+Write-host "Database name = " $databaseName
 
 # Create a secondary server in the failover region
-New-AzSqlServer -ResourceGroupName $ResourceGroupName `
+Write-host "Creating a secondary logical server in the failover region..."
+New-AzSqlServer -ResourceGroupName $resourceGroupName `
    -ServerName $drServerName `
    -Location $drLocation `
    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential `
-      -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $Password -AsPlainText -Force))
+      -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
+Write-host "Secondary logical server =" $drServerName
 
 # Create a failover group between the servers
+Write-host "Creating a failover group between the primary and secondary server..."
 New-AzSqlDatabaseFailoverGroup `
-   –ResourceGroupName $ResourceGroupName `
-   -ServerName $ServerName `
+   –ResourceGroupName $resourceGroupName `
+   -ServerName $serverName `
    -PartnerServerName $drServerName  `
-   –FailoverGroupName $FailoverGroupName `
+   –FailoverGroupName $failoverGroupName `
    –FailoverPolicy Automatic `
    -GracePeriodWithDataLossHours 2
+Write-host "Failover group =" $failoverGroupName
 
 # Add the database to the failover group
+Write-host "Adding the database to the failover group..." 
 Get-AzSqlDatabase `
-   -ResourceGroupName $ResourceGroupName `
-   -ServerName $ServerName `
-   -DatabaseName $DatabaseName | `
+   -ResourceGroupName $resourceGroupName `
+   -ServerName $serverName `
+   -DatabaseName $databaseName | `
 Add-AzSqlDatabaseToFailoverGroup `
-   -ResourceGroupName $ResourceGroupName `
-   -ServerName $ServerName `
-   -FailoverGroupName $FailoverGroupName
+   -ResourceGroupName $resourceGroupName `
+   -ServerName $serverName `
+   -FailoverGroupName $failoverGroupName
 
 # Check role of secondary replica
+Write-host "Confirming the secondary replica is secondary...." 
 (Get-AzSqlDatabaseFailoverGroup `
-   -FailoverGroupName $FailoverGroupName `
-   -ResourceGroupName $ResourceGroupName `
+   -FailoverGroupName $failoverGroupName `
+   -ResourceGroupName $resourceGroupName `
    -ServerName $drServerName).ReplicationRole
 
 # Failover to secondary server
+Write-host "Failing over failover group to the secondary..." 
 Switch-AzSqlDatabaseFailoverGroup `
-   -ResourceGroupName $ResourceGroupName `
+   -ResourceGroupName $resourceGroupName `
    -ServerName $drServerName `
-   -FailoverGroupName $FailoverGroupName
+   -FailoverGroupName $failoverGroupName
 
 # Revert failover to primary server
+Write-host "Failing over failover group to the primary...." 
 Switch-AzSqlDatabaseFailoverGroup `
-   -ResourceGroupName $ResourceGroupName `
-   -ServerName $ServerName `
-   -FailoverGroupName $FailoverGroupName
+   -ResourceGroupName $resourceGroupName `
+   -ServerName $serverName `
+   -FailoverGroupName $failoverGroupName
 
 # Clean up resources by removing the resource group
-# Remove-AzResourceGroup -ResourceGroupName $ResourceGroupName
+# Write-host "Removing resource group..."
+# Remove-AzResourceGroup -ResourceGroupName $resourceGroupName
+# Write-host "Resource group removed =" $resourceGroupName
 
-# Echo random password
-echo $password
