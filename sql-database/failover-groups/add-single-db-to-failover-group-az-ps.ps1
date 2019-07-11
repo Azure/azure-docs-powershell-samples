@@ -3,7 +3,7 @@ $subscriptionId = '<SubscriptionID>'
 $resourceGroupName = "myResourceGroup-$(Get-Random)"
 $location = "West US 2"
 $adminLogin = "azureuser"
-$password = "PASSWORD"+(New-Guid).Guid
+$password = "PWD27!"+(New-Guid).Guid
 $serverName = "mysqlserver-$(Get-Random)"
 $databaseName = "mySampleDatabase"
 $drLocation = "East US 2"
@@ -23,12 +23,8 @@ Write-host "Server name is" $serverName
 Write-host "DR Server name is" $drServerName 
 Write-host "Failover group name is" $failoverGroupName
 
-
-# Connect to Azure
-Connect-AzAccount
-
 # Set subscription ID
-Set-AzContext -SubscriptionId $subscriptionId 
+Set-AzContext -SubscriptionId $subscriptionId
 
 # Create a resource group
 Write-host "Creating resource group..."
@@ -53,14 +49,14 @@ $serverFirewallRule = New-AzSqlServerFirewallRule -ResourceGroupName $resourceGr
 $serverFirewallRule
 
 # Create General Purpose Gen5 database with 1 vCore
-Write-host "Creating a gen5 1 vCore database..."
+Write-host "Creating a gen5 2 vCore database..."
 $database = New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
    -ServerName $serverName `
    -DatabaseName $databaseName `
    -Edition GeneralPurpose `
-   -VCore 1 `
-   -ComputeGeneration Gen5  `
-   -MinimumCapacity 1 `
+   -VCore 2 `
+   -ComputeGeneration Gen5 `
+   -MinimumCapacity 2 `
    -SampleName "AdventureWorksLT"
 $database
 
