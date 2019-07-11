@@ -1,12 +1,12 @@
 # Set variables for your server and database
 $subscriptionId = '<SubscriptionID>'
 $resourceGroupName = "myResourceGroup-$(Get-Random)"
-$location = "east us 2"
+$location = "West US 2"
 $adminLogin = "azureuser"
 $password = "PASSWORD"+(New-Guid).Guid
 $serverName = "mysqlserver-$(Get-Random)"
 $databaseName = "mySampleDatabase"
-$drLocation = "Central US"
+$drLocation = "East US 2"
 $drServerName = "mysqlsecondary-$(Get-Random)"
 $failoverGroupName = "failovergrouptutorial-$(Get-Random)"
 
