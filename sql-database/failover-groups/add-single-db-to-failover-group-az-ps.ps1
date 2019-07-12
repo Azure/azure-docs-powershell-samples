@@ -119,6 +119,13 @@ Switch-AzSqlDatabaseFailoverGroup `
 Write-host "Failed failover group to sucessfully to back to" $serverName
 
 
+# Show randomized variables
+Write-host "Resource group name is" $resourceGroupName 
+Write-host "Password is" $password  
+Write-host "Server name is" $serverName 
+Write-host "DR Server name is" $drServerName 
+Write-host "Failover group name is" $failoverGroupName
+
 # Clean up resources by removing the resource group
 # Write-host "Removing resource group..."
 # Remove-AzResourceGroup -ResourceGroupName $resourceGroupName
