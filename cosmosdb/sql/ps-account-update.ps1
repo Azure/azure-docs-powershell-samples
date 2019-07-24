@@ -1,4 +1,4 @@
-# Update an Azure Cosmos Account and add a region
+# Update an Azure Cosmos Account and add a region (South Central US)
 $resourceGroupName = "myResourceGroup"
 $accountName = "mycosmosaccount"
 
@@ -7,9 +7,9 @@ $account = Get-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" 
     -Name $accountName
 
 $locations = @(
-    @{ "locationName"="West US"; "failoverPriority"=0 },
-    @{ "locationName"="East US"; "failoverPriority"=1 },
-    @{ "locationName"="East US 2"; "failoverPriority"=2 }
+    @{ "locationName"="West US 2"; "failoverPriority"=0 },
+    @{ "locationName"="East US 2"; "failoverPriority"=1 },
+    @{ "locationName"="South Central US"; "failoverPriority"=2 }
 )
 
 $account.Properties.locations = $locations

@@ -1,13 +1,16 @@
 # Update RU for an Azure Cosmos Table API table
+
+$apiVersion = "2015-04-08"
 $resourceGroupName = "myResourceGroup"
 $accountName = "mycosmosaccount"
 $tableName = "table1"
-$resourceName = $accountName + "/table/" + $tableName + "/throughput"
+$tableThroughputResourceName = $accountName + "/table/" + $tableName + "/throughput"
+$tableThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/tables/settings"
 $throughput = 500
 
 $tableProperties = @{
     "resource"=@{"throughput"=$throughput}
 } 
-Set-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts/apis/tables/settings" `
-    -ApiVersion "2015-04-08" -ResourceGroupName $resourceGroupName `
-    -Name $resourceName -PropertyObject $tableProperties
+Set-AzResource -ResourceType $tableThroughputResourceType `
+    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
+    -Name $tableThroughputResourceName -PropertyObject $tableProperties

@@ -1,6 +1,6 @@
 # Create an Azure Cosmos Account for SQL (Core) API with IP Firewall
 $resourceGroupName = "myResourceGroup"
-$location = "West US"
+$location = "West US 2"
 $accountName = "mycosmosaccount" # must be lower case.
 
 $locations = @(
@@ -12,9 +12,7 @@ $locations = @(
 $ipRangeFilter = @{ "ipRangeFilter"="10.0.0.1" }
 
 $consistencyPolicy = @{
-    "defaultConsistencyLevel"="BoundedStaleness";
-    "maxIntervalInSeconds"=300;
-    "maxStalenessPrefix"=100000
+    "defaultConsistencyLevel"="Session";
 }
 
 $accountProperties = @{
@@ -22,7 +20,7 @@ $accountProperties = @{
     "locations"=$locations;
     "consistencyPolicy"=$consistencyPolicy;
     "ipRangeFilter"= $ipRangeFilter;
-    "enableMultipleWriteLocations"="true"
+    "enableMultipleWriteLocations"="false"
 }
 
 New-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
