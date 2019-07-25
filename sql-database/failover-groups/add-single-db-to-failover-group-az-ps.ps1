@@ -48,7 +48,7 @@ $serverFirewallRule = New-AzSqlServerFirewallRule -ResourceGroupName $resourceGr
    -FirewallRuleName "AllowedIPs" -StartIpAddress $startIp -EndIpAddress $endIp
 $serverFirewallRule
 
-# Create General Purpose Gen5 database with 1 vCore
+# Create General Purpose Gen5 database with 2 vCore
 Write-host "Creating a gen5 2 vCore database..."
 $database = New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
    -ServerName $serverName `
