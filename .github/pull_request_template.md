@@ -1,3 +1,16 @@
+<!--
+    Thanks for contributing to the Azure PowerShell samples repo! For contributors, make sure that you
+    fill in the PR checklist in this template, and:
+
+    * Internal contributors: Follow the style guides and PR submission process docs:
+        - PowerShell style guide: https://review.docs.microsoft.com/en-us/help/contribute/conventions-azure-ps?branch=master 
+        - Best practices: https://review.docs.microsoft.com/en-us/help/contribute/conventions-azure-scripts?branch=master
+        - PR submission process: https://review.docs.microsoft.com/en-us/help/contribute/contribute-scripts-pr-process?branch=master
+
+    * External contributors: Make sure that you test _all_ of your scripts that you modified. You can't read the contribution
+        guides yet, but reviewer feedback will be detailed and clear about any required changes.
+-->
+
 ## Description
 
 <!-- Include a brief description of your changes. -->
