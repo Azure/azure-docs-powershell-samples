@@ -3,36 +3,36 @@ function New-ClusterWithConfig {
     $ErrorActionPreference = "Stop"
 
     # Login to your Azure subscription
-    # Is there an active Azure subscription?
-    $sub = Get-AzureRmSubscription -ErrorAction SilentlyContinue
-    if(-not($sub))
+    $context = Get-AzContext
+    if ($context -eq $null) 
     {
-        Add-AzureRmAccount
+        Connect-AzAccount
     }
+    $context
 
     # If you have multiple subscriptions, set the one to use
     # $subscriptionID = "<subscription ID to use>"
-    # Select-AzureRmSubscription -SubscriptionId $subscriptionID
+    # Select-AzSubscription -SubscriptionId $subscriptionID
 
     # Get user input/default values
     $resourceGroupName = Read-Host -Prompt "Enter the resource group name"
     $location = Read-Host -Prompt "Enter the Azure region to create resources in"
 
     # Create the resource group
-    New-AzureRmResourceGroup -Name $resourceGroupName -Location $location
+    New-AzResourceGroup -Name $resourceGroupName -Location $location
 
     $defaultStorageAccountName = Read-Host -Prompt "Enter the name of the storage account"
 
     # Create an Azure storae account and container
-    New-AzureRmStorageAccount `
+    New-AzStorageAccount `
         -ResourceGroupName $resourceGroupName `
         -Name $defaultStorageAccountName `
         -Type Standard_LRS `
         -Location $location
-    $defaultStorageAccountKey = (Get-AzureRmStorageAccountKey `
+    $defaultStorageAccountKey = (Get-AzStorageAccountKey `
                                     -ResourceGroupName $resourceGroupName `
                                     -Name $defaultStorageAccountName)[0].Value
-    $defaultStorageContext = New-AzureStorageContext `
+    $defaultStorageContext = New-AzStorageContext `
                                     -StorageAccountName $defaultStorageAccountName `
                                     -StorageAccountKey $defaultStorageAccountKey
 
@@ -52,39 +52,39 @@ function New-ClusterWithConfig {
     $defaultBlobContainerName = $clusterName
 
     # Create a blob container. This holds the default data store for the cluster.
-    New-AzureStorageContainer `
+    New-AzStorageContainer `
         -Name $clusterName -Context $defaultStorageContext
 
 ######Start snippet line 59
     $additionalStorageAccountName = Read-Host -Prompt "Enter the name of the additional storage account"
 
     # Create the additional storage account
-    New-AzureRmStorageAccount -ResourceGroupName $resourceGroupName `
+    New-AzStorageAccount -ResourceGroupName $resourceGroupName `
         -StorageAccountName $additionalStorageAccountName `
         -Location $location `
         -Type Standard_LRS
     
     # Get the additional storage account key
-    $additionalStorageAccountKey = (Get-AzureRmStorageAccountKey -Name $additionalStorageAccountName -ResourceGroupName $resourceGroupName)[0].Value
+    $additionalStorageAccountKey = (Get-AzStorageAccountKey -Name $additionalStorageAccountName -ResourceGroupName $resourceGroupName)[0].Value
 
     # Create a new configuration for RServer cluster type
     # Use -EdgeNodeSize to set the size of the edge node for RServer clusters
     # if you want a specific size. Otherwise, the default size is used.
-    $config = New-AzureRmHDInsightClusterConfig `
+    $config = New-AzHDInsightClusterConfig `
         -ClusterType "RServer" `
         -EdgeNodeSize "Standard_D12_v2"
 
     # Add RStudio to the configuration
     $rserverConfig = @{"rstudio"="true"}
-    $config = $config | Add-AzureRmHDInsightConfigValues `
+    $config = $config | Add-AzHDInsightConfigValues `
         -RServer $rserverConfig `
         -Spark2Defaults $spark2Config
 
     # Add an additional storage account
-    Add-AzureRmHDInsightStorage -Config $config -StorageAccountName "$additionalStorageAccountName.blob.core.windows.net" -StorageAccountKey $additionalStorageAccountKey
+    Add-AzHDInsightStorage -Config $config -StorageAccountName "$additionalStorageAccountName.blob.core.windows.net" -StorageAccountKey $additionalStorageAccountKey
 
     # Create a new HDInsight cluster using -Config
-    New-AzureRmHDInsightCluster `
+    New-AzHDInsightCluster `
         -ClusterName $clusterName `
         -ResourceGroupName $resourceGroupName `
         -HttpCredential $httpCredential `

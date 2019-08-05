@@ -3,7 +3,7 @@ $resourceGroupName = "myResourceGroupgraph1"
 $resourceGroupLocation = "South Central US"
 
 # Create the resource group
-New-AzureRmResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
+New-AzResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
 
 # Database name
 $DBName = "testdbgraph1"
@@ -23,7 +23,7 @@ $consistencyPolicy = @{"defaultConsistencyLevel"="BoundedStaleness";
                        "maxStalenessPrefix"="200"}
 
 # Create a Gremlin API Cosmos DB account
-$Capability= "EnableGremlin”
+$Capability= "EnableGremlin"
 
 $capabilities= @(@{"name"=$Capability})
 
@@ -36,7 +36,7 @@ $DBProperties = @{"databaseAccountOfferType"="Standard";
 
 
 # Create the database
-New-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
+New-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
                     -ApiVersion "2015-04-08" `
                     -ResourceGroupName $resourceGroupName `
                     -Location $resourceGroupLocation `

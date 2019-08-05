@@ -27,25 +27,25 @@ $subscriptionName = "subscriptionName"
 $subscriptionState = "Active"
 
 # Set the context to the subscription Id where the cluster will be created
-Select-AzureRmSubscription -SubscriptionId $subscriptionId
+Select-AzSubscription -SubscriptionId $subscriptionId
 
 # Create a resource group.
-New-AzureRmResourceGroup -Name $resourceGroupName -Location $location
+New-AzResourceGroup -Name $resourceGroupName -Location $location
 
 # Create the Api Management service. Since the SKU is not specified, it creates a service with Developer SKU. 
-New-AzureRmApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName -Location $location -Organization $organisation -AdminEmail $adminEmail
+New-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName -Location $location -Organization $organisation -AdminEmail $adminEmail
 
 # Create the api management context
-$context = New-AzureRmApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimServiceName
+$context = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimServiceName
 
 # create a new user in api management
-$user = New-AzureRmApiManagementUser -Context $context -FirstName $userFirstName -LastName $userLastName `
+$user = New-AzApiManagementUser -Context $context -FirstName $userFirstName -LastName $userLastName `
     -Password $userPassword -State $userState -Note $userNote -Email $userEmail
 
 # get the details of the 'Starter' product in api management, which is created by default
-$product = Get-AzureRmApiManagementProduct -Context $context -Title 'Starter' | Select-Object -First 1
+$product = Get-AzApiManagementProduct -Context $context -Title 'Starter' | Select-Object -First 1
 
 # generate a subscription key for the user to call apis which are part of the 'Starter' product
-New-AzureRmApiManagementSubscription -Context $context -UserId $user.UserId `
+New-AzApiManagementSubscription -Context $context -UserId $user.UserId `
     -ProductId $product.ProductId -Name $subscriptionName -State $subscriptionState
 

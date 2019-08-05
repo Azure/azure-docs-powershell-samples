@@ -7,15 +7,15 @@ $vmName = "myVM"
 $cred = Get-Credential
 
 # Create a resource group
-New-AzureRmResourceGroup -ResourceGroupName myResourceGroup -Location eastus
+New-AzResourceGroup -ResourceGroupName myResourceGroup -Location eastus
 
 # Create a subnet configuration
-$subnetConfig = New-AzureRmVirtualNetworkSubnetConfig `
+$subnetConfig = New-AzVirtualNetworkSubnetConfig `
   -Name mySubnet `
   -AddressPrefix 192.168.1.0/24
 
 # Create a virtual network
-$vnet = New-AzureRmVirtualNetwork `
+$vnet = New-AzVirtualNetwork `
   -ResourceGroupName $resourceGroup `
   -Location $location `
   -Name myVnet `
@@ -23,14 +23,14 @@ $vnet = New-AzureRmVirtualNetwork `
   -Subnet $subnetConfig
 
 # Create a public IP address
-$pip = New-AzureRmPublicIpAddress `
+$pip = New-AzPublicIpAddress `
   -ResourceGroupName $resourceGroup `
   -Location $location `
   -AllocationMethod Static `
   -Name myPublicIPAddress
 
 # Create a network security group rule for port 80
-$nsgRule = New-AzureRmNetworkSecurityRuleConfig `
+$nsgRule = New-AzNetworkSecurityRuleConfig `
   -Name myNSGRule `
   -Protocol Tcp `
   -Direction Inbound `
@@ -42,14 +42,14 @@ $nsgRule = New-AzureRmNetworkSecurityRuleConfig `
   -Access Allow
 
 # Create a network security group using the rule
-$nsg = New-AzureRmNetworkSecurityGroup `
+$nsg = New-AzNetworkSecurityGroup `
   -ResourceGroupName $resourceGroup `
   -Location $location `
   -Name myNetworkSecurityGroup `
   -SecurityRules $nsgRule
 
 # Create a network interface
-$nic = New-AzureRmNetworkInterface `
+$nic = New-AzNetworkInterface `
   -ResourceGroupName $resourceGroup `
   -Location $location `
   -Name myNic `
@@ -62,12 +62,12 @@ $encoded = [System.Text.Encoding]::UTF8.GetBytes("Add-WindowsFeature Web-Server;
 $etext = [System.Convert]::ToBase64String($encoded)
 
 # Create a VM configuration object
-$vm = New-AzureRmVMConfig `
+$vm = New-AzVMConfig `
   -VMName $vmName `
   -VMSize Standard_D1
 
 # Configure the operating system for the VM using the credentials and encoded commands
-$vm = Set-AzureRmVMOperatingSystem `
+$vm = Set-AzVMOperatingSystem `
   -VM $vm `
   -Windows `
   -ComputerName myVM `
@@ -77,7 +77,7 @@ $vm = Set-AzureRmVMOperatingSystem `
   -EnableAutoUpdate
 
 # Define the image to use for the VM
-$vm = Set-AzureRmVMSourceImage `
+$vm = Set-AzVMSourceImage `
   -VM $vm `
   -PublisherName MicrosoftWindowsServer `
   -Offer WindowsServer `
@@ -85,7 +85,7 @@ $vm = Set-AzureRmVMSourceImage `
   -Version latest
 
 # Configure the OS disk for the VM
-$vm = Set-AzureRmVMOSDisk `
+$vm = Set-AzVMOSDisk `
   -VM $vm `
   -Name myOsDisk `
   -StorageAccountType StandardLRS `
@@ -94,20 +94,20 @@ $vm = Set-AzureRmVMOSDisk `
   -Caching ReadWrite
 
 # Get the Id of the network interface and add it to the VM configuration
-$nic = Get-AzureRmNetworkInterface `
+$nic = Get-AzNetworkInterface `
   -ResourceGroupName $resourceGroup `
   -Name myNic
-$vm = Add-AzureRmVMNetworkInterface `
+$vm = Add-AzVMNetworkInterface `
   -VM $vm `
   -Id $nic.Id
 
 # Create a VM
-New-AzureRmVM -ResourceGroupName $resourceGroup `
+New-AzVM -ResourceGroupName $resourceGroup `
   -Location eastus `
   -VM $vm
 
 # Run the encoded commands on the VM to install IIS
-Set-AzureRmVMExtension -ResourceGroupName $resourceGroup `
+Set-AzVMExtension -ResourceGroupName $resourceGroup `
   -ExtensionName IIS `
   -VMName $vmName `
   -Publisher Microsoft.Compute `

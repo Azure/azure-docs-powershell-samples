@@ -1,4 +1,4 @@
-﻿# Description: This script shows how to post Azure Storage Analytics logs to Azure Log Analytics workspace
+# Description: This script shows how to post Az.Storage Analytics logs to Azure Log Analytics workspace
 #
 # Before running this script:
 #     - Create or have a storage account, and enable analytics logs
@@ -22,7 +22,7 @@
 #     - Log Analytics Data Collector API: https://docs.microsoft.com/en-us/azure/log-analytics/log-analytics-data-collector-api
 #
 
-#Login-AzureRmAccount
+#Login-AzAccount
 
 # Resource group name for the storage acccount
 $ResourceGroup = "{ReplaceWithYourResourceGroup}"
@@ -245,7 +245,7 @@ Function ConvertLogLineToJson([String] $logLine)
     return $logJson
 }
 
-$storageAccount = Get-AzureRmStorageAccount -ResourceGroupName $ResourceGroup -Name $StorageAccountName -ErrorAction SilentlyContinue
+$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroup -Name $StorageAccountName -ErrorAction SilentlyContinue
 if($storageAccount -eq $null)
 {
     throw "The storage account specified does not exist in this subscription."
@@ -253,7 +253,7 @@ if($storageAccount -eq $null)
 
 $storageContext = $storageAccount.Context
 $containers = New-Object System.Collections.ArrayList
-$container = Get-AzureStorageContainer -Context $storageContext -Name "`$logs" -ErrorAction SilentlyContinue |
+$container = Get-AzStorageContainer -Context $storageContext -Name "`$logs" -ErrorAction SilentlyContinue |
         ForEach-Object { $containers.Add($_) } | Out-Null
 
 Write-Output("> Container count: {0}" -f $containers.Count)
@@ -270,12 +270,12 @@ $containers | ForEach-Object {
     Write-Output("> Reading container {0}" -f $Container.Name)
 
     do {
-        $Blobs = Get-AzureStorageBlob -Context $storageContext -Container $Container.Name -MaxCount $MaxReturn -ContinuationToken $Token
+        $Blobs = Get-AzStorageBlob -Context $storageContext -Container $Container.Name -MaxCount $MaxReturn -ContinuationToken $Token
         if($Blobs -eq $Null) {
             break
         }
 
-        #Set-StrictMode will cause Get-AzureStorageBlob returns result in different data types when there is only one blob
+        #Set-StrictMode will cause Get-AzStorageBlob returns result in different data types when there is only one blob
         if($Blobs.GetType().Name -eq "AzureStorageBlob") {
             $Token = $Null
         } else {
@@ -287,7 +287,7 @@ $containers | ForEach-Object {
         {
             Write-Output("> Downloading blob: {0}" -f $blob.Name)
             $filename = ".\log.txt"
-            Get-AzureStorageBlobContent -Context $storageContext -Container $Container.Name -Blob $blob.Name -Destination $filename -Force > Null
+            Get-AzStorageBlobContent -Context $storageContext -Container $Container.Name -Blob $blob.Name -Destination $filename -Force > Null
             
             Write-Output("> Posting logs to log analytic worspace: {0}" -f $blob.Name)
             $Lines = Get-Content $filename

@@ -3,7 +3,7 @@ $resourceGroupName = "myResourceGroup"
 $resourceGroupLocation = "South Central US"
 
 # Create the resource group
-New-AzureRmResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
+New-AzResourceGroup -Name $resourceGroupName -Location $resourceGroupLocation
 
 # Database name
 $DBName = "testdb"
@@ -25,7 +25,7 @@ $DBProperties = @{"databaseAccountOfferType"="Standard";
                   "consistencyPolicy"=$consistencyPolicy}
 
 # Create the database
-New-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
+New-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
                     -ApiVersion "2015-04-08" `
                     -ResourceGroupName $resourceGroupName `
                     -Location $resourceGroupLocation `
@@ -34,7 +34,7 @@ New-AzureRmResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
                     -PropertyObject $DBProperties
 
 # Retrieve a connection string that can be used by a MongoDB client
-Invoke-AzureRmResourceAction -Action listConnectionStrings `
+Invoke-AzResourceAction -Action listConnectionStrings `
     -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
     -ApiVersion "2015-04-08" `
     -ResourceGroupName $resourceGroupName `

@@ -16,13 +16,13 @@ $organisation = "Contoso"
 $adminEmail = "admin@contoso.com"
 
 # Set the context to the subscription Id where the cluster will be created
-Select-AzureRmSubscription -SubscriptionId $subscriptionId
+Select-AzSubscription -SubscriptionId $subscriptionId
 
 # Create a resource group.
-New-AzureRmResourceGroup -Name $resourceGroupName -Location $location
+New-AzResourceGroup -Name $resourceGroupName -Location $location
 
 # Create the Api Management service. Since the SKU is not specified, it creates a service with Developer SKU. 
-New-AzureRmApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName -Location $location -Organization $organisation -AdminEmail $adminEmail
+New-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName -Location $location -Organization $organisation -AdminEmail $adminEmail
 
 # Scale master region to 'Premium' 1
 $sku = "Premium"
@@ -31,9 +31,9 @@ $capacity = 1
 # Add new 'Premium' region 1 unit
 $additionLocation = Get-ProviderLocations "Microsoft.ApiManagement/service" | Where-Object {$_ -ne $location} | Select-Object -First 1
 
-Get-AzureRmApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName |
-Update-AzureRmApiManagementRegion -Sku $sku -Capacity $capacity |
-Add-AzureRmApiManagementRegion -Location $additionLocation -Sku $sku |
-Update-AzureRmApiManagementDeployment
+Get-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName |
+Update-AzApiManagementRegion -Sku $sku -Capacity $capacity |
+Add-AzApiManagementRegion -Location $additionLocation -Sku $sku |
+Update-AzApiManagementDeployment
 
-Get-AzureRmApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName
+Get-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName

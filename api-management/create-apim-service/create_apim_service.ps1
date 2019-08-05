@@ -16,13 +16,13 @@ $organisation = "Contoso"
 $adminEmail = "admin@contoso.com"
 
 # Set the context to the subscription Id where the cluster will be created
-Select-AzureRmSubscription -SubscriptionId $subscriptionId
+Select-AzSubscription -SubscriptionId $subscriptionId
 
 # Create a resource group.
-New-AzureRmResourceGroup -Name $resourceGroupName -Location $location
+New-AzResourceGroup -Name $resourceGroupName -Location $location
 
 # Create the Api Management service. Since the SKU is not specified, it creates a service with Developer SKU. 
-New-AzureRmApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName -Location $location -Organization $organisation -AdminEmail $adminEmail
+New-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName -Location $location -Organization $organisation -AdminEmail $adminEmail
 
 # Get an SSO token to login into the Service
-Get-AzureRmApiManagementSsoToken -ResourceGroupName $resourceGroupName -Name $apimServiceName
+Get-AzApiManagementSsoToken -ResourceGroupName $resourceGroupName -Name $apimServiceName

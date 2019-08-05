@@ -1,73 +1,77 @@
-﻿# Login-AzureRmAccount
+# Connect-AzAccount
+$SubscriptionId = '<replace with your subscription id>'
 # Set the resource group name and location for your server
-$resourcegroupname = "myResourceGroup-$(Get-Random)"
-$location = "southcentralus"
-# Set elastic poool names
-$firstpoolname = "MyFirstPool"
-$secondpoolname = "MySecondPool"
+$resourceGroupName = "myResourceGroup-$(Get-Random)"
+$location = "westus2"
+# Set elastic pool names
+$firstPoolName = "MyFirstPool"
+$secondPoolName = "MySecondPool"
 # Set an admin login and password for your server
-$adminlogin = "ServerAdmin"
-$password = "ChangeYourAdminPassword1"
+$adminSqlLogin = "SqlAdmin"
+$password = "<EnterYourComplexPasswordHere>"
 # The logical server name has to be unique in the system
-$servername = "server-$(Get-Random)"
+$serverName = "server-$(Get-Random)"
 # The sample database names
-$firstdatabasename = "myFirstSampleDatabase"
-$seconddatabasename = "mySecondSampleDatabase"
+$firstDatabaseName = "myFirstSampleDatabase"
+$secondDatabaseName = "mySecondSampleDatabase"
 # The ip address range that you want to allow to access your server
-$startip = "0.0.0.0"
-$endip = "0.0.0.0"
+$startIp = "0.0.0.0"
+$endIp = "0.0.0.0"
+
+# Set subscription 
+Set-AzContext -SubscriptionId $subscriptionId 
 
 # Create a new resource group
-$resourcegroup = New-AzureRmResourceGroup -Name $resourcegroupname -Location $location
+$resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location
 
 # Create a new server with a system wide unique server name
-$server = New-AzureRmSqlServer -ResourceGroupName $resourcegroupname `
-    -ServerName $servername `
+$server = New-AzSqlServer -ResourceGroupName $resourceGroupName `
+    -ServerName $serverName `
     -Location $location `
-    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
+    -SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminSqlLogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 
 # Create a server firewall rule that allows access from the specified IP range
-$serverfirewallrule = New-AzureRmSqlServerFirewallRule -ResourceGroupName $resourcegroupname `
-    -ServerName $servername `
-    -FirewallRuleName "AllowedIPs" -StartIpAddress $startip -EndIpAddress $endip
+$serverFirewallRule = New-AzSqlServerFirewallRule -ResourceGroupName $resourceGroupName `
+    -ServerName $serverName `
+    -FirewallRuleName "AllowedIPs" -StartIpAddress $startIp -EndIpAddress $endIp
 
 # Create two elastic database pools
-$firstpool = New-AzureRmSqlElasticPool -ResourceGroupName $resourcegroupname `
+$firstPool = New-AzSqlElasticPool -ResourceGroupName $resourceGroupName `
     -ServerName $servername `
-    -ElasticPoolName $firstpoolname `
+    -ElasticPoolName $firstPoolName `
     -Edition "Standard" `
     -Dtu 50 `
     -DatabaseDtuMin 10 `
     -DatabaseDtuMax 20
-$secondpool = New-AzureRmSqlElasticPool -ResourceGroupName $resourcegroupname `
-    -ServerName $servername `
-    -ElasticPoolName $secondpoolname `
+$secondPool = New-AzSqlElasticPool -ResourceGroupName $resourceGroupName `
+    -ServerName $serverName `
+    -ElasticPoolName $secondPoolName `
     -Edition "Standard" `
     -Dtu 50 `
     -DatabaseDtuMin 10 `
     -DatabaseDtuMax 50
 
 # Create two blank databases in the first pool
-$firstdatabase = New-AzureRmSqlDatabase  -ResourceGroupName $resourcegroupname `
-    -ServerName $servername `
-    -DatabaseName $firstdatabasename `
-    -ElasticPoolName $firstpoolname
-$seconddatabase = New-AzureRmSqlDatabase  -ResourceGroupName $resourcegroupname `
-    -ServerName $servername `
-    -DatabaseName "MySecondSampleDatabase" `
-    -ElasticPoolName "MySecondPool"
+$firstDatabase = New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
+    -ServerName $serverName `
+    -DatabaseName $firstDatabaseName `
+    -ElasticPoolName $firstPoolName
+$secondDatabase = New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
+    -ServerName $serverName `
+    -DatabaseName $secondDatabaseName `
+    -ElasticPoolName $secondPoolName
 
 # Move the database to the second pool
-$firstdatabase = Set-AzureRmSqlDatabase -ResourceGroupName $resourcegroupname `
-    -ServerName $servername `
-    -DatabaseName $firstdatabasename `
-    -ElasticPoolName $secondpoolname
+$firstDatabase = Set-AzSqlDatabase -ResourceGroupName $resourceGroupName `
+    -ServerName $serverName `
+    -DatabaseName $firstDatabaseName `
+    -ElasticPoolName $secondPoolName
 
 # Move the database into a standalone performance level
-$firstdatabase = Set-AzureRmSqlDatabase -ResourceGroupName $resourcegroupname `
-    -ServerName $servername `
-    -DatabaseName $firstdatabasename `
+$firstDatabase = Set-AzSqlDatabase -ResourceGroupName $resourceGroupName `
+    -ServerName $serverName `
+    -DatabaseName $firstDatabaseName `
     -RequestedServiceObjectiveName "S0"
 
 # Clean up deployment 
-# Remove-AzureRmResourceGroup -ResourceGroupName $resourcegroupname
+# Remove-AzResourceGroup -ResourceGroupName $resourceGroupName

@@ -8,7 +8,7 @@ $resourceGroupName ="yourResourceGroupName"
 $snapshotName = "yourSnapshotName"
 
 #Provide Shared Access Signature (SAS) expiry duration in seconds e.g. 3600.
-#Know more about SAS here: https://docs.microsoft.com/en-us/azure/storage/storage-dotnet-shared-access-signature-part-1
+#Know more about SAS here: https://docs.microsoft.com/en-us/Az.Storage/storage-dotnet-shared-access-signature-part-1
 $sasExpiryDuration = "3600"
 
 #Provide storage account name where you want to copy the snapshot. 
@@ -25,13 +25,13 @@ $destinationVHDFileName = "yourvhdfilename"
 
 
 # Set the context to the subscription Id where Snapshot is created
-Select-AzureRmSubscription -SubscriptionId $SubscriptionId
+Select-AzSubscription -SubscriptionId $SubscriptionId
 
 #Generate the SAS for the snapshot 
-$sas = Grant-AzureRmSnapshotAccess -ResourceGroupName $ResourceGroupName -SnapshotName $SnapshotName  -DurationInSecond $sasExpiryDuration -Access Read 
- 
+$sas = Grant-AzSnapshotAccess -ResourceGroupName $ResourceGroupName -SnapshotName $SnapshotNameÂ  -DurationInSecond $sasExpiryDuration -Access Read 
+Â 
 #Create the context for the storage account which will be used to copy snapshot to the storage account 
-$destinationContext = New-AzureStorageContext –StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey  
+$destinationContext = New-AzStorageContext â€“StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKeyÂ  
 
 #Copy the snapshot to the storage account 
-Start-AzureStorageBlobCopy -AbsoluteUri $sas.AccessSAS -DestContainer $storageContainerName -DestContext $destinationContext -DestBlob $destinationVHDFileName
+Start-AzStorageBlobCopy -AbsoluteUri $sas.AccessSAS -DestContainer $storageContainerName -DestContext $destinationContext -DestBlob $destinationVHDFileName

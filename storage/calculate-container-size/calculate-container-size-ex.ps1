@@ -1,9 +1,9 @@
-﻿# this script will show how to get the total size of the blobs in a container
+# this script will show how to get the total size of the blobs in a container
 # before running this, you need to create a storage account, create a container,
 #    and upload some blobs into the container
 # note: this retrieves all of the blobs in the container in one command.
-#       connect Azure with Login-AzureRmAccount before you run the script.
-#       requests sent as part of this tool will incur transactional costs. 
+#       connect Azure with Login-AzAccount before you run the script.
+#       requests sent as part of this tool will incur transactional costs.
 # command line usage: script.ps1 -ResourceGroup {YourResourceGroupName} -StorageAccountName {YourAccountName} -ContainerName {YourContainerName}
 #
 
@@ -18,14 +18,14 @@ param(
     [string]$ContainerName
 )
 
-#Set-StrictMode will cause Get-AzureStorageBlob returns result in different data types when there is only one blob
+#Set-StrictMode will cause Get-AzStorageBlob returns result in different data types when there is only one blob
 #Set-StrictMode -Version 2
 
 $VerbosePreference = "Continue"
 
-if(((Get-Module -ListAvailable Azure) -eq $null) -or ((Get-Module -ListAvailable Azure.Storage) -eq $null))
+if((Get-Module -ListAvailable Az.Storage) -eq $null)
 {
-    throw "Azure Powershell not found! Please install from https://docs.microsoft.com/en-us/powershell/azure/install-azurerm-ps"
+    throw "Azure Powershell not found! Please install from https://docs.microsoft.com/en-us/powershell/azure/install-Az-ps"
 }
 
 # function Retry-OnRequest
@@ -34,13 +34,13 @@ function Retry-OnRequest
     param(
         [Parameter(Mandatory=$true)]
         $Action)
-    
+
     # It could encounter various of temporary errors, like network errors, or storage server busy errors.
     # Should retry the request on transient errors
 
     # Retry on storage server timeout errors
     $clientTimeOut = New-TimeSpan -Minutes 15
-    $retryPolicy = New-Object -TypeName Microsoft.WindowsAzure.Storage.RetryPolicies.ExponentialRetry -ArgumentList @($clientTimeOut, 10)        
+    $retryPolicy = New-Object -TypeName Microsoft.WindowsAz.Storage.RetryPolicies.ExponentialRetry -ArgumentList @($clientTimeOut, 10)
     $requestOption = @{}
     $requestOption.RetryPolicy = $retryPolicy
 
@@ -94,13 +94,13 @@ function Get-BlobBytes
 
     if (!$IsPremiumAccount)
     {
-        if($Blob.BlobType -eq [Microsoft.WindowsAzure.Storage.Blob.BlobType]::BlockBlob)
+        if($Blob.BlobType -eq [Microsoft.WindowsAz.Storage.Blob.BlobType]::BlockBlob)
         {
             $blobSizeInBytes += 8
-            # Default is Microsoft.WindowsAzure.Storage.Blob.BlockListingFilter.Committed. Need All
-            $action = { param($requestOption) return $Blob.ICloudBlob.DownloadBlockList([Microsoft.WindowsAzure.Storage.Blob.BlockListingFilter]::All, $null, $requestOption) }                
+            # Default is Microsoft.WindowsAz.Storage.Blob.BlockListingFilter.Committed. Need All
+            $action = { param($requestOption) return $Blob.ICloudBlob.DownloadBlockList([Microsoft.WindowsAz.Storage.Blob.BlockListingFilter]::All, $null, $requestOption) }
 
-            $blocks=Retry-OnRequest $action      
+            $blocks=Retry-OnRequest $action
 
             if ($null -eq $blocks)
             {
@@ -109,19 +109,19 @@ function Get-BlobBytes
             else
             {
                 $blocks | ForEach-Object { $blobSizeInBytes += $_.Length + $_.Name.Length }
-            }  
+            }
         }
-        elseif($Blob.BlobType -eq [Microsoft.WindowsAzure.Storage.Blob.BlobType]::PageBlob)
+        elseif($Blob.BlobType -eq [Microsoft.WindowsAz.Storage.Blob.BlobType]::PageBlob)
         {
-            # It could cause server time out issue when trying to get page ranges of highly fragmented page blob 
+            # It could cause server time out issue when trying to get page ranges of highly fragmented page blob
             # Get page ranges in segment can mitigate chance of meeting such kind of server time out issue
             # See https://blogs.msdn.microsoft.com/windowsazurestorage/2012/03/26/getting-the-page-ranges-of-a-large-page-blob-in-segments/ for details.
             $pageRangesSegSize = 148 * 1024 * 1024L
             $totalSize = $Blob.ICloudBlob.Properties.Length
             $pageRangeSegOffset = 0
-        
+
             $pageRangesTemp = New-Object System.Collections.ArrayList
-        
+
             while ($pageRangeSegOffset -lt $totalSize)
             {
                 $action = {param($requestOption) return $Blob.ICloudBlob.GetPageRanges($pageRangeSegOffset, $pageRangesSegSize, $null, $requestOption) }
@@ -157,8 +157,8 @@ function Get-BlobBytes
             }
 
             $pageRanges.Add($lastRange) | Out-Null
-            $pageRanges |  ForEach-Object { 
-                    $blobSizeInBytes += 12 + $_.EndOffset - $_.StartOffset 
+            $pageRanges |  ForEach-Object {
+                    $blobSizeInBytes += 12 + $_.EndOffset - $_.StartOffset
                 }
         }
         else
@@ -180,7 +180,7 @@ function Get-ContainerBytes
 {
     param(
         [Parameter(Mandatory=$true)]
-        [Microsoft.WindowsAzure.Storage.Blob.CloudBlobContainer]$Container,
+        [Microsoft.WindowsAz.Storage.Blob.CloudBlobContainer]$Container,
         [Parameter(Mandatory=$false)]
         [bool]$IsPremiumAccount = $false)
 
@@ -203,10 +203,10 @@ function Get-ContainerBytes
     $MaxReturn = 5000
 
     do {
-        $Blobs = Get-AzureStorageBlob -Context $storageContext -Container $Container.Name -MaxCount $MaxReturn -ContinuationToken $Token
+        $Blobs = Get-AzStorageBlob -Context $storageContext -Container $Container.Name -MaxCount $MaxReturn -ContinuationToken $Token
         if($Blobs -eq $Null) { break }
 
-        #Set-StrictMode will cause Get-AzureStorageBlob returns result in different data types when there is only one blob
+        #Set-StrictMode will cause Get-AzStorageBlob returns result in different data types when there is only one blob
         if($Blobs.GetType().Name -eq "AzureStorageBlob")
         {
             $Token = $Null
@@ -232,9 +232,9 @@ function Get-ContainerBytes
     return @{ "containerSize" = $containerSizeInBytes; "blobCount" = $blobCount }
 }
 
-#Login-AzureRmAccount
+#Login-AzAccount
 
-$storageAccount = Get-AzureRmStorageAccount -ResourceGroupName $ResourceGroup -Name $StorageAccountName -ErrorAction SilentlyContinue
+$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroup -Name $StorageAccountName -ErrorAction SilentlyContinue
 if($storageAccount -eq $null)
 {
     throw "The storage account specified does not exist in this subscription."
@@ -256,12 +256,12 @@ if (-not ([System.Management.Automation.PSTypeName]'PageRange').Type)
 $containers = New-Object System.Collections.ArrayList
 if($ContainerName.Length -ne 0)
 {
-    $container = Get-AzureStorageContainer -Context $storageContext -Name $ContainerName -ErrorAction SilentlyContinue |
+    $container = Get-AzStorageContainer -Context $storageContext -Name $ContainerName -ErrorAction SilentlyContinue |
         ForEach-Object { $containers.Add($_) } | Out-Null
 }
 else
 {
-    Get-AzureStorageContainer -Context $storageContext | ForEach-Object { $containers.Add($_) } | Out-Null
+    Get-AzStorageContainer -Context $storageContext | ForEach-Object { $containers.Add($_) } | Out-Null
 }
 
 $sizeInBytes = 0

@@ -3,36 +3,36 @@ function New-ClusterWithZeppelin {
     $ErrorActionPreference = "Stop"
 
     # Login to your Azure subscription
-    # Is there an active Azure subscription?
-    $sub = Get-AzureRmSubscription -ErrorAction SilentlyContinue
-    if(-not($sub))
+    $context = Get-AzContext
+    if ($context -eq $null) 
     {
-        Add-AzureRmAccount
+        Connect-AzAccount
     }
+    $context
 
     # If you have multiple subscriptions, set the one to use
     # $subscriptionID = "<subscription ID to use>"
-    # Select-AzureRmSubscription -SubscriptionId $subscriptionID
+    # Select-AzSubscription -SubscriptionId $subscriptionID
 
     # Get user input/default values
     $resourceGroupName = Read-Host -Prompt "Enter the resource group name"
     $location = Read-Host -Prompt "Enter the Azure region to create resources in"
 
     # Create the resource group
-    New-AzureRmResourceGroup -Name $resourceGroupName -Location $location
+    New-AzResourceGroup -Name $resourceGroupName -Location $location
 
     $defaultStorageAccountName = Read-Host -Prompt "Enter the name of the storage account"
 
     # Create an Azure storae account and container
-    New-AzureRmStorageAccount `
+    New-AzStorageAccount `
         -ResourceGroupName $resourceGroupName `
         -Name $defaultStorageAccountName `
         -Type Standard_LRS `
         -Location $location
-    $defaultStorageAccountKey = (Get-AzureRmStorageAccountKey `
+    $defaultStorageAccountKey = (Get-AzStorageAccountKey `
                                     -ResourceGroupName $resourceGroupName `
                                     -Name $defaultStorageAccountName)[0].Value
-    $defaultStorageContext = New-AzureStorageContext `
+    $defaultStorageContext = New-AzStorageContext `
                                     -StorageAccountName $defaultStorageAccountName `
                                     -StorageAccountKey $defaultStorageAccountKey
 
@@ -52,23 +52,23 @@ function New-ClusterWithZeppelin {
     $defaultBlobContainerName = $clusterName
 
     # Create a blob container. This holds the default data store for the cluster.
-    New-AzureStorageContainer `
+    New-AzStorageContainer `
         -Name $clusterName -Context $defaultStorageContext
 
 ######Start snippet line 59
     # Create a new configuration object
-    $config = New-AzureRmHDInsightClusterConfig `
+    $config = New-AzHDInsightClusterConfig `
         -ClusterType $clusterType `
 
     # Add Zeppelin script action
-    Add-AzureRMHDInsightScriptAction -Config $config `
+    Add-AzHDInsightScriptAction -Config $config `
         -Name "Install Zeppelin" `
         -NodeType HeadNode `
         -Parameters "void" `
         -Uri "https://hdiconfigactions.blob.core.windows.net/linuxincubatorzeppelinv01/install-zeppelin-spark151-v01.sh"
 
     # Create a new HDInsight cluster using -Config
-    New-AzureRmHDInsightCluster `
+    New-AzHDInsightCluster `
         -ClusterName $clusterName `
         -ResourceGroupName $resourceGroupName `
         -HttpCredential $httpCredential `
