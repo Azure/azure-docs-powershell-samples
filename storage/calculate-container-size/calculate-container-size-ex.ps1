@@ -3,7 +3,7 @@
 #    and upload some blobs into the container
 # note: this retrieves all of the blobs in the container in one command.
 #       connect Azure with Login-AzAccount before you run the script.
-#       requests sent as part of this tool will incur transactional costs. 
+#       requests sent as part of this tool will incur transactional costs.
 # command line usage: script.ps1 -ResourceGroup {YourResourceGroupName} -StorageAccountName {YourAccountName} -ContainerName {YourContainerName}
 #
 
@@ -34,13 +34,13 @@ function Retry-OnRequest
     param(
         [Parameter(Mandatory=$true)]
         $Action)
-    
+
     # It could encounter various of temporary errors, like network errors, or storage server busy errors.
     # Should retry the request on transient errors
 
     # Retry on storage server timeout errors
     $clientTimeOut = New-TimeSpan -Minutes 15
-    $retryPolicy = New-Object -TypeName Microsoft.WindowsAz.Storage.RetryPolicies.ExponentialRetry -ArgumentList @($clientTimeOut, 10)        
+    $retryPolicy = New-Object -TypeName Microsoft.Azure.Storage.RetryPolicies.ExponentialRetry -ArgumentList @($clientTimeOut, 10)
     $requestOption = @{}
     $requestOption.RetryPolicy = $retryPolicy
 
@@ -94,13 +94,13 @@ function Get-BlobBytes
 
     if (!$IsPremiumAccount)
     {
-        if($Blob.BlobType -eq [Microsoft.WindowsAz.Storage.Blob.BlobType]::BlockBlob)
+        if($Blob.BlobType -eq [Microsoft.Azure.Storage.Blob.BlobType]::BlockBlob)
         {
             $blobSizeInBytes += 8
-            # Default is Microsoft.WindowsAz.Storage.Blob.BlockListingFilter.Committed. Need All
-            $action = { param($requestOption) return $Blob.ICloudBlob.DownloadBlockList([Microsoft.WindowsAz.Storage.Blob.BlockListingFilter]::All, $null, $requestOption) }                
+            # Default is Microsoft.Azure.Storage.Blob.BlockListingFilter.Committed. Need All
+            $action = { param($requestOption) return $Blob.ICloudBlob.DownloadBlockList([Microsoft.Azure.Storage.Blob.BlockListingFilter]::All, $null, $requestOption) }
 
-            $blocks=Retry-OnRequest $action      
+            $blocks=Retry-OnRequest $action
 
             if ($null -eq $blocks)
             {
@@ -109,19 +109,19 @@ function Get-BlobBytes
             else
             {
                 $blocks | ForEach-Object { $blobSizeInBytes += $_.Length + $_.Name.Length }
-            }  
+            }
         }
-        elseif($Blob.BlobType -eq [Microsoft.WindowsAz.Storage.Blob.BlobType]::PageBlob)
+        elseif($Blob.BlobType -eq [Microsoft.Azure.Storage.Blob.BlobType]::PageBlob)
         {
-            # It could cause server time out issue when trying to get page ranges of highly fragmented page blob 
+            # It could cause server time out issue when trying to get page ranges of highly fragmented page blob
             # Get page ranges in segment can mitigate chance of meeting such kind of server time out issue
             # See https://blogs.msdn.microsoft.com/windowsazurestorage/2012/03/26/getting-the-page-ranges-of-a-large-page-blob-in-segments/ for details.
             $pageRangesSegSize = 148 * 1024 * 1024L
             $totalSize = $Blob.ICloudBlob.Properties.Length
             $pageRangeSegOffset = 0
-        
+
             $pageRangesTemp = New-Object System.Collections.ArrayList
-        
+
             while ($pageRangeSegOffset -lt $totalSize)
             {
                 $action = {param($requestOption) return $Blob.ICloudBlob.GetPageRanges($pageRangeSegOffset, $pageRangesSegSize, $null, $requestOption) }
@@ -157,8 +157,8 @@ function Get-BlobBytes
             }
 
             $pageRanges.Add($lastRange) | Out-Null
-            $pageRanges |  ForEach-Object { 
-                    $blobSizeInBytes += 12 + $_.EndOffset - $_.StartOffset 
+            $pageRanges |  ForEach-Object {
+                    $blobSizeInBytes += 12 + $_.EndOffset - $_.StartOffset
                 }
         }
         else
@@ -180,7 +180,7 @@ function Get-ContainerBytes
 {
     param(
         [Parameter(Mandatory=$true)]
-        [Microsoft.WindowsAz.Storage.Blob.CloudBlobContainer]$Container,
+        [Microsoft.Azure.Storage.Blob.CloudBlobContainer]$Container,
         [Parameter(Mandatory=$false)]
         [bool]$IsPremiumAccount = $false)
 
