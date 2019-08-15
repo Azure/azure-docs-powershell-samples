@@ -106,7 +106,7 @@ Switch-AzSqlDatabaseFailoverGroup `
    -ResourceGroupName $resourceGroupName `
    -ServerName $drServerName `
    -FailoverGroupName $failoverGroupName
-Write-host "Failed failover group to sucessfully to" $drServerName 
+Write-host "Failed failover group to successfully to" $drServerName 
 
 
 
