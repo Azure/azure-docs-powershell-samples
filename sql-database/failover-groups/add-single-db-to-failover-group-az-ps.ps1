@@ -106,7 +106,7 @@ Switch-AzSqlDatabaseFailoverGroup `
    -ResourceGroupName $resourceGroupName `
    -ServerName $drServerName `
    -FailoverGroupName $failoverGroupName
-Write-host "Failed failover group to successfully to" $drServerName 
+Write-host "Failed failover group successfully to" $drServerName 
 
 
 
@@ -116,7 +116,7 @@ Switch-AzSqlDatabaseFailoverGroup `
    -ResourceGroupName $resourceGroupName `
    -ServerName $serverName `
    -FailoverGroupName $failoverGroupName
-Write-host "Failed failover group to successfully to back to" $serverName
+Write-host "Failed failover group successfully back to" $serverName
 
 
 # Show randomized variables
