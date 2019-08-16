@@ -28,10 +28,9 @@ $destinationVHDFileName = "yourvhdfilename"
 Select-AzSubscription -SubscriptionId $SubscriptionId
 
 #Generate the SAS for the snapshot 
-$sas = Grant-AzSnapshotAccess -ResourceGroupName $ResourceGroupName -SnapshotName $SnapshotNameÂ  -DurationInSecond $sasExpiryDuration -Access Read 
-Â 
+$sas = Grant-AzSnapshotAccess -ResourceGroupName $ResourceGroupName -SnapshotName $SnapshotName  -DurationInSecond $sasExpiryDuration -Access Read
 #Create the context for the storage account which will be used to copy snapshot to the storage account 
-$destinationContext = New-AzStorageContext â€“StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKeyÂ  
+$destinationContext = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey
 
 #Copy the snapshot to the storage account 
 Start-AzStorageBlobCopy -AbsoluteUri $sas.AccessSAS -DestContainer $storageContainerName -DestContext $destinationContext -DestBlob $destinationVHDFileName
