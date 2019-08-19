@@ -1,4 +1,4 @@
-# Create a zure Cosmos Account for Cassandra API with multi-master enabled, a keyspace with shared throughput,
+# Create an Azure Cosmos Account for Cassandra API with multi-master enabled, a keyspace with shared throughput,
 # and a table with defined schema, also with dedicated throughput, last writer wins conflict resolution policy 
 # and custom conflict resolver path
 

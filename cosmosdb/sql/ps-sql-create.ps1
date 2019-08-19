@@ -1,4 +1,4 @@
-# Create a Cosmos SQL API account with multi-master, a database with shared throughput, and a
+# Create a Cosmos SQL API account, single-master, a database with shared throughput, and a
 # container with its own dedicated thoughput, a unique key, and user defined conflict resolution path
 
 #generate a random 10 character alphanumeric string to ensure unique resource names
@@ -29,7 +29,7 @@ $CosmosDBProperties = @{
     "databaseAccountOfferType"="Standard";
     "locations"=$locations;
     "consistencyPolicy"=$consistencyPolicy;
-    "enableMultipleWriteLocations"="true"
+    "enableMultipleWriteLocations"="false"
 }
 
 New-AzResource -ResourceType $accountResourceType -ApiVersion $apiVersion `

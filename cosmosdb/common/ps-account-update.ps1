@@ -1,4 +1,4 @@
-# Create a Cosmos SQL API account in two regions, then add a third region
+# Create a Cosmos SQL API account in two regions, then update and add a third region
 
 #generate a random 10 character alphanumeric string to ensure unique resource names
 $uniqueId=$(-join ((97..122) + (48..57) | Get-Random -Count 15 | % {[char]$_}))
