@@ -14,7 +14,7 @@ $diskName = 'yourManagedDiskName'
 $diskSize = '128'
 
 #Provide the storage type for Managed Disk. PremiumLRS or StandardLRS.
-$storageType = 'PremiumLRS'
+$storageType = 'Premium_LRS'
 
 #Provide the Azure region (e.g. westus) where Managed Disks will be located.
 #This location should be same as the snapshot location
