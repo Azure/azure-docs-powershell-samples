@@ -1,11 +1,11 @@
 # Create resource group
-New-AzureRmResourceGroup -Name applicationGroup -Location westcentralus
+New-AzResourceGroup -Name applicationGroup -Location westcentralus
 
 # Get ID of managed application definition
-$appid=(Get-AzureRmManagedApplicationDefinition -ResourceGroupName appDefinitionGroup -Name ManagedStorage).ManagedApplicationDefinitionId
+$appid=(Get-AzManagedApplicationDefinition -ResourceGroupName appDefinitionGroup -Name ManagedStorage).ManagedApplicationDefinitionId
 
 # Create the managed application
-New-AzureRmManagedApplication `
+New-AzManagedApplication `
   -Name storageApp `
   -Location westcentralus `
   -Kind ServiceCatalog `

@@ -8,13 +8,13 @@ $AppName="AppServiceManualScale$random"
 $Location="WestUS"
 
 # Create a Resource Group
-New-AzureRMResourceGroup -Name $ResourceGroupName -Location $Location
+New-AzResourceGroup -Name $ResourceGroupName -Location $Location
 
 # Create an App Service Plan
-New-AzureRMAppservicePlan -Name AppServiceManualScalePlan -ResourceGroupName $ResourceGroupName -Location $Location -Tier Basic
+New-AzAppservicePlan -Name AppServiceManualScalePlan -ResourceGroupName $ResourceGroupName -Location $Location -Tier Basic
 
 # Create a Web App in the App Service Plan
-New-AzureRMWebApp -Name $AppName -ResourceGroupName $ResourceGroup -Location $Location -AppServicePlan AppServiceManualScalePlan
+New-AzWebApp -Name $AppName -ResourceGroupName $ResourceGroupName -Location $Location -AppServicePlan AppServiceManualScalePlan
 
 # Scale Web App to 2 Workers
-Set-AzureRMAppServicePlan -NumberofWorkers 2 -Name AppServiceManualScalePlan -ResourceGroupName $ResourceGroupName
+Set-AzAppServicePlan -NumberofWorkers 2 -Name AppServiceManualScalePlan -ResourceGroupName $ResourceGroupName

@@ -16,13 +16,13 @@ $organisation = "Contoso"
 $adminEmail = "admin@contoso.com"
 
 # Set the context to the subscription Id where the cluster will be created
-Select-AzureRmSubscription -SubscriptionId $subscriptionId
+Select-AzSubscription -SubscriptionId $subscriptionId
 
 # Create a resource group.
-New-AzureRmResourceGroup -Name $resourceGroupName -Location $location
+New-AzResourceGroup -Name $resourceGroupName -Location $location
 
 # Create the Api Management service. Since the SKU is not specified, it creates a service with Developer SKU. 
-New-AzureRmApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName -Location $location -Organization $organisation -AdminEmail $adminEmail
+New-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName -Location $location -Organization $organisation -AdminEmail $adminEmail
 
 # Certificate related details
 $proxyHostname = "proxy.contoso.net"
@@ -36,19 +36,19 @@ $portalCertificatePath = "C:\portalcert.pfx"
 $portalCertificatePassword = "certPassword"
 
 # Upload the custom ssl certificate to be applied to Proxy endpoint / Api Gateway endpoint
-$proxyCertUploadResult = Import-AzureRmApiManagementHostnameCertificate -Name $apimServiceName -ResourceGroupName $resourceGroupName `
+$proxyCertUploadResult = Import-AzApiManagementHostnameCertificate -Name $apimServiceName -ResourceGroupName $resourceGroupName `
                         -HostnameType "Proxy" -PfxPath $proxyCertificatePath -PfxPassword $proxyCertificatePassword
 
 # Upload the custom ssl certificate to be applied to Portal endpoint
-$portalCertUploadResult = Import-AzureRmApiManagementHostnameCertificate -Name $apimServiceName -ResourceGroupName $resourceGroupName `
+$portalCertUploadResult = Import-AzApiManagementHostnameCertificate -Name $apimServiceName -ResourceGroupName $resourceGroupName `
                         -HostnameType "Portal" -PfxPath $portalCertificatePath -PfxPassword $portalCertificatePassword
 
 # Create the HostnameConfiguration object for Portal endpoint
-$PortalHostnameConf = New-AzureRmApiManagementHostnameConfiguration -Hostname $proxyHostname -CertificateThumbprint $proxyCertUploadResult.Thumbprint
+$PortalHostnameConf = New-AzApiManagementHostnameConfiguration -Hostname $proxyHostname -CertificateThumbprint $proxyCertUploadResult.Thumbprint
 
 # Create the HostnameConfiguration object for Proxy endpoint
-$ProxyHostnameConf = New-AzureRmApiManagementHostnameConfiguration -Hostname $portalHostname -CertificateThumbprint $portalCertUploadResult.Thumbprint
+$ProxyHostnameConf = New-AzApiManagementHostnameConfiguration -Hostname $portalHostname -CertificateThumbprint $portalCertUploadResult.Thumbprint
 
 # Apply the configuration to API Management
-Set-AzureRmApiManagementHostnames -Name $apimServiceName -ResourceGroupName $resourceGroupName `
+Set-AzApiManagementHostnames -Name $apimServiceName -ResourceGroupName $resourceGroupName `
         -PortalHostnameConfiguration $PortalHostnameConf -ProxyHostnameConfiguration $ProxyHostnameConf

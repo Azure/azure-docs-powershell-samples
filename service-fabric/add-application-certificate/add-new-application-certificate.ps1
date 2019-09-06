@@ -1,4 +1,4 @@
-﻿
+
 # Variables for common values.
 $clusterloc="SouthCentralUS"
 $groupname="mysfclustergroup"
@@ -8,14 +8,14 @@ $subname="$clustername.$clusterloc.cloudapp.azure.com"
 $subscriptionID = 'subscription ID'
 
 # Login and select your subscription
-Connect-AzureRmAccount
-Get-AzureRmSubscription -SubscriptionId $subscriptionID | Select-AzureRmSubscription
+Connect-AzAccount
+Get-AzSubscription -SubscriptionId $subscriptionID | Select-AzSubscription
 
 # Certificate variables.
 $appcertpwd = ConvertTo-SecureString -String 'Password#1234' -AsPlainText -Force
 $appcertfolder="c:\myappcertificates\"
 
 # Create a new self-signed certificate and add it to all the VMs in the cluster.
-Add-AzureRmServiceFabricApplicationCertificate -ResourceGroupName $groupname -Name $clustername `
+Add-AzServiceFabricApplicationCertificate -ResourceGroupName $groupname -Name $clustername `
     -KeyVaultName $vaultname -KeyVaultResouceGroupName $groupname -CertificateSubjectName $subname `
     -CertificateOutputFolder $appcertfolder -CertificatePassword $appcertpwd

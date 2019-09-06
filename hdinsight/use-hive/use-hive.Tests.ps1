@@ -11,7 +11,7 @@ $creds = New-Object -TypeName System.Management.Automation.PSCredential -Argumen
 function Get-Credential { return $creds }
 
 Describe "hdinsight-hadoop-use-hive-powershell" {
-    It "Runs a Hive query using Start-AzureRmHDInsightJob" {
+    It "Runs a Hive query using Start-AzHDInsightJob" {
         # Since we only read-host to get the cluster name for this script,
         # just return it
         Mock Read-Host { $clusterName }

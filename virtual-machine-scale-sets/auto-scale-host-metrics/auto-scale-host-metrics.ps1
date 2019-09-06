@@ -1,5 +1,5 @@
 # Define the resource group name and location
-$mySubscriptionId = (Get-AzureRmSubscription)[0].Id
+$mySubscriptionId = (Get-AzSubscription)[0].Id
 $myResourceGroup = "myResourceGroup"
 $myScaleSet = "myScaleSet"
 $myLocation = "East US"
@@ -10,7 +10,7 @@ $cred = Get-Credential
 # Create a virtual machine scale set and supporting resources
 # A resource group, virtual network, load balancer, and NAT rules are automatically
 # created if they do not already exist
-New-AzureRmVmss `
+New-AzVmss `
   -ResourceGroupName $myResourceGroup `
   -VMScaleSetName $myScaleSet `
   -Location $myLocation `
@@ -22,7 +22,7 @@ New-AzureRmVmss `
 
 # Create an autoscale rule to increase the number of VM instances by 3 when the average CPU load over a 5-minute window
 # is greater than 70%
-$myRuleScaleOut = New-AzureRmAutoscaleRule `
+$myRuleScaleOut = New-AzAutoscaleRule `
   -MetricName "Percentage CPU" `
   -MetricResourceId /subscriptions/$mySubscriptionId/resourceGroups/$myResourceGroup/providers/Microsoft.Compute/virtualMachineScaleSets/$myScaleSet `
   -TimeGrain 00:01:00 `
@@ -31,13 +31,13 @@ $myRuleScaleOut = New-AzureRmAutoscaleRule `
   -Operator "GreaterThan" `
   -Threshold 70 `
   -ScaleActionDirection "Increase" `
-  –ScaleActionScaleType "ChangeCount" `
+  â€“ScaleActionScaleType "ChangeCount" `
   -ScaleActionValue 3 `
   -ScaleActionCooldown 00:05:00
 
 # Create an autoscale rule to decrease the number of VM instances by 1 when the average CPU load over a 5-minute window
 # is less than 30%
-$myRuleScaleIn = New-AzureRmAutoscaleRule `
+$myRuleScaleIn = New-AzAutoscaleRule `
   -MetricName "Percentage CPU" `
   -MetricResourceId /subscriptions/$mySubscriptionId/resourceGroups/$myResourceGroup/providers/Microsoft.Compute/virtualMachineScaleSets/$myScaleSet `
   -Operator "LessThan" `
@@ -47,11 +47,11 @@ $myRuleScaleIn = New-AzureRmAutoscaleRule `
   -TimeWindow 00:05:00 `
   -ScaleActionCooldown 00:05:00 `
   -ScaleActionDirection "Decrease" `
-  –ScaleActionScaleType "ChangeCount" `
+  â€“ScaleActionScaleType "ChangeCount" `
   -ScaleActionValue 1
 
 # Create the autoscale profle that includes the scale out and scale in rules
-$myScaleProfile = New-AzureRmAutoscaleProfile `
+$myScaleProfile = New-AzAutoscaleProfile `
   -DefaultCapacity 2  `
   -MaximumCapacity 10 `
   -MinimumCapacity 2 `
@@ -59,7 +59,7 @@ $myScaleProfile = New-AzureRmAutoscaleProfile `
   -Name "autoprofile"
 
 # Apply the autoscale profile to the virtual machine scale set
-Add-AzureRmAutoscaleSetting `
+Add-AzAutoscaleSetting `
   -Location $myLocation `
   -Name "autosetting" `
   -ResourceGroup $myResourceGroup `

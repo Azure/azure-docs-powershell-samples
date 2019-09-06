@@ -1,4 +1,4 @@
-﻿# Set variables with your own values
+# Set variables with your own values
 $resourceGroupName = "<resource group name>"
 $dataFactoryName = "<data factory name>" # Name of the data factory must be globally unique
 $dataFactoryNameLocation = "East US"
@@ -9,8 +9,8 @@ $azureSqlServerUserPassword = "<azure sql server password>"
 $azureSqlDatabase = "<source azure sql database name>"
 $azureSqlDataWarehouse = "<sink azure sql data warehouse name>"
 
-$azureStorageAccount = "<azure storage accoutn name>"
-$azureStorageAccountKey = "<azure storage account key>"
+$azureStorageAccount = "<Az.Storage accoutn name>"
+$azureStorageAccountKey = "<Az.Storage account key>"
 
 # No need to change values for these variables
 $azureSqlDatabaseLinkedService = "AzureSqlDatabaseLinkedService"
@@ -23,10 +23,10 @@ $pipelineGetTableListAndTriggerCopyData = "GetTableListAndTriggerCopyData"
 
 
 # create a resource gorup
-New-AzureRmResourceGroup -Name $resourceGroupName -Location $dataFactoryNameLocation
+New-AzResourceGroup -Name $resourceGroupName -Location $dataFactoryNameLocation
 
 # create a data factory
-$df = Set-AzureRmDataFactoryV2 -ResourceGroupName $resourceGroupName -Location $dataFactoryNameLocation -Name $dataFactoryName
+$df = Set-AzDataFactory -ResourceGroupName $resourceGroupName -Location $dataFactoryNameLocation -Name $dataFactoryName
 
 # create a linked service for Azure SQL Database (source)
 $azureSQLDatabaseLinkedServiceDefinition = @"
@@ -44,11 +44,11 @@ $azureSQLDatabaseLinkedServiceDefinition = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2LinkedService command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryLinkedService command. 
 $azureSQLDatabaseLinkedServiceDefinition | Out-File c:\$azureSqlDatabaseLinkedService.json
 
-## Creates an Azure Storage linked service
-Set-AzureRmDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $azureSqlDatabaseLinkedService -File c:\$azureSqlDatabaseLinkedService.json
+## Creates an Az.Storage linked service
+Set-AzDataFactoryLinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $azureSqlDatabaseLinkedService -File c:\$azureSqlDatabaseLinkedService.json
 
 
 # create a linked service for Azure SQL Datawarehouse (sink)
@@ -67,11 +67,11 @@ $azureSQLDataWarehouseLinkedServiceDefinition = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2LinkedService command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryLinkedService command. 
 $azureSQLDataWarehouseLinkedServiceDefinition | Out-File c:\$azureSqlDataWarehouseLinkedService.json
 
-## Creates an linked service for Azure Storage Account. Interim storage to enable PolyBase
-Set-AzureRmDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $azureSqlDataWarehouseLinkedService -File c:\$azureSqlDataWarehouseLinkedService.json
+## Creates an linked service for Az.Storage Account. Interim storage to enable PolyBase
+Set-AzDataFactoryLinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $azureSqlDataWarehouseLinkedService -File c:\$azureSqlDataWarehouseLinkedService.json
 
 $storageLinkedServiceDefinition = @"
 {
@@ -88,11 +88,11 @@ $storageLinkedServiceDefinition = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2LinkedService command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryLinkedService command. 
 $storageLinkedServiceDefinition | Out-File c:\$azureStorageLinkedService.json
 
-## Creates an Azure Storage linked service
-Set-AzureRmDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $azureStorageLinkedService -File c:\$azureStorageLinkedService.json
+## Creates an Az.Storage linked service
+Set-AzDataFactoryLinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $azureStorageLinkedService -File c:\$azureStorageLinkedService.json
 
 
 # create the input dataset (Azure SQL Database)
@@ -112,11 +112,11 @@ $azureSqlDatabaseDatasetDefiniton = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2Dataset command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryDataset command. 
 $azureSqlDatabaseDatasetDefiniton | Out-File c:\$azureSqlDatabaseDataset.json
 
 ## Create a dataset in the data factory
-Set-AzureRmDataFactoryV2Dataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $azureSqlDatabaseDataset -File "c:\$azureSqlDatabaseDataset.json"
+Set-AzDataFactoryDataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $azureSqlDatabaseDataset -File "c:\$azureSqlDatabaseDataset.json"
 
 
 # create the output dataset (Azure SQL Data Warehouse)
@@ -144,11 +144,11 @@ $azureSqlDataWarehouseDatasetDefiniton = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2Dataset command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryDataset command. 
 $azureSqlDataWarehouseDatasetDefiniton | Out-File c:\$azureSqlDataWarehouseDataset.json
 
 ## Create a dataset in the data factory
-Set-AzureRmDataFactoryV2Dataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $azureSqlDataWarehouseDataset -File "c:\$azureSqlDataWarehouseDataset.json"
+Set-AzDataFactoryDataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $azureSqlDataWarehouseDataset -File "c:\$azureSqlDataWarehouseDataset.json"
 
 # Create a pipeline in the data factory that copies data from source SQL Database to sink SQL Data Warehouse
 $pipelineDefinition = @"
@@ -217,11 +217,11 @@ $pipelineDefinition = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2Pipeline command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryPipeline command. 
 $pipelineDefinition | Out-File c:\$IterateAndCopySQLTablesPipeline.json
 
 ## Create a pipeline in the data factory
-Set-AzureRmDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $IterateAndCopySQLTablesPipeline -File "c:\$IterateAndCopySQLTablesPipeline.json"
+Set-AzDataFactoryPipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $IterateAndCopySQLTablesPipeline -File "c:\$IterateAndCopySQLTablesPipeline.json"
 
 
 # Create a pipeline in the data factory that retrieves a list of tables and invokes the above pipeline for each table to be copied
@@ -276,11 +276,11 @@ $pipeline2Definition = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzureRmDataFactoryV2Pipeline command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryPipeline command. 
 $pipeline2Definition | Out-File c:\$pipelineGetTableListAndTriggerCopyData.json
 
 ## Create a pipeline in the data factory
-Set-AzureRmDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $pipelineGetTableListAndTriggerCopyData -File "c:\$pipelineGetTableListAndTriggerCopyData.json"
+Set-AzDataFactoryPipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $pipelineGetTableListAndTriggerCopyData -File "c:\$pipelineGetTableListAndTriggerCopyData.json"
 
 
 
@@ -293,16 +293,16 @@ $pipelineParameters = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Invoke-AzureRmDataFactoryV2Pipeline command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Invoke-AzDataFactoryPipeline command. 
 $pipelineParameters | Out-File c:\PipelineParameters.json
 
 # Create a pipeline run by using parameters
-$runId = Invoke-AzureRmDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineName $pipelineGetTableListAndTriggerCopyData -ParameterFile c:\PipelineParameters.json
+$runId = Invoke-AzDataFactoryPipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineName $pipelineGetTableListAndTriggerCopyData -ParameterFile c:\PipelineParameters.json
 
 # Check the pipeline run status until it finishes the copy operation
 Start-Sleep -Seconds 30
 while ($True) {
-    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineRunId $runId -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
+    $result = Get-AzDataFactoryActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineRunId $runId -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
 
     if (($result | Where-Object { $_.Status -eq "InProgress" } | Measure-Object).count -ne 0) {
         Write-Host "Pipeline run status: In Progress" -foregroundcolor "Yellow"
@@ -316,7 +316,7 @@ while ($True) {
 }
 
 # Get the activity run details 
-    $result = Get-AzureRmDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName `
+    $result = Get-AzDataFactoryActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName `
         -PipelineRunId $runId `
         -RunStartedAfter (Get-Date).AddMinutes(-10) `
         -RunStartedBefore (Get-Date).AddMinutes(10) `
@@ -332,8 +332,8 @@ while ($True) {
     }
 
 # To remove the data factory from the resource gorup
-# Remove-AzureRmDataFactoryV2 -Name $dataFactoryName -ResourceGroupName $resourceGroupName
+# Remove-AzDataFactory -Name $dataFactoryName -ResourceGroupName $resourceGroupName
 # 
 # To remove the whole resource group
-# Remove-AzureRmResourceGroup  -Name $resourceGroupName
+# Remove-AzResourceGroup  -Name $resourceGroupName
 

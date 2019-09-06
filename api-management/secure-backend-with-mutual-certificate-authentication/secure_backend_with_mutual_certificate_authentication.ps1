@@ -20,24 +20,24 @@ $certificateFilePath = "<Replace with path to the Certificate to be used for Mut
 $certificatePassword = '<Password used to secure the Certificate>'
 
 # Set the context to the subscription Id where the cluster will be created
-Select-AzureRmSubscription -SubscriptionId $subscriptionId
+Select-AzSubscription -SubscriptionId $subscriptionId
 
 # Create a resource group.
-New-AzureRmResourceGroup -Name $resourceGroupName -Location $location
+New-AzResourceGroup -Name $resourceGroupName -Location $location
 
 # Create the Api Management service. Since the SKU is not specified, it creates a service with Developer SKU. 
-New-AzureRmApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName -Location $location -Organization $organisation -AdminEmail $adminEmail
+New-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimServiceName -Location $location -Organization $organisation -AdminEmail $adminEmail
 
 # Create the api management context
-$context = New-AzureRmApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimServiceName
+$context = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimServiceName
 
 # upload the certificate
-$cert = New-AzureRmApiManagementCertificate -Context $context -PfxFilePath $certificateFilePath -PfxPassword $certificatePassword
+$cert = New-AzApiManagementCertificate -Context $context -PfxFilePath $certificateFilePath -PfxPassword $certificatePassword
 
 # create an authentication-certificate policy with the thumbprint of the certificate
 $apiPolicy = "<policies><inbound><base /><authentication-certificate thumbprint=""" + $cert.Thumbprint + """ /></inbound><backend><base /></backend><outbound><base /></outbound><on-error><base /></on-error></policies>"
-$echoApi = Get-AzureRmApiManagementApi -Context $context -Name "Echo API"
+$echoApi = Get-AzApiManagementApi -Context $context -Name "Echo API"
 
 # setup Policy at the Product Level. Policies can be applied at entire API Management Service Scope, Api Scope, Product Scope and Api Operation Scope
-Set-AzureRmApiManagementPolicy -Context $context  -Policy $apiPolicy -ApiId $echoApi.ApiId
+Set-AzApiManagementPolicy -Context $context  -Policy $apiPolicy -ApiId $echoApi.ApiId
 
