@@ -10,7 +10,7 @@ $databaseThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/da
 $containerThroughputResourceName = $accountName + "/sql/" + $databaseName + "/" + $containerName + "/throughput"
 $containerThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers/settings"
 $throughput = 500
-$updateResource = "database" # or "container"
+$updateResource = "container" # or "database"
 
 $properties = @{
     "resource"=@{"throughput"=$throughput}

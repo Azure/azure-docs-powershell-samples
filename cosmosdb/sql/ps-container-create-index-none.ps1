@@ -1,7 +1,7 @@
 # Create a SQL API account with a database and a container with dedicated through put and no indexing policy
 
 #generate a random 10 character alphanumeric string to ensure unique resource names
-$uniqueId=$(-join ((97..122) + (48..57) | Get-Random -Count 15 | % {[char]$_}))
+$uniqueId=$(-join ((97..122) + (48..57) | Get-Random -Count 10 | % {[char]$_}))
 
 $apiVersion = "2015-04-08"
 $location = "West US 2"
@@ -60,4 +60,4 @@ $ContainerProperties = @{
 
 New-AzResource -ResourceType $containerResourceType `
     -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $resourceName -PropertyObject $ContainerProperties
+    -Name $containerResourceName -PropertyObject $ContainerProperties

@@ -14,8 +14,8 @@ $locations = @(
     @{ "locationName"="East US 2"; "failoverPriority"=1 }
 )
 
-# Add an IP range filter to the properties
-$ipRangeFilter = @{ "ipRangeFilter"="10.0.0.1" }
+# Add an IP range filter to the properties (must have no spaces)
+$ipRangeFilter = "10.0.0.1,10.1.0.1"
 
 $consistencyPolicy = @{
     "defaultConsistencyLevel"="Session";
