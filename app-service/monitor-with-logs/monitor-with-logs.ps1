@@ -23,4 +23,4 @@ Set-AzWebApp -RequestTracingEnabled $True -HttpLoggingEnabled $True -DetailedErr
 Invoke-WebRequest -Method "Get" -Uri https://$AppName.azurewebsites.net/404 -ErrorAction SilentlyContinue
 
 # Download the Web App Logs
-#Get-AzWebAppMetrics -ResourceGroupName $ResourceGroupName -Name $AppName -Metrics
+Write-Host "In your browser, download the logs for your app at https://$AppName.scm.azurewebsites.net/api/dump"
