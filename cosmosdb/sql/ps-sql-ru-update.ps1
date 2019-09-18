@@ -16,6 +16,7 @@ $properties = @{
     "resource"=@{"throughput"=$throughput}
 }
 
+# Note: if the database or container does not have throughput set the operation will return a "Not Found" error
 if($updateResource -eq "database"){
 Set-AzResource -ResourceType $databaseThroughputResourceType `
     -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `

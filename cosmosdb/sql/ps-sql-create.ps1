@@ -82,5 +82,5 @@ $containerProperties = @{
 } 
 
 New-AzResource -ResourceType $containerResourceType `
-    -ApiVersion "2015-04-08" -ResourceGroupName $resourceGroupName `
+    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
     -Name $containerResourceName -PropertyObject $containerProperties

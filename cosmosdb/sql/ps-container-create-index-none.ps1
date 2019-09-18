@@ -28,7 +28,7 @@ $accountProperties = @{
     "databaseAccountOfferType"="Standard";
     "locations"=$locations;
     "consistencyPolicy"=$consistencyPolicy;
-    "enableMultipleWriteLocations"="true"
+    "enableMultipleWriteLocations"="false"
 }
 
 New-AzResource -ResourceType $accountResourceType -ApiVersion $apiVersion `
@@ -44,9 +44,9 @@ New-AzResource -ResourceType $databaseResourceType `
     -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
     -Name $databaseResourceName -PropertyObject $databaseProperties
 
-$ContainerProperties = @{
+$containerProperties = @{
     "resource"=@{
-        "id"=$containerResourceName; 
+        "id"=$containerName; 
         "partitionKey"=@{
             "paths"=@("/myPartitionKey"); 
             "kind"="Hash"
@@ -55,9 +55,9 @@ $ContainerProperties = @{
             "indexingMode"="none"
         }
     };
-    "options"=@{ "Throughput"="400" }
+    "options"=@{ "Throughput"= 400 }
 } 
 
 New-AzResource -ResourceType $containerResourceType `
     -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $containerResourceName -PropertyObject $ContainerProperties
+    -Name $containerResourceName -PropertyObject $containerProperties
