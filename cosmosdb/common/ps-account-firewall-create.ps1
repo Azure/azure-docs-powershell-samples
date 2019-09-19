@@ -1,13 +1,13 @@
 # Create an Azure Cosmos Account for SQL (Core) API with IP Firewall
 
 #generate a random 10 character alphanumeric string to ensure unique resource names
-$uniqueId=$(-join ((97..122) + (48..57) | Get-Random -Count 10 | % {[char]$_}))
+$uniqueId=$(-join ((97..122) + (48..57) | Get-Random -Count 15 | % {[char]$_}))
 
 $apiVersion = "2015-04-08"
 $location = "West US 2"
 $resourceGroupName = "myResourceGroup"
 $accountName = "mycosmosaccount-$uniqueId" # must be lower case.
-$accountResourceType = "Microsoft.DocumentDb/databaseAccounts"
+$resourceType = "Microsoft.DocumentDb/databaseAccounts"
 
 $locations = @(
     @{ "locationName"="West US 2"; "failoverPriority"=0 },
@@ -29,6 +29,6 @@ $accountProperties = @{
     "enableMultipleWriteLocations"="false"
 }
 
-New-AzResource -ResourceType $accountResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName -Location $location `
-    -Name $accountName -PropertyObject $accountProperties -Force
+New-AzResource -ResourceType $resourceType -ApiVersion $apiVersion `
+    -ResourceGroupName $resourceGroupName -Location $location `
+    -Name $accountName -PropertyObject $accountProperties

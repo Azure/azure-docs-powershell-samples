@@ -1,8 +1,12 @@
 # Create a Cosmos SQL API container with large partition key support (version 2)
+
+#generate a random 10 character alphanumeric string to ensure unique resource names
+$uniqueId=$(-join ((97..122) + (48..57) | Get-Random -Count 15 | % {[char]$_}))
+
 $apiVersion = "2015-04-08"
 $location = "West US 2"
 $resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
+$accountName = "mycosmosaccount-$uniqueId" # must be lower case.
 $databaseName = "database1"
 $containerName = "container1"
 $databaseResourceName = $accountName + "/sql/" + $databaseName
@@ -16,14 +20,14 @@ $locations = @(
     @{ "locationName"="East US 2"; "failoverPriority"=1 }
 )
 
-$CosmosDBProperties = @{
+$accountProperties = @{
     "databaseAccountOfferType"="Standard";
     "locations"=$locations
 }
 
 New-AzResource -ResourceType $accountResourceType `
     -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName -Location $location `
-    -Name $accountName -PropertyObject $CosmosDBProperties
+    -Name $accountName -PropertyObject $accountProperties
 
 
 #Database

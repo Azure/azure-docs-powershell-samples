@@ -1,26 +1,31 @@
 # Update RU for an Azure Cosmos DB SQL (Core) API database or container
+
+$apiVersion = "2015-04-08"
 $resourceGroupName = "myResourceGroup"
 $accountName = "mycosmosaccount"
 $databaseName = "database1"
 $containerName = "container1"
-$databaseResourceName = $accountName + "/sql/" + $databaseName + "/throughput"
-$containerResourceName = $accountName + "/sql/" + $databaseName + "/" + $containerName + "/throughput"
+$databaseThroughputResourceName = $accountName + "/sql/" + $databaseName + "/throughput"
+$databaseThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/settings"
+$containerThroughputResourceName = $accountName + "/sql/" + $databaseName + "/" + $containerName + "/throughput"
+$containerThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers/settings"
 $throughput = 500
-$updateResource = "database" # or "container"
+$updateResource = "container" # or "database"
 
 $properties = @{
     "resource"=@{"throughput"=$throughput}
 }
 
+# Note: if the database or container does not have throughput set the operation will return a "Not Found" error
 if($updateResource -eq "database"){
-Set-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts/apis/databases/settings" `
-    -ApiVersion "2015-04-08" -ResourceGroupName $resourceGroupName `
-    -Name $databaseResourceName -PropertyObject $properties
+Set-AzResource -ResourceType $databaseThroughputResourceType `
+    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
+    -Name $databaseThroughputResourceName -PropertyObject $properties
 }
 elseif($updateResource -eq "container"){
-Set-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers/settings" `
-    -ApiVersion "2015-04-08" -ResourceGroupName $resourceGroupName `
-    -Name $containerResourceName -PropertyObject $properties
+Set-AzResource -ResourceType $containerThroughputResourceType `
+    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
+    -Name $containerThroughputResourceName -PropertyObject $properties
 }
 else {
     Write-Host("Must select database or container")

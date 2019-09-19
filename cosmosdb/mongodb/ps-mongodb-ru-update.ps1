@@ -1,10 +1,13 @@
 # Update RU for an Azure Cosmos MongoDB API database or collection
+$apiVersion = "2015-04-08"
 $resourceGroupName = "myResourceGroup"
 $accountName = "mycosmosaccount"
 $databaseName = "database1"
+$databaseThroughputResourceName = $accountName + "/mongodb/" + $databaseName + "/throughput"
+$databaseThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/settings"
 $collectionName = "collection1"
-$databaseResourceName = $accountName + "/mongodb/" + $databaseName + "/throughput"
-$collectionResourceName = $accountName + "/mongodb/" + $databaseName + "/" + $collectionName + "/throughput"
+$collectionThroughputResourceName = $accountName + "/mongodb/" + $databaseName + "/" + $collectionName + "/throughput"
+$collectionThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers/settings"
 $throughput = 500
 $updateResource = "database" # or "collection"
 
@@ -13,14 +16,14 @@ $properties = @{
 }
 
 if($updateResource -eq "database"){
-    Set-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts/apis/databases/settings" `
-        -ApiVersion "2015-04-08" -ResourceGroupName $resourceGroupName `
-        -Name $databaseResourceName -PropertyObject $properties
+    Set-AzResource -ResourceType $databaseThroughputResourceType `
+        -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
+        -Name $databaseThroughputResourceName -PropertyObject $properties
 }
 elseif($updateResource -eq "collection"){
-    Set-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts/apis/databases/collections/settings" `
-        -ApiVersion "2015-04-08" -ResourceGroupName $resourceGroupName `
-        -Name $collectionResourceName -PropertyObject $properties
+    Set-AzResource -ResourceType $collectionThroughputResourceType `
+        -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
+        -Name $collectionThroughputResourceName -PropertyObject $properties
 }
 else {
     Write-Host("Must select database or collection")    
