@@ -1,4 +1,4 @@
-# Get all Azure AD Application Proxy application custom domain apps
+# Get all Azure AD Application Proxy application custom domain applications
 
 $AADAPSERVPRINC=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"}  
 
@@ -22,7 +22,7 @@ foreach ($ITEM in $AADAPAPP) {
      }
 }  
 
-# Get the list of SSL certificates assigned Azure AD Application Proxy apps
+# Get the list of SSL certificates assigned Azure AD Application Proxy applications
 
 
 $AADAPSERVPRINC=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"}  
