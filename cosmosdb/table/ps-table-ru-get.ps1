@@ -1,4 +1,5 @@
 # Get RU for an Azure Cosmos Table API table
+
 $apiVersion = "2015-04-08"
 $resourceGroupName = "myResourceGroup"
 $accountName = "mycosmosaccount"
