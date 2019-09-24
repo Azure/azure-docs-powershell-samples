@@ -1,24 +1,24 @@
 # Get all Azure AD Proxy applications that have assigned an Azure AD policy (token lifetime) with policy details. (AzureADPreview module required) 
  
-$AADAPSERVPRINC=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"} 
-$ALLAPPS=Get-AzureADApplication -Top 100000  
+$AADAPServPrinc=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"} 
+$allApps=Get-AzureADApplication -Top 100000  
  
-foreach ($ITEM in $AADAPSERVPRINC)  
+foreach ($item in $AADAPServPrinc)  
 {     
  
- $POLICY=AzureADServicePrincipalPolicy -Id $ITEM.ObjectId 
+ $policy=AzureADServicePrincipalPolicy -Id $item.ObjectId 
  
- If (!([string]::IsNullOrEmpty($POLICY.Id))) 
+ If (!([string]::IsNullOrEmpty($policy.Id))) 
    
   { 
    Write-Host ("")        
  
-   $ITEM.DisplayName + " (AppId: " + $ITEM.AppId+")"; 
+   $item.DisplayName + " (AppId: " + $item.AppId+")"; 
  
    Write-Host ("") 
    Write-Host ("Policy") 
      
-   Get-AzureADPolicy -Id $POLICY.id | fl 
+   Get-AzureADPolicy -Id $policy.id | fl 
     
    Write-Host ("") 
    } 

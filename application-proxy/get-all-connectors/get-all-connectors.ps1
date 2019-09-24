@@ -1,13 +1,13 @@
 # Get all Azure AD Application Proxy Connector groups with the included connectors
 
-$AADAPCONNECTORGROUPS=Get-AzureADApplicationProxyConnectorGroup -Top 100000 
+$AADAPConnectorGroups=Get-AzureADApplicationProxyConnectorGroup -Top 100000 
 
-foreach ($ITEM in $AADAPCONNECTORGROUPS) {
+foreach ($item in $AADAPConnectorGroups) {
    
-    If ($ITEM.ConnectorGroupType -eq "applicationProxy")
+    If ($item.ConnectorGroupType -eq "applicationProxy")
     {
-     "Connector group: " + $ITEM.Name 
-      Get-AzureADApplicationProxyConnectorGroupMembers -Id $ITEM.Id;
+     "Connector group: " + $item.Name 
+      Get-AzureADApplicationProxyConnectorGroupMembers -Id $item.Id;
      " ";
     }
 }  

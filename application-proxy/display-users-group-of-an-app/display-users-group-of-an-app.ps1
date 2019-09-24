@@ -1,71 +1,71 @@
 # Display users and groups assigned to a specific Application Proxy application
 
-$AADAPSERVPRINCOBJID="OBJECT_ID_OF_THE_SERVICE_PRINCE_PRINCIPAL_OF_THE_AADP_APPLICATION"
-$USERS=Get-AzureADUser -Top 1000000
-$GROUPS=Get-AzureADGroup -Top 1000000 
+$AADAPServPrincObjId="OBJECT_ID_OF_THE_SERVICE_PRINCE_PRINCIPAL_OF_THE_AADP_APPLICATION"
+$users=Get-AzureADUser -Top 1000000
+$groups=Get-AzureADGroup -Top 1000000 
 
-$APP=Get-AzureADServicePrincipal -ObjectId $AADAPSERVPRINCOBJID
+$app=Get-AzureADServicePrincipal -ObjectId $AADAPServPrincObjId
 
-Write-Host ("Application: " + $APP.DisplayName + "(ServicePrinc. ObjID:"+$AADAPSERVPRINCOBJID+")")
+Write-Host ("Application: " + $app.DisplayName + "(ServicePrinc. ObjID:"+$AADAPServPrincObjId+")")
 Write-Host ("")
 Write-Host ("Assigned (directly and through group membership) users:")
 Write-Host ("")
 
-$NUMBER=0
+$number=0
 
-foreach ($ITEM in $USERS)
+foreach ($item in $users)
   {
-   $LISTOFASSIGNEMENTS=Get-AzureADUserAppRoleAssignment -ObjectId $ITEM.ObjectId
+   $listOfAssignments=Get-AzureADUserAppRoleAssignment -ObjectId $item.ObjectId
 
-   $ASSIGNED=$false
+   $assigned=$false
 
-   foreach ($ITEM2 in $LISTOFASSIGNEMENTS) 
+   foreach ($item2 in $listOfAssignments) 
      {
-      If ($ITEM2.ResourceID -eq $AADAPSERVPRINCOBJID) 
+      If ($item2.ResourceID -eq $AADAPServPrincObjId) 
         {  
-          $ASSIGNED=$true
+          $assigned=$true
         }
      }
 
-     If ($ASSIGNED -eq $true)
+     If ($assigned -eq $true)
       {
-        Write-Host ("DisplayName: " + $ITEM.DisplayName + " UPN: " + $ITEM.UserPrincipalName + " ObjectID: " + $ITEM.ObjectID)
-        $NUMBER=$NUMBER+1
+        Write-Host ("DisplayName: " + $item.DisplayName + " UPN: " + $item.UserPrincipalName + " ObjectID: " + $item.ObjectID)
+        $number=$number+1
       }
   }
 
 Write-Host ("")
-Write-Host ("Number of (directly and through group membership) users: " + $NUMBER)
+Write-Host ("Number of (directly and through group membership) users: " + $number)
 Write-Host ("")
 Write-Host ("")
 Write-Host ("Assigned groups:")
 Write-Host ("")
 
-$NUMBER=0
+$number=0
 
-foreach ($ITEM in $GROUPS)
+foreach ($item in $groups)
   {
-   $LISTOFASSIGNEMENTS=Get-AzureADGroupAppRoleAssignment -ObjectId $ITEM.ObjectId
+   $listOfAssignments=Get-AzureADGroupAppRoleAssignment -ObjectId $item.ObjectId
 
-   $ASSIGNED=$false
+   $assigned=$false
 
-   foreach ($ITEM2 in $LISTOFASSIGNEMENTS) 
+   foreach ($item2 in $listOfAssignments) 
      {
-      If ($ITEM2.ResourceID -eq $AADAPSERVPRINCOBJID) 
+      If ($item2.ResourceID -eq $AADAPServPrincObjId) 
         {  
-          $ASSIGNED=$true
+          $assigned=$true
         }
      }
 
-     If ($ASSIGNED -eq $true)
+     If ($assigned -eq $true)
       {
-        Write-Host ("DisplayName: " + $ITEM.DisplayName + " ObjectID: " + $ITEM.ObjectID)
-        $NUMBER=$NUMBER+1
+        Write-Host ("DisplayName: " + $item.DisplayName + " ObjectID: " + $item.ObjectID)
+        $number=$number+1
       }
   }
 
   
 Write-Host ("")
-Write-Host ("Number of assigned groups: " + $NUMBER)
+Write-Host ("Number of assigned groups: " + $number)
 Write-Host ("")
  

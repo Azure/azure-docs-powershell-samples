@@ -1,26 +1,26 @@
 # Move all applications assigned to a specific connector group to another connector group
 
 
-$OLDCONNECTORGROUPID="REPLACE_WITH_THE_OLD_CONNECTOR_GROUP_ID"
-$NEWCONNECTORGROUPID="REPLACE_WITH_THE_NEW_CONNECTOR_GROUP_ID"
+$oldConnectorGroupId="REPLACE_WITH_THE_OLD_CONNECTOR_GROUP_ID"
+$newConnectorGroupId="REPLACE_WITH_THE_NEW_CONNECTOR_GROUP_ID"
 
-$AADAPSERVPRINC=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"} 
-$ALLAPPS=Get-AzureADApplication -Top 100000
-$AADAPAPP=$AADAPSERVPRINC | ForEach-Object { $ALLAPPS -match $_.AppId}
+$AADAPServPrinc=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"} 
+$allApps=Get-AzureADApplication -Top 100000
+$AADAPApp=$AADAPServPrinc | ForEach-Object { $allApps -match $_.AppId}
 
-foreach ($ITEM in $AADAPAPP)
+foreach ($item in $AADAPApp)
      {
 
-      $CONNECTOR=Get-AzureADApplicationProxyApplicationConnectorGroup -ObjectId $ITEM.ObjectID;
+      $connector=Get-AzureADApplicationProxyApplicationConnectorGroup -ObjectId $item.ObjectID;
 
-            If ($OLDCONNECTORGROUPID -eq $CONNECTOR.Id) 
+            If ($oldConnectorGroupId -eq $connector.Id) 
             
             {
             
-            $NAME = $AADAPSERVPRINC -match $ITEM.AppId            
-            $NAME.DisplayName + " (AppId: " + $ITEM.AppId+ ")"
+            $name = $AADAPServPrinc -match $item.AppId            
+            $name.DisplayName + " (AppId: " + $item.AppId+ ")"
             
-            Set-AzureADApplicationProxyApplicationConnectorGroup -ObjectId $ITEM.ObjectId -ConnectorGroupId $NEWCONNECTORGROUPID
+            Set-AzureADApplicationProxyApplicationConnectorGroup -ObjectId $item.ObjectId -ConnectorGroupId $newConnectorGroupId
             
             }
 

@@ -4,48 +4,48 @@ Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "Windo
 
 # Get the number of Azure AD Application Proxy applications
  
-$AADAPAPP=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"} 
-$AADAPAPP.Count
+$AADAPApp=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"} 
+$AADAPApp.Count
  
 # Get all Azure AD Application Proxy applications (AppId, Name of the app, external / internal url, authentication type)
 
-$AADAPSERVPRINC=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"} 
-$ALLAPPS=Get-AzureADApplication -Top 100000
-$AADAPAPP=$AADAPSERVPRINC | ForEach-Object { $ALLAPPS -match $_.AppId}
+$AADAPServPrinc=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"} 
+$allApps=Get-AzureADApplication -Top 100000
+$AADAPApp=$AADAPServPrinc | ForEach-Object { $allApps -match $_.AppId}
 
-foreach ($ITEM in $AADAPAPP) {
-    $AADAPSERVPRINC[$AADAPAPP.IndexOf($ITEM)].DisplayName + " (AppId: " + $AADAPSERVPRINC[$AADAPAPP.IndexOf($ITEM)].AppId+")";
-    Get-AzureADApplicationProxyApplication -ObjectId $ITEM.ObjectId | fl ExternalUrl, InternalUrl,ExternalAuthenticationType
+foreach ($item in $AADAPApp) {
+    $AADAPServPrinc[$AADAPApp.IndexOf($item)].DisplayName + " (AppId: " + $AADAPServPrinc[$AADAPApp.IndexOf($item)].AppId+")";
+    Get-AzureADApplicationProxyApplication -ObjectId $item.ObjectId | fl ExternalUrl, InternalUrl,ExternalAuthenticationType
 }
 
 # Get all Azure AD Application Proxy Connector groups with the assigned applications
  
-$AADAPSERVPRINC=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"} 
-$ALLAPPS=Get-AzureADApplication -Top 100000
-$AADAPAPP=$AADAPSERVPRINC | ForEach-Object { $ALLAPPS -match $_.AppId}
-$AADAPCONNECTORGROUPS=Get-AzureADApplicationProxyConnectorGroup -Top 100000 
+$AADAPServPrinc=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"} 
+$allApps=Get-AzureADApplication -Top 100000
+$AADAPApp=$AADAPServPrinc | ForEach-Object { $allApps -match $_.AppId}
+$AADAPConnectorGroups=Get-AzureADApplicationProxyConnectorGroup -Top 100000 
 
 
-foreach ($ITEM in $AADAPCONNECTORGROUPS)
+foreach ($item in $AADAPConnectorGroups)
  {
     
-   If ($ITEM.ConnectorGroupType -eq "applicationProxy")
+   If ($item.ConnectorGroupType -eq "applicationProxy")
     {
-     "Connector group: " + $ITEM.Name+ " (Id: " + $ITEM.Id+ ")";
+     "Connector group: " + $item.Name+ " (Id: " + $item.Id+ ")";
      " ";
      
 
-    foreach ($ITEM2 in $AADAPAPP)
+    foreach ($item2 in $AADAPApp)
      {
 
-      $CONNECTOR=Get-AzureADApplicationProxyApplicationConnectorGroup -ObjectId $ITEM2.ObjectID;
+      $connector=Get-AzureADApplicationProxyApplicationConnectorGroup -ObjectId $item2.ObjectID;
 
-            If ($ITEM.Id -eq $CONNECTOR.Id) 
+            If ($item.Id -eq $connector.Id) 
             
             {
             
-            $NAME = $AADAPSERVPRINC -match $ITEM2.AppId            
-            $NAME.DisplayName + " (AppId: " + $ITEM2.AppId+ ")"}
+            $name = $AADAPServPrinc -match $item2.AppId            
+            $name.DisplayName + " (AppId: " + $item2.AppId+ ")"}
 
      }
      " ";

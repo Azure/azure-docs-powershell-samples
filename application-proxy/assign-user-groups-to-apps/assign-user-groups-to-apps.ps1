@@ -1,13 +1,13 @@
 # Assign a user to a specific Azure AD Application Proxy application
 
-$AADAPSERVPRINCOBJID="OBJECT_ID_OF_THE_SERVICE_PRINCE_PRINCIPAL_OF_THE_AADP_APPLICATION"
-$USEROBJECTID="OBJECTID_OF_THE_USER"
+$AADAPServPrincObjId="OBJECT_ID_OF_THE_SERVICE_PRINCE_PRINCIPAL_OF_THE_AADP_APPLICATION"
+$userObjectId="OBJECTID_OF_THE_USER"
 
-New-AzureADUserAppRoleAssignment -ObjectId $USEROBJECTID -PrincipalId $USEROBJECTID -ResourceId $AADAPSERVPRINCOBJID -Id 18d14569-c3bd-439b-9a66-3a2aee01d14f 
+New-AzureADUserAppRoleAssignment -ObjectId $userObjectId -PrincipalId $userObjectId -ResourceId $AADAPServPrincObjId -Id 18d14569-c3bd-439b-9a66-3a2aee01d14f 
 
 # Assign a group to a specific Azure AD Application Proxy application
 
-$AADAPSERVPRINCOBJID="OBJECT_ID_OF_THE_SERVICE_PRINCE_PRINCIPAL_OF_THE_AADP_APPLICATION"
-$GROUPOBJECTID="OBJECTID_OF_THE_GROUP"
+$AADAPServPrincObjId="OBJECT_ID_OF_THE_SERVICE_PRINCE_PRINCIPAL_OF_THE_AADP_APPLICATION"
+$groupObjectId="OBJECTID_OF_THE_GROUP"
 
-New-AzureADGroupAppRoleAssignment -ObjectId $GROUPOBJECTID -PrincipalId $GROUPOBJECTID -ResourceId $AADAPSERVPRINCOBJID -Id 18d14569-c3bd-439b-9a66-3a2aee01d14f  
+New-AzureADGroupAppRoleAssignment -ObjectId $groupObjectId -PrincipalId $groupObjectId -ResourceId $AADAPServPrincObjId -Id 18d14569-c3bd-439b-9a66-3a2aee01d14f  

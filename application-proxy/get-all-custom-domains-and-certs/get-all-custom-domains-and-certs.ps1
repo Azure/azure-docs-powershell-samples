@@ -1,23 +1,23 @@
 # Get all Azure AD Application Proxy application custom domain applications
 
-$AADAPSERVPRINC=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"}  
+$AADAPServPrinc=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"}  
 
-$ALLAPPS=Get-AzureADApplication -Top 100000 
+$allApps=Get-AzureADApplication -Top 100000 
 
-$AADAPAPP=$AADAPSERVPRINC | ForEach-Object { $ALLAPPS -match $_.AppId} 
+$AADAPApp=$AADAPServPrinc | ForEach-Object { $allApps -match $_.AppId} 
 
  
 
-foreach ($ITEM in $AADAPAPP) { 
+foreach ($item in $AADAPApp) { 
 
-    $TEMPAPPS=Get-AzureADApplicationProxyApplication -ObjectId $ITEM.ObjectId
+    $tempApps=Get-AzureADApplicationProxyApplication -ObjectId $item.ObjectId
 
-    If ($TEMPAPPS.ExternalUrl -notmatch ".msappproxy.net") 
+    If ($tempApps.ExternalUrl -notmatch ".msappproxy.net") 
     
      {
-       $AADAPSERVPRINC[$AADAPAPP.IndexOf($ITEM)].DisplayName + " (AppId: " + $AADAPSERVPRINC[$AADAPAPP.IndexOf($ITEM)].AppId+")"; 
+       $AADAPServPrinc[$AADAPApp.IndexOf($item)].DisplayName + " (AppId: " + $AADAPServPrinc[$AADAPApp.IndexOf($item)].AppId+")"; 
 
-       $TEMPAPPS | select ExternalUrl,InternalUrl,ExternalAuthenticationType, VerifiedCustomDomainCertificatesMetadata | fl
+       $tempApps | select ExternalUrl,InternalUrl,ExternalAuthenticationType, VerifiedCustomDomainCertificatesMetadata | fl
 
      }
 }  
@@ -25,28 +25,28 @@ foreach ($ITEM in $AADAPAPP) {
 # Get the list of SSL certificates assigned Azure AD Application Proxy applications
 
 
-$AADAPSERVPRINC=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"}  
+$AADAPServPrinc=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"}  
 
-$ALLAPPS=Get-AzureADApplication -Top 100000 
+$allApps=Get-AzureADApplication -Top 100000 
 
-$AADAPAPP=$AADAPSERVPRINC | ForEach-Object { $ALLAPPS -match $_.AppId} 
+$AADAPApp=$AADAPServPrinc | ForEach-Object { $allApps -match $_.AppId} 
 
-[string[]]$CERTS=$null
+[string[]]$certs=$null
 
-foreach ($ITEM in $AADAPAPP) { 
+foreach ($item in $AADAPApp) { 
 
-    $TEMPAPPS=Get-AzureADApplicationProxyApplication -ObjectId $ITEM.ObjectId
+    $tempApps=Get-AzureADApplicationProxyApplication -ObjectId $item.ObjectId
 
-    If ($TEMPAPPS.VerifiedCustomDomainCertificatesMetadata -match "class")
+    If ($tempApps.VerifiedCustomDomainCertificatesMetadata -match "class")
      {
-       $CERTS+=$TEMPAPPS.VerifiedCustomDomainCertificatesMetadata
+       $certs+=$tempApps.VerifiedCustomDomainCertificatesMetadata
      }     
 }  
 
 Write-Host ("")
-Write-Host ("Number of custom domain apps: " + $CERTS.Count)
+Write-Host ("Number of custom domain apps: " + $certs.Count)
 Write-Host ("")
 Write-Host ("Used certificates:")
 Write-Host ("")
 
-$CERTS | Sort-Object | Get-Unique 
+$certs | Sort-Object | Get-Unique 

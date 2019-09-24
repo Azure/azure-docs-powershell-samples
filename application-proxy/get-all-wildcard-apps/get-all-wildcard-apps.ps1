@@ -1,23 +1,23 @@
 # Get all Azure AD Application Proxy application wildcard published apps
 
-$AADAPSERVPRINC=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"}  
+$AADAPServPrinc=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"}  
 
-$ALLAPPS=Get-AzureADApplication -Top 100000 
+$allApps=Get-AzureADApplication -Top 100000 
 
-$AADAPAPP=$AADAPSERVPRINC | ForEach-Object { $ALLAPPS -match $_.AppId} 
+$AADAPApp=$AADAPServPrinc | ForEach-Object { $allApps -match $_.AppId} 
 
  
 
-foreach ($ITEM in $AADAPAPP) { 
+foreach ($item in $AADAPApp) { 
 
-    $TEMPAPPS=Get-AzureADApplicationProxyApplication -ObjectId $ITEM.ObjectId
+    $tempApps=Get-AzureADApplicationProxyApplication -ObjectId $item.ObjectId
 
-    If ($TEMPAPPS.ExternalUrl -match "\*.") 
+    If ($tempApps.ExternalUrl -match "\*.") 
     
      {
-       $AADAPSERVPRINC[$AADAPAPP.IndexOf($ITEM)].DisplayName + " (AppId: " + $AADAPSERVPRINC[$AADAPAPP.IndexOf($ITEM)].AppId+")"; 
+       $AADAPServPrinc[$AADAPApp.IndexOf($item)].DisplayName + " (AppId: " + $AADAPServPrinc[$AADAPApp.IndexOf($item)].AppId+")"; 
 
-       $TEMPAPPS | select ExternalUrl,InternalUrl,ExternalAuthenticationType, VerifiedCustomDomainCertificatesMetadata | fl
+       $tempApps | select ExternalUrl,InternalUrl,ExternalAuthenticationType, VerifiedCustomDomainCertificatesMetadata | fl
 
      }
 }  

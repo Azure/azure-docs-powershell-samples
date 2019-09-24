@@ -1,61 +1,61 @@
 # Get all Azure AD Application Proxy applications published with the identical certificate
 
-$CERTTHUMBPRINT="REPLACE_WITH_THE_THUMPRINT_OF_THE_CERTIFICATE"
+$certThumbprint="REPLACE_WITH_THE_THUMPRINT_OF_THE_CERTIFICATE"
 
-$AADAPSERVPRINC=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"}  
+$AADAPServPrinc=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"}  
 
-$ALLAPPS=Get-AzureADApplication -Top 100000 
+$allApps=Get-AzureADApplication -Top 100000 
 
-$AADAPAPP=$AADAPSERVPRINC | ForEach-Object { $ALLAPPS -match $_.AppId} 
+$AADAPApp=$AADAPServPrinc | ForEach-Object { $allApps -match $_.AppId} 
 
  
 
-foreach ($ITEM in $AADAPAPP) { 
+foreach ($item in $AADAPApp) { 
 
-    $TEMPAPPS=Get-AzureADApplicationProxyApplication -ObjectId $ITEM.ObjectId
+    $tempApps=Get-AzureADApplicationProxyApplication -ObjectId $item.ObjectId
 
-    If ($TEMPAPPS.VerifiedCustomDomainCertificatesMetadata -match $CERTTHUMBPRINT) 
+    If ($tempApps.VerifiedCustomDomainCertificatesMetadata -match $certThumbprint) 
     
      {
-       $AADAPSERVPRINC[$AADAPAPP.IndexOf($ITEM)].DisplayName + " (AppId: " + $AADAPSERVPRINC[$AADAPAPP.IndexOf($ITEM)].AppId+")"; 
+       $AADAPServPrinc[$AADAPApp.IndexOf($item)].DisplayName + " (AppId: " + $AADAPServPrinc[$AADAPApp.IndexOf($item)].AppId+")"; 
 
-       $TEMPAPPS | select ExternalUrl,InternalUrl,ExternalAuthenticationType | fl
+       $tempApps | select ExternalUrl,InternalUrl,ExternalAuthenticationType | fl
 
      }
 }  
  
 # Get all the Azure AD Application Proxy applications published with the identical certificate and replace it with a new one
 
-$CERTTHUMBPRINT="REPLACE_WITH_THE_THUMPRINT_OF_THE_CERTIFICATE"
-$PFXFILEPATH = "REPLACE_WITH_THE_PATH_TO_THE_PFX_FILE"
-$SECUREPASSWORD = Read-Host -AsSecureString // please provide the password of the pfx file
+$certThumbprint="REPLACE_WITH_THE_THUMPRINT_OF_THE_CERTIFICATE"
+$PFXFilePath = "REPLACE_WITH_THE_PATH_TO_THE_PFX_FILE"
+$securePassword = Read-Host -AsSecureString // please provide the password of the pfx file
 
 
-$AADAPSERVPRINC=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"}  
+$AADAPServPrinc=Get-AzureADServicePrincipal -Top 100000 | where-object {$_.Tags -Contains "WindowsAzureActiveDirectoryOnPremApp"}  
 
-$ALLAPPS=Get-AzureADApplication -Top 100000 
+$allApps=Get-AzureADApplication -Top 100000 
 
-$AADAPAPP=$AADAPSERVPRINC | ForEach-Object { $ALLAPPS -match $_.AppId} 
+$AADAPApp=$AADAPServPrinc | ForEach-Object { $allApps -match $_.AppId} 
 
  
 
-foreach ($ITEM in $AADAPAPP) 
+foreach ($item in $AADAPApp) 
 { 
 
-    $TEMPAPPS=Get-AzureADApplicationProxyApplication -ObjectId $ITEM.ObjectId
+    $tempApps=Get-AzureADApplicationProxyApplication -ObjectId $item.ObjectId
 
     Write-Host ("")
     Write-Host ("SSL certificate change for the Azure AD Application Proxy apps below:")
     Write-Host ("")
 
-    If ($TEMPAPPS.VerifiedCustomDomainCertificatesMetadata -match $CERTTHUMBPRINT) 
+    If ($tempApps.VerifiedCustomDomainCertificatesMetadata -match $certThumbprint) 
     
      {
-       $AADAPSERVPRINC[$AADAPAPP.IndexOf($ITEM)].DisplayName + " (AppId: " + $AADAPSERVPRINC[$AADAPAPP.IndexOf($ITEM)].AppId+")"; 
+       $AADAPServPrinc[$AADAPApp.IndexOf($item)].DisplayName + " (AppId: " + $AADAPServPrinc[$AADAPApp.IndexOf($item)].AppId+")"; 
 
-       $TEMPAPPS | select ExternalUrl,InternalUrl,ExternalAuthenticationType | fl
+       $tempApps | select ExternalUrl,InternalUrl,ExternalAuthenticationType | fl
 
-       Set-AzureADApplicationProxyApplicationCustomDomainCertificate -ObjectId  $ITEM.ObjectId -PfxFilePath $PFXFILEPATH -Password $SECUREPASSWORD
+       Set-AzureADApplicationProxyApplicationCustomDomainCertificate -ObjectId  $item.ObjectId -PfxFilePath $PFXFilePath -Password $securePassword
 
      }
 }
