@@ -1,16 +1,17 @@
 ﻿
 # Set variables for your server and database
 $subscriptionId = '<Subscription-ID>'
-$resourceGroupName = "myResourceGroup-$(Get-Random)"
+$randomIdentifier = $(Get-Random)
+$resourceGroupName = "myResourceGroup-$randomIdentifier"
 $location = "East US"
 $adminLogin = "azureuser"
 $password = "PWD27!"+(New-Guid).Guid
-$serverName = "mysqlserver-$(Get-Random)"
+$serverName = "mysqlserver-$randomIdentifier"
 $poolName = "myElasticPool"
 $databaseName = "mySampleDatabase"
 $drLocation = "West US"
-$drServerName = "mysqlsecondary-$(Get-Random)"
-$failoverGroupName = "failovergrouptutorial-$(Get-Random)"
+$drServerName = "mysqlsecondary-$randomIdentifier"
+$failoverGroupName = "failovergrouptutorial-$randomIdentifier"
 
 
 # The ip address range that you want to allow to access your server 
