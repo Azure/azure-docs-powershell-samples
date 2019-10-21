@@ -18,6 +18,7 @@
     of VMs can be found in the report and the details of error can be found in the log.
 
     Prerequisites:
+    - The script needs to be run on Powershell 5.1 (Windows Only) and is incompatible with Powershell 6.x
     - The subscription whose VMs are to be registered, needs to be registered to Microsoft.SqlVirtualMachine resource provider first. This link describes
       how to register to a resource provider: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-supported-services
     - The subscriptions provided to the cmdlet should be in the same tenant as the powershell session. You can confirm this by running
@@ -26,6 +27,7 @@
       Contributor or Owner
     - The script requires Az powershell module (>=2.8.0) to be installed. Details on how to install Az module can be found 
       here : https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-2.8.0
+      It specifically requires Az.Compute, Az.Accounts, Az.SqlVirtualMachine and Az.Resources module which comes as part of Az module (>=2.8.0) installation.
 
     .PARAMETER SubscriptionList
     List of Subscriptions whose VMs need to be registered
