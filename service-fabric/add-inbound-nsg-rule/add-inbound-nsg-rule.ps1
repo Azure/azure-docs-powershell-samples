@@ -8,7 +8,6 @@ $rulename="allowAppPort$port"
 $nsgname="sf-vnet-security"
 
 # Get the NSG resource
-$resource = Get-AzResource | Where {$_.ResourceGroupName –eq $RGname -and $_.ResourceType -eq "Microsoft.Network/networkSecurityGroups"} 
 $nsg = Get-AzNetworkSecurityGroup -Name $nsgname -ResourceGroupName $RGname
 
 # Add the inbound security rule.
