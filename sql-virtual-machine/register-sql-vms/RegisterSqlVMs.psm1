@@ -21,8 +21,7 @@
     - The script needs to be run on Powershell 5.1 (Windows Only) and is incompatible with Powershell 6.x
     - The subscription whose VMs are to be registered, needs to be registered to Microsoft.SqlVirtualMachine resource provider first. This link describes
       how to register to a resource provider: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-supported-services
-    - The subscriptions provided to the cmdlet should be in the same tenant as the powershell session. You can confirm this by running
-      the command 'Get-AzSubscription' and verifying that the subscription is in the output of the cmdlet.
+    - Run 'Connect-AzAccount' to first connect the powershell session to the azure account.
     - The Client credentials must have one of the following RBAC levels of access over the virtual machine being registered: Virtual Machine Contributor,
       Contributor or Owner
     - The script requires Az powershell module (>=2.8.0) to be installed. Details on how to install Az module can be found 
@@ -299,11 +298,17 @@ function getVmList(
             $tmp = $vmList.Add($vm)
         }
         else {
-            [System.Collections.ArrayList]$vmList = Get-AzVM -ResourceGroupName $ResourceGroupName
+            $vmsInRg = Get-AzVM -ResourceGroupName $ResourceGroupName
+            foreach ($vm in $vmsInRg) {
+                $tmp = $vmList.Add($vm)
+            }
         }
     }
     else {
-        [System.Collections.ArrayList]$vmList = Get-AzVM
+        $vmsInSub = Get-AzVM
+        foreach ($vm in $vmsInSub) {
+            $tmp = $vmList.Add($vm)
+        }
     }
     return , $vmList
 }
@@ -421,9 +426,6 @@ function isIgnorableError($ErrorObject) {
         'CannotConvertToAhub' {
             return $true
         }
-        'InvalidSqlManagementMode' {
-            return $true
-        }
         Default {
             return $false
         }
@@ -443,28 +445,6 @@ function isIgnorableError($ErrorObject) {
 function isUnableToRegisterAsAHUB($ErrorObject) {
     switch ($ErrorObject.Exception.Body.Code) {
         'CannotConvertToAhub' {
-            return $true
-        }
-        Default {
-            return $false
-        }
-    }
-}
-
-<#
-	.SYNOPSIS
-    Check if registration failed because it is not possible to register as Lightweight as the VM
-    had already been registered as Full previously
-
-    .PARAMETER ErrorObject
-    Error Object
-
-    .OUTPUTS
-    System.Boolean True if failure was due to registering as LightWeight, otherwise false
-#>
-function isUnableToRegisterAsLightWeight($ErrorObject) {
-    switch ($ErrorObject.Exception.Body.Code) {
-        'InvalidSqlManagementMode' {
             return $true
         }
         Default {
@@ -712,7 +692,7 @@ function assert-Subscription(
     if ($Global:Error) {
         $connectionError = $Global:Error[0]
         $errorMessage = "$($Subscription), $($connectionError[0].Exception.Message)"
-        Write-Output $errorMessage | Out-File $Global:LogFile
+        Write-Output $errorMessage | Out-File $Global:LogFile -Append
         $tmp = $Global:SubscriptionsFailedToConnect.Add($Subscription)
         return $false
     }
@@ -720,8 +700,15 @@ function assert-Subscription(
     # register Subscription with SQL VM RP
     $registration = Get-AzResourceProvider -ProviderNamespace Microsoft.SqlVirtualMachine -ErrorAction SilentlyContinue
     if ((!$registration) -or ($registration[0].RegistrationState -ne 'Registered')) {
-        $errorMessage = "$($Subscription), Subscription $($Subscription) should be registered to 'Microsoft.SqlVirtualMachine'. This registration may take around 5 mins to propogate. Steps to register can be found here: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-supported-services"
-        Write-Output $errorMessage | Out-File $Global:LogFile
+        # try register subscription to the SqlVirtualMachine
+        $register = Register-AzResourceProvider -ProviderNamespace Microsoft.SqlVirtualMachine -ErrorAction SilentlyContinue
+        if ((!$register) -or ($register.RegistrationState -ne 'Registering')) {
+            $errorMessage = "$($Subscription), Subscription $($Subscription) should be registered to 'Microsoft.SqlVirtualMachine'. Steps to register can be found here: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-supported-services. This registration may take around 5 mins to propogate."
+        }
+        else {
+            $errorMessage = "$($Subscription), Subscription $($Subscription) is registering to 'Microsoft.SqlVirtualMachine'. This registration may take around 5 mins to propogate. Run the script again for this subscription."
+        }
+        Write-Output $errorMessage | Out-File $Global:LogFile -Append
         $tmp = $Global:SubscriptionsFailedToRegister.Add($Subscription)
         return $false
     }
@@ -840,15 +827,8 @@ function createSqlVmFromList(
         $tmp = New-AzSqlVM -Name $name -ResourceGroupName $resourceGroupName -Location $location `
             -SqlManagementType $SqlManagementType  -LicenseType $LicenseType -ErrorAction SilentlyContinue
 
-        # try re-registering if the error was due to registering as PAYG or Lightweight
+        # try re-registering if the error was due to Web, Express or Developer registering as AHUB
         if ($Global:Error) {
-            if (isUnableToRegisterAsLightWeight -ErrorObject $Global:Error[0]) {
-                $tmp = handleError -ErrorObject $Global:Error[0] -VmObject $vm
-                $tmp = $Global:Error.Clear()
-                $SqlManagementType = 'Full'
-                $tmp = New-AzSqlVM -Name $name -ResourceGroupName $resourceGroupName -Location $location `
-                    -SqlManagementType $SqlManagementType  -LicenseType $LicenseType -ErrorAction SilentlyContinue
-            }
             if (isUnableToRegisterAsAHUB -ErrorObject $Global:Error[0]) {
                 $tmp = handleError -ErrorObject $Global:Error[0] -VmObject $vm
                 $tmp = $Global:Error.Clear()
