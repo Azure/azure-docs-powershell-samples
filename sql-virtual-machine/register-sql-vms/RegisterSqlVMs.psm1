@@ -26,7 +26,9 @@
       Contributor or Owner
     - The script requires Az powershell module (>=2.8.0) to be installed. Details on how to install Az module can be found 
       here : https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-2.8.0
-      It specifically requires Az.Compute, Az.Accounts, Az.SqlVirtualMachine and Az.Resources module which comes as part of Az module (>=2.8.0) installation.
+      It specifically requires Az.Compute, Az.Accounts and Az.Resources module which comes as part of Az module (>=2.8.0) installation.
+    - The script also requires Az.SqlVirtualMachine module. Details on how to install Az.SqlVirtualMachine can be
+      found here: https://www.powershellgallery.com/packages/Az.SqlVirtualMachine/0.1.0
 
     .PARAMETER SubscriptionList
     List of Subscriptions whose VMs need to be registered
