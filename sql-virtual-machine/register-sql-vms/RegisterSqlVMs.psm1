@@ -20,12 +20,12 @@
     Prerequisites:
     - The script needs to be run on Powershell 5.1 (Windows Only) and is incompatible with Powershell 6.x
     - The subscription whose VMs are to be registered, needs to be registered to Microsoft.SqlVirtualMachine resource provider first. This link describes
-      how to register to a resource provider: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-supported-services
+      how to register to a resource provider: https://docs.microsoft.com/azure/azure-resource-manager/resource-manager-supported-services
     - Run 'Connect-AzAccount' to first connect the powershell session to the azure account.
     - The Client credentials must have one of the following RBAC levels of access over the virtual machine being registered: Virtual Machine Contributor,
       Contributor or Owner
     - The script requires Az powershell module (>=2.8.0) to be installed. Details on how to install Az module can be found 
-      here : https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-2.8.0
+      here : https://docs.microsoft.com/powershell/azure/install-az-ps?view=azps-2.8.0
       It specifically requires Az.Compute, Az.Accounts and Az.Resources module which comes as part of Az module (>=2.8.0) installation.
     - The script also requires Az.SqlVirtualMachine module. Details on how to install Az.SqlVirtualMachine can be
       found here: https://www.powershellgallery.com/packages/Az.SqlVirtualMachine/0.1.0
@@ -705,10 +705,10 @@ function assert-Subscription(
         # try register subscription to the SqlVirtualMachine
         $register = Register-AzResourceProvider -ProviderNamespace Microsoft.SqlVirtualMachine -ErrorAction SilentlyContinue
         if ((!$register) -or ($register.RegistrationState -ne 'Registering')) {
-            $errorMessage = "$($Subscription), Subscription $($Subscription) should be registered to 'Microsoft.SqlVirtualMachine'. Steps to register can be found here: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-supported-services. This registration may take around 5 mins to propogate."
+            $errorMessage = "$($Subscription), Subscription $($Subscription) should be registered to 'Microsoft.SqlVirtualMachine'. Steps to register can be found here: https://docs.microsoft.com/azure/azure-resource-manager/resource-manager-supported-services. This registration may take around 5 mins to propagate."
         }
         else {
-            $errorMessage = "$($Subscription), Subscription $($Subscription) is registering to 'Microsoft.SqlVirtualMachine'. This registration may take around 5 mins to propogate. Run the script again for this subscription."
+            $errorMessage = "$($Subscription), Subscription $($Subscription) is registering to 'Microsoft.SqlVirtualMachine'. This registration may take around 5 mins to propagate. Run the script again for this subscription."
         }
         Write-Output $errorMessage | Out-File $Global:LogFile -Append
         $tmp = $Global:SubscriptionsFailedToRegister.Add($Subscription)
