@@ -9,12 +9,12 @@
     Register all Azure VM running SQL Server on Windows with SQL VM Resource provider.
 
     .DESCRIPTION
-    Identify and register all Azure VM running SQL Server on Windows in a list of subscriptions, resource group list, particular resourcegroup
+    Identify and register all Azure VM running SQL Server on Windows in a list of subscriptions, resource group list, particular resource group
     or a particular VM with SQL VM Resource provider.
     The cmdlet registers the VMs and generates a report and a log file at the end of the execution. The report is generated as a txt file named
     RegisterSqlVMScriptReport<Timestamp>.txt. Errors are logged in the log file named VMsNotRegisteredDueToError<Timestamp>.log. Timestamp is the
     time when the cmdlet was started. A summary is displayed at the end of the script run.
-    The Output summary contains the number of VMs that successfuly registered, failed or were skipped because of various reasons. The detailed list
+    The Output summary contains the number of VMs that successfully registered, failed or were skipped because of various reasons. The detailed list
     of VMs can be found in the report and the details of error can be found in the log.
 
     Prerequisites:
@@ -239,7 +239,7 @@ function Register-SqlVMs {
     new-Report
 }
 
-#Globals for reporting and loging
+#Globals for reporting and logging
 $Global:TotalVMs = 0
 $Global:AlreadyRegistered = 0
 $Global:SubscriptionsFailedToRegister = 0
@@ -529,7 +529,7 @@ function Get-DisclaimerAcceptance() {
 
 <#
     .SYNOPSIS
-    Creates a new line dashed seperator
+    Creates a new line dashed separator
 #>
 function new-DashSeperator() {
     Write-Host
@@ -731,7 +731,7 @@ function assert-Subscription(
     Name of the resourceGroup which needs to be searched for VMs
 
     .PARAMETER Name
-    Name of the VM which is to be registerd
+    Name of the VM which is to be registered
 #>
 function register-SqlVMForSubscription (
     [Parameter(Mandatory = $true)]
