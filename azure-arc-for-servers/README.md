@@ -24,10 +24,18 @@ Next you need to grant your connected machine for a read permission to access to
 You can manage this access control through Azure portal, Azure CloudShell, or run the [sample code][permission] on your laptop, desktop or any of your machines. 
 Please note changing RBAC roles require you to be the owner or administer of your subscription.
 
-## Retreive Secrets from Key Vault
+## Retrieve Secrets from Key Vault
 Now you have completed the role assignment. You should be able to get the secrets stored in you Key Vault. Once you have your secrets, for example, Cosmos Connection string, your app can start performing your business logic. 
-Give it try Azure ARC for Servers. 
-Welcome your feedback, bugs and feature requests.
+
+
+Other than getting Azure access token, you can find out metadata information including subscription, resouceGroup etc where your  machine connected to using the REST api just like on Azure VMs, for example,
+
+```
+Invoke-WebRequest -Uri http://localhost:40342/metadata/instance?api-version=2019-11-01 -Headers @{Metadata="True"} -UseBasicParsing
+
+```
+
+Please give it a try and welcome your feedback, bugs and feature requests for Azure ARC for Servers!
   
 
 [Ignite]:https://youtu.be/jnUiJi4hts4?t=869
