@@ -33,7 +33,9 @@ function Set-KeyVaultAccessPolicy {
        [Parameter(Mandatory=$true)]
        [string] $resourceGroup,
        [Parameter(Mandatory=$true)]
-       [string] $keyVaultName       
+       [string] $keyVaultName,
+       [Parameter(Mandatory=$true)]
+       [string] $apiVersion
     )
     
     $machineUri= "https://management.azure.com/subscriptions/${subscriptionId}/resourcegroups/${resourceGroup}/providers/Microsoft.HybridCompute/machines/${machineName}?api-version=${apiVersion}"
@@ -49,3 +51,6 @@ function Set-KeyVaultAccessPolicy {
     # Make sure you logon to the subscription where Key Vault resides
     Set-AzKeyVaultAccessPolicy -VaultName $keyVaultName -PermissionsToSecrets Get  -ObjectId $objectId
 }
+
+
+Set-KeyVaultAccessPolicy -machineName $machineName -subscriptionId $subscriptionId -resourceGroup $resourceGroup -apiVersion $apiVersion -keyVaultName $keyVaultName
