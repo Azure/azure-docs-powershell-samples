@@ -72,7 +72,8 @@ $response = Invoke-WebRequest -Method Get -Uri $kvendpoint -Headers @{ Authoriza
 if ($response -and $response.StatusCode -eq '200')
 {
     # retrieve the secrects stored in your KeyVault
-    $response.value
+    $mysecret = ($response.Content | ConvertFrom-Json).value
+    $mysecret
 }
 else 
 {
