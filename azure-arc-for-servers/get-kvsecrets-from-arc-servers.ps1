@@ -1,4 +1,5 @@
-# run the following on your Azure ARC machines to get secrets from you Key Vault
+# Run the following on your Azure Arc machines to get secrets from your Azure Key Vault.
+# Please follow the instructions in the README for connecting your machine to Azure before running the script. 
 function Get-AccessToken {
     [CmdletBinding()]
     param (
@@ -7,6 +8,11 @@ function Get-AccessToken {
         [string] $apiVersion = '2019-08-15'
     )
 
+    $agentExePath = Get-Command -Type Application -Name 'azcmagent' -ErrorAction SilentlyContinue
+    if (-not $agentExePath)
+    {
+        throw 'azcmagent not avaliable. Please follow the instructions in the README for connecting your machine to Azure.'
+    }
     $azcmagent = azcmagent show
     if (-not ($azcmagent -like "*: Connected"))
     {
