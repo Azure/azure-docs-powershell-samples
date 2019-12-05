@@ -27,19 +27,22 @@ function Get-AccessToken {
     }
 
     $response = Invoke-WebRequest @args -SkipHttpErrorCheck
+    if (!$response)
+    {
+        throw "something went wrong during requesting to identity service."
+    }
     if ($response.StatusCode -ne '401')
     {
-        throw "Unexpected response code from Azure Arc agent. Response content: $response.Content"
+        throw "unexpected response code from Azure Arc agent. Response content: $response.Content"
     }
     #check response code
     $challenge = $response.Headers['WWW-Authenticate']
-    $secretFile = if ($challenge -match "Basic realm=.+") {
-        ($challenge -split "Basic realm=")[1]
-    }
+    $secretFile = if ($challenge -match "Basic realm=.+") {($challenge -split "Basic realm=")[1]}
     if (!$secretFile)
     {
         throw "something went wrong during requesting to identity service. Resposne content: $response.Content" 
     }
+
     $secret = Get-Content -Raw $secretFile
     $args = @{
         'Method' = 'GET';
@@ -47,10 +50,10 @@ function Get-AccessToken {
         'Uri' = $endpointUri;
     }
 
-    $response = Invoke-RestMethod @args
-    if ($response)
+    $response = Invoke-WebRequest @args
+    if ($response -and $response.StatusCode -eq '200')
     {
-       return $response.access_token
+       return (ConvertFrom-Json -InputObject $response.Content).access_token
     }
 }
 
