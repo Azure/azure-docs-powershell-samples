@@ -1,4 +1,4 @@
-# Managing Credentials on Azure ARC for Servers
+# Managing Credentials on Azure Arc for Servers
 
 Azure Arc, announced at [Microsoft Ignite 2019][Ignite], extends the Azure management capabilities to infrastructures across on-premises, multi-cloud, and edge devices. 
 Azure Arc for Servers is one of Azure Arc technologies that enable you to manage your on-prem servers through a unified Azure control plane such as Azure Portal, PowerShell cmdlet, REST API as if they were running in Azure IaaS. 
@@ -49,7 +49,7 @@ Next you need to grant your connected machine for a read permission to access to
 You can manage this access control through Azure portal, Azure CloudShell, or run the [sample code][permission] on your laptop, desktop or any of your machines. 
 Please note changing RBAC roles require you to be the owner or administer of your subscription.
 
-## Retrieve Secrets from Key Vault
+## Retrieve Secrets from Azure Key Vault
 Now you have completed the role assignment. You should be able to get the secrets stored in your Key Vault. With your Azure Cosmos DB Connection string, your app can start performing your business logic. 
 
 
