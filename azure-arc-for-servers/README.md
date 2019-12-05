@@ -64,9 +64,9 @@ Give it a try and welcome your feedback, bugs and feature requests for Azure Arc
   
 
 [Ignite]:https://youtu.be/jnUiJi4hts4?t=869
-[overview]:https://docs.microsoft.com/en-us/azure/azure-arc/servers/overview
-[quickstart]:https://docs.microsoft.com/en-us/azure/azure-arc/servers/quickstart-onboard-powershell
-[scenario]:https://docs.microsoft.com/en-us/azure/azure-arc/servers/overview#supported-scenarios
+[overview]:https://docs.microsoft.com/azure/azure-arc/servers/overview
+[quickstart]:https://docs.microsoft.com/azure/azure-arc/servers/quickstart-onboard-powershell
+[scenario]:https://docs.microsoft.com/azure/azure-arc/servers/overview#supported-scenarios
 [kv]:./get-kvsecrets-from-arc-servers.ps1
 [ps7]:https://devblogs.microsoft.com/powershell/powershell-7-preview-6/
 [permission]:./grant-permission.ps1
