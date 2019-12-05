@@ -13,7 +13,7 @@ param(
 
 function Get-AzAccountAccessToken()
 {
-    if(-not (Get-Module Az.Accounts)) {
+    if(-not (Get-Module Az)) {
         Import-Module Az
     }
 
@@ -44,12 +44,19 @@ function Set-KeyVaultAccessPolicy {
     $yourtoken= Get-AzAccountAccessToken
   
     # get the principal id of your connected machine
-    $response1= Invoke-WebRequest -Method GET -Uri $machineUri -UseBasicParsing -Headers @{Metadata="True"; Authorization="bearer $yourtoken"}
-    $objectId = ($response1 | ConvertFrom-Json).identity.principalId
+    $response = Invoke-RestMethod -Method Get -Uri $machineUri -Headers @{metadata='True'; Authorization="bearer $yourtoken"} -StatusCodeVariable status
+    if ($status -eq '200')
+    {
+        $objectId = $response.identity.principalId
+    }
+    else 
+    {
+        throw  "unexpected response status code: $status"
+    }
 
     # grant the access permission to your connected machine. 
     # Make sure you logon to the subscription where Key Vault resides
-    Set-AzKeyVaultAccessPolicy -VaultName $keyVaultName -PermissionsToSecrets Get  -ObjectId $objectId
+    Set-AzKeyVaultAccessPolicy -VaultName $keyVaultName -PermissionsToSecrets Get -ObjectId $objectId
 }
 
 
