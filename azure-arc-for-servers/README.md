@@ -25,7 +25,7 @@ You can manage this access control through Azure portal, Azure CloudShell, or ru
 Please note changing RBAC roles require you to be the owner or administer of your subscription.
 
 ## Retrieve Secrets from Key Vault
-Now you have completed the role assignment. You should be able to get the secrets stored in you Key Vault. Once you have your secrets, for example, Cosmos Connection string, your app can start performing your business logic. 
+Now you have completed the role assignment. You should be able to get the secrets stored in you Key Vault. Once you have your secrets, for example, Azure Cosmos DB Connection string, your app can start performing your business logic. 
 
 
 Other than getting Azure access token, you can find out metadata information including subscription, resouceGroup etc where your  machine connected to using the REST api just like on Azure VMs, for example,
@@ -35,7 +35,7 @@ Invoke-WebRequest -Uri http://localhost:40342/metadata/instance?api-version=2019
 
 ```
 
-Please give it a try and welcome your feedback, bugs and feature requests for Azure ARC for Servers!
+Please give it a try and welcome your feedback, bugs and feature requests for Azure Arc for Servers [through the Azure Arc forum][uv]!
   
 
 [Ignite]:https://youtu.be/jnUiJi4hts4?t=869
@@ -45,3 +45,4 @@ Please give it a try and welcome your feedback, bugs and feature requests for Az
 [kv]:./get-kvsecrets-from-arc-servers.ps1
 [ps6]:https://devblogs.microsoft.com/powershell/powershell-7-preview-6/
 [permission]:./grant-permission.ps1
+[uv]:https://feedback.azure.com/forums/925690-azure-arc
