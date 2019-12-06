@@ -1,8 +1,12 @@
-# Sample script: Get all Azure AD Application Proxy applications (AppId, Name of the app, external / internal url, authentication type)
+# This sample script gets all Azure AD Application Proxy applications (AppId, Name of the app, external / internal url, authentication type).
 #
-# Required AAD role: Global Administrator or Application Administrator or Application Developer
+# This script requires PowerShell 5.1 (x64) and one of the following modules:
+#     AzureAD 2.0.2.52
+#     AzureADPreview 2.0.2.53
 #
-# PowerShell 5.1, module: AzureAD 2.0.2.52 / AzureADPreview 2.0.2.53
+# Before you begin:
+#    Run Connect-AzureAD to connect to the tenant domain.
+#    Required Azure AD role: Global Administrator or Application Administrator or Application Developer
 
 Write-Host "Reading service principals. This operation might take longer..." -BackgroundColor "Black" -ForegroundColor "Green" 
 

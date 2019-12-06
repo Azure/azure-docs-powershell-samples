@@ -1,16 +1,18 @@
-# Sample script: Assign a user to a specific Azure AD Application Proxy application
+# This sample script assigns a user to a specific Azure AD Application Proxy application.
 #
 # .\assign-user-to-app.ps1 -ServicePrincipalObjectId <ObjectId of the Azure AD Application Proxy application service principal> -GroupObjectId <ObjectId of the user>
 #
-#   Hints:
-#    You can easily identify the parameters by using the following PS commands:
-#
+# Tip: You can identify the parameters by using the following PS commands:
 #    ServicePrincipalObjectId - Get-AzureADServicePrincipal -SearchString "<display name of the app>"
 #    UserObjectId - Get-AzureADGroup -SearchString "<name of the group>"
 #
-# Required AAD role: Global Administrator
+# This script requires PowerShell 5.1 (x64) and one of the following modules:
+#     AzureAD 2.0.2.52
+#     AzureADPreview 2.0.2.53
 #
-# PowerShell 5.1 (x64), module: , AzureAD 2.0.2.52 / AzureADPreview 2.0.2.53
+# Before you begin:
+#    Run Connect-AzureAD to connect to the tenant domain.
+#    Required Azure AD role: Global Administrator
 
 param(
 [string] $ServicePrincipalObjectId = "null",

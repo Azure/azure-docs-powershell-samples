@@ -1,10 +1,14 @@
-# Sample script: Get all Azure AD Application Proxy applications published with the identical certificate
+# This sample script gets all Azure AD Application Proxy applications published with the identical certificate.
 #
 # .\get-custom-domain-identical-cert.ps1 -Thumbprint <thumbprint of the certificate>
 #
-# Required AAD role: Global Administrator or Application Administrator
+# This script requires PowerShell 5.1 (x64) and one of the following modules:
+#     AzureAD 2.0.2.52
+#     AzureADPreview 2.0.2.53
 #
-# PowerShell 5.1 (x64), module: , AzureAD 2.0.2.52 / AzureADPreview 2.0.2.53
+# Before you begin:
+#    Run Connect-AzureAD to connect to the tenant domain.
+#    Required Azure AD role: Global Administrator or Application Administrator
 
 param(
 [string] $Thumbprint = "null"

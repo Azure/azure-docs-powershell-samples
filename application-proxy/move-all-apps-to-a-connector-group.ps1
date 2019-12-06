@@ -1,10 +1,14 @@
-# Sample script: Move all applications assigned to a specific connector group to another connector group
+# This sample script moves all applications assigned to a specific connector group to another connector group.
 #
 # .\move-all-apps-to-a-connector-group.ps1 -CurrentConnectorGroupId <ObjectId of the current connector group> -NewConnectorGroupId <ObjectId of the new connector group>
 #
-# Required AAD role: Global Administrator or Application Administrator
+# This script requires PowerShell 5.1 (x64) and one of the following modules:
+#     AzureAD 2.0.2.52
+#     AzureADPreview 2.0.2.53
 #
-# PowerShell 5.1 (x64), module: , AzureAD 2.0.2.52 / AzureADPreview 2.0.2.53
+# Before you begin:
+#    Run Connect-AzureAD to connect to the tenant domain.
+#    Required Azure AD role: Global Administrator or Application Administrator
 
 param(
 [string] $CurrentConnectorGroupId = "null",

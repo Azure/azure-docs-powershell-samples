@@ -1,10 +1,14 @@
-# Sample script: Display users and groups assigned to the specified Application Proxy application
+# This sample script displays users and groups assigned to the specified Application Proxy application.
 #
 # .\display-users-group-of-an-app.ps1 -ObjectId <ObjectId of the application>
 #
-# Required AAD role: Global Administrator or Application Administrator
+# This script requires PowerShell 5.1 (x64) and one of the following modules:
+#     AzureAD 2.0.2.52
+#     AzureADPreview 2.0.2.53
 #
-# PowerShell 5.1 (x64), module: , AzureAD 2.0.2.52 / AzureADPreview 2.0.2.53
+# Before you begin:
+#    Run Connect-AzureAD to connect to the tenant domain.
+#    Required Azure AD role: Global Administrator or Application Administrator
 
 param(
 [string] $ObjectId = "null"
