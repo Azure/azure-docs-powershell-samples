@@ -6,7 +6,7 @@ $rgName = "myResourceGroup"
 #Region
 $location = "East US"
 #Password to place w/in the KeyVault
-$password = $([guid]::NewGuid()).Guid)
+$password = $([guid]::NewGuid()).Guid
 $securePassword = ConvertTo-SecureString -String $password -AsPlainText -Force
 #Name for the Azure AD Application
 $appName = "My App"
