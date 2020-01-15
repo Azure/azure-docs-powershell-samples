@@ -3,8 +3,7 @@
 # Configurable token lifetimes in Azure Active Directory (Preview)
 # https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-configurable-token-lifetimes
 #
-# This script requires PowerShell 5.1 (x64) and one of the following modules:
-#     AzureAD 2.0.2.52
+# This script requires PowerShell 5.1 (x64) and the following module:
 #     AzureADPreview 2.0.2.53
 #
 # Before you begin:
