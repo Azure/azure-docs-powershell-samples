@@ -33,10 +33,10 @@ $storageLinkedServiceDefinition = @"
 "@
 
 ## IMPORTANT: stores the JSON definition in a file that will be used by the Set-AzDataFactoryV2LinkedService command. 
-$storageLinkedServiceDefinition | Out-File c:\StorageLinkedService.json
+$storageLinkedServiceDefinition | Out-File ./StorageLinkedService.json
 
 ## Creates a linked service in the data factory
-Set-AzDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "AzureStorageLinkedService" -File c:\StorageLinkedService.json
+Set-AzDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "AzureStorageLinkedService" -File ./StorageLinkedService.json
 
 # Create an Azure Blob dataset in the data factory
 
@@ -66,10 +66,10 @@ $datasetDefiniton = @"
 "@
 
 ## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryV2Dataset command. 
-$datasetDefiniton | Out-File c:\BlobDataset.json
+$datasetDefiniton | Out-File ./BlobDataset.json
 
 ## Create a dataset in the data factory
-Set-AzDataFactoryV2Dataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "BlobDataset" -File "c:\BlobDataset.json"
+Set-AzDataFactoryV2Dataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "BlobDataset" -File "./BlobDataset.json"
 
 # Create a pipeline in the data factory
 
@@ -123,10 +123,10 @@ $pipelineDefinition = @"
 "@
 
 ## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryV2Pipeline command. 
-$pipelineDefinition | Out-File c:\CopyPipeline.json
+$pipelineDefinition | Out-File ./CopyPipeline.json
 
 ## Create a pipeline in the data factory
-Set-AzDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $pipelineName -File "c:\CopyPipeline.json"
+Set-AzDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name $pipelineName -File "./CopyPipeline.json"
 
 # Create a pipeline run 
 
@@ -139,10 +139,10 @@ $pipelineParameters = @"
 "@
 
 ## IMPORTANT: store the JSON definition in a file that will be used by the Invoke-AzDataFactoryV2Pipeline command. 
-$pipelineParameters | Out-File c:\PipelineParameters.json
+$pipelineParameters | Out-File ./PipelineParameters.json
 
 # Create a pipeline run by using parameters
-$runId = Invoke-AzDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineName $pipelineName -ParameterFile c:\PipelineParameters.json
+$runId = Invoke-AzDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineName $pipelineName -ParameterFile ./PipelineParameters.json
 
 # Check the pipeline run status until it finishes the copy operation
 while ($True) {
