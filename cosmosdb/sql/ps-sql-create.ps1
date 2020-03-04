@@ -16,26 +16,22 @@ Function Get-VNetRuleId{Param ([String]$ResourceGroupName, [String]$VNetName, [S
 	$vnet = Get-AzResource -Name $VNetName -ResourceGroupName $ResourceGroupName -ResourceType "Microsoft.Network/virtualNetworks"
 	return ($vnet.ResourceId + "/subnets/" + $SubnetName)}
 # --------------------------------------------------
-$uniqueId = New-RandomString -Length 5	# Random alphanumeric string for unique resource names
+$uniqueId = New-RandomString -Length 5 # Random alphanumeric string for unique resource names
 $apiKind = "GlobalDocumentDB"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$locations = @("East US")	# Regions ordered by failover priority; comma-separated
+$locations = @("East US", "West US") # Regions ordered by failover priority; comma-separated
 $resourceGroupName = "cosmos"
 
-$accountName = "cdb-sql-$uniqueId"	# Must be all lower case
+$accountName = "cdb-sql-$uniqueId" # Must be all lower case
 $consistencyLevel = "Session"
-$tags = @{
-	Department = "Snack Shack";
-	Purpose = "The Counting of Beans";
-	BillbackCode = 98765
-}
+$tags = @{Department = "Snack Shack"; Purpose = "The Counting of Beans"; BillbackCode = 98765}
 
-$vnetName = "cosmos-vnet"	# Limit access to this VNet
-$subnetName = "subnet1"	# Limit access to this subnet in VNet
-$ignoreMissingVnetServiceEndpoint = $true	# Allow deployment if VNet does not have Cosmos DB service endpoint
+$vnetName = "cosmos-vnet" # Limit access to this VNet
+$subnetName = "subnet1" # Limit access to this subnet in VNet
+$ignoreMissingVnetServiceEndpoint = $true # Allow deployment if VNet does not have Cosmos DB service endpoint
 
-$ipRanges = @("75.68.47.183", "8.8.8.8")	# Firewall allowed IP addresses/ranges
+$ipRanges = @("75.68.47.183", "8.8.8.8") # Firewall allowed IP addresses/ranges
 
 $databaseName = "db1"
 $databaseRUs = 1000
@@ -50,13 +46,13 @@ $indexingPathExcluded2 = "/myPathToNotIndex/*"
 $partitionKeyPath2 = "/myPartitionKey2"
 $uniqueKeyPath2 = "/myUniqueKeyPath"
 $conflictResolutionPath2 = "/myResolutionPath"
-$ttlInSeconds2 = 100	# Set this to -1 (or don't use it at all) to never expire
+$ttlInSeconds2 = 100 # Set this to -1 (or don't use it at all) to never expire
 # --------------------------------------------------
 # VNet Access Restriction
 $vnetRuleId = Get-VNetRuleId -ResourceGroupName $resourceGroupName -VNetName $vnetName -SubnetName $subnetName
 
 $vnetRule1 = New-AzCosmosDBVirtualNetworkRule -Id $vnetRuleId -IgnoreMissingVNetServiceEndpoint $ignoreMissingVnetServiceEndpoint
-$vnetRules = @($vnetRule1)	# Array of VNet rules
+$vnetRules = @($vnetRule1) # Array of VNet rules
 # --------------------------------------------------
 # Deploy Resources
 
