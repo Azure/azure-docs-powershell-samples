@@ -5,29 +5,28 @@
 # Purpose
 # Create a Cosmos SQL API account, a database with shared throughput, and a container with
 # dedicated thoughput, indexing policy, a unique key, and user defined conflict resolution path
+# ***** NOTE: this script can take several minutes to run to completion.
 # --------------------------------------------------
-# Functions / Utility
 Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
 # --------------------------------------------------
-$uniqueId = New-RandomString -Length 5 # Random alphanumeric string for unique resource names
+$uniqueId = New-RandomString -Length 4 # Random alphanumeric string for unique resource names
 $apiKind = "GlobalDocumentDB"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $locations = @("East US", "West US") # Regions ordered by failover priority
-$resourceGroupName = "cosmos-db-rg" # Resource Group must already exist
-$accountName = "cosmos-db-$uniqueId" # Must be all lower case
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "cdb-$uniqueId" # Must be all lower case
 $consistencyLevel = "Session"
 $tags = @{Tag1 = "Tag1Text"; Tag2 = "Tag2Text"; Tag3 = "Tag3Text"}
-$databaseName = "myDatabase"
-$databaseRUs = 400
-$containerName = "myContainer"
+$databaseName = "db1"
+$containerName = "container1"
 $containerRUs = 400
 $indexPathIncluded = "/*"
 $indexPathExcluded = "/myPathToNotIndex/*"
 $partitionKeyPath = "/myPartitionKey"
 $uniqueKeyPath = "/myUniqueKeyPath"
 $conflictResolutionPath = "/myResolutionPath"
-$ttlInSeconds = 100 # Set this to -1 (or don't use it at all) to never expire
+$ttlInSeconds = -1 # Set this to -1 (or don't use it at all) to never expire
 # --------------------------------------------------
 # Cosmos DB Account
 $account = New-AzCosmosDBAccount `
@@ -42,8 +41,7 @@ $account = New-AzCosmosDBAccount `
 # Cosmos DB Database
 $database = Set-AzCosmosDBSqlDatabase `
 	-InputObject $account `
-	-Name $databaseName `
-	-Throughput $databaseRUs
+	-Name $databaseName
 
 # Container with dedicated throughput, unique key, indexing policy, conflict resolution policy
 $uniqueKey = New-AzCosmosDBSqlUniqueKey -Path $uniqueKeyPath
