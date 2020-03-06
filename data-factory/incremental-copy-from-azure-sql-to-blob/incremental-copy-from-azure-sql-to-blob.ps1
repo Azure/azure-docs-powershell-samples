@@ -24,7 +24,7 @@ New-AzResourceGroup -Name $resourceGroupName -Location $dataFactoryRegion
 
 
 # Create a data factory
-$df = Set-AzDataFactory -ResourceGroupName $resourceGroupName -Location $dataFactoryRegion -Name $dataFactoryName 
+$df = Set-AzDataFactoryV2 -ResourceGroupName $resourceGroupName -Location $dataFactoryRegion -Name $dataFactoryName 
 
 # Create an Az.Storage linked service in the data factory
 
@@ -44,11 +44,11 @@ $storageLinkedServiceDefinition = @"
 }
 "@
 
-## IMPORTANT: stores the JSON definition in a file that will be used by the Set-AzDataFactoryLinkedService command. 
+## IMPORTANT: stores the JSON definition in a file that will be used by the Set-AzDataFactoryV2LinkedService command. 
 $storageLinkedServiceDefinition | Out-File c:\$azureStorageLinkedServiceName.json
 
 ## Creates a linked service in the data factory
-Set-AzDataFactoryLinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$azureStorageLinkedServiceName" -File c:\$azureStorageLinkedServiceName.json
+Set-AzDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$azureStorageLinkedServiceName" -File c:\$azureStorageLinkedServiceName.json
 
 ## JSON definition of the linked service. 
 $azureSQLDatabaseLinkedServiceDefinition = @"
@@ -66,11 +66,11 @@ $azureSQLDatabaseLinkedServiceDefinition = @"
 }
 "@
 
-## IMPORTANT: stores the JSON definition in a file that will be used by the Set-AzDataFactoryLinkedService command. 
+## IMPORTANT: stores the JSON definition in a file that will be used by the Set-AzDataFactoryV2LinkedService command. 
 $azureSQLDatabaseLinkedServiceDefinition | Out-File c:\$azureSqlDatabaseLinkedServiceName.json
 
 ## Creates a linked service in the data factory
-Set-AzDataFactoryLinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$azureSqlDatabaseLinkedServiceName" -File c:\$azureSqlDatabaseLinkedServiceName.json
+Set-AzDataFactoryV2LinkedService -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$azureSqlDatabaseLinkedServiceName" -File c:\$azureSqlDatabaseLinkedServiceName.json
 
 # Create an Azure SQL dataset in the data factory
 
@@ -91,11 +91,11 @@ $sourceDataset = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryDataset command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryV2Dataset command. 
 $sourceDataset | Out-File c:\$sourceDatasetName.json
 
 ## Create a dataset in the data factory
-Set-AzDataFactoryDataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$sourceDatasetName" -File "c:\$sourceDatasetName.json"
+Set-AzDataFactoryV2Dataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$sourceDatasetName" -File "c:\$sourceDatasetName.json"
 
 
 # Create an Azure Blob dataset in the data factory
@@ -120,11 +120,11 @@ $sinkDataset = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryDataset command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryV2Dataset command. 
 $sinkDataset | Out-File c:\$sinkDatasetName.json
 
 ## Create a dataset in the data factory
-Set-AzDataFactoryDataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$sinkDatasetName" -File "c:\$sinkDatasetName.json"
+Set-AzDataFactoryV2Dataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$sinkDatasetName" -File "c:\$sinkDatasetName.json"
 
 ## JSON definition of the dataset
 $watermarkDataset = @"
@@ -143,11 +143,11 @@ $watermarkDataset = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryDataset command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryV2Dataset command. 
 $watermarkDataset | Out-File c:\$watermarkDatasetName.json
 
 ## Create a dataset in the data factory
-Set-AzDataFactoryDataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$watermarkDatasetName" -File "c:\$watermarkDatasetName.json"
+Set-AzDataFactoryV2Dataset -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$watermarkDatasetName" -File "c:\$watermarkDatasetName.json"
 
 # Create a pipeline in the data factory
 
@@ -261,19 +261,19 @@ $pipelineDefinition = @"
 }
 "@
 
-## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryPipeline command. 
+## IMPORTANT: store the JSON definition in a file that will be used by the Set-AzDataFactoryV2Pipeline command. 
 $pipelineDefinition | Out-File c:\$pipelineName.json
 
 ## Create a pipeline in the data factory
-Set-AzDataFactoryPipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$pipelineName" -File "c:\$pipelineName.json"
+Set-AzDataFactoryV2Pipeline -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -Name "$pipelineName" -File "c:\$pipelineName.json"
 
 
-$RunId = Invoke-AzDataFactoryPipeline -PipelineName "$pipelineName" -ResourceGroup $resourceGroupName -dataFactoryName $dataFactoryName
+$RunId = Invoke-AzDataFactoryV2Pipeline -PipelineName "$pipelineName" -ResourceGroup $resourceGroupName -dataFactoryName $dataFactoryName
 
 # Check the pipeline run status until it finishes the copy operation
 Start-Sleep -Seconds 30
 while ($True) {
-    $result = Get-AzDataFactoryActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineRunId $runId -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
+    $result = Get-AzDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName -PipelineRunId $runId -RunStartedAfter (Get-Date).AddMinutes(-30) -RunStartedBefore (Get-Date).AddMinutes(30)
 
     if (($result | Where-Object { $_.Status -eq "InProgress" } | Measure-Object).count -ne 0) {
         Write-Host "Pipeline run status: In Progress" -foregroundcolor "Yellow"
@@ -287,7 +287,7 @@ while ($True) {
 }
 
 
-$result = Get-AzDataFactoryActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName `
+$result = Get-AzDataFactoryV2ActivityRun -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroupName `
     -PipelineRunId $runId `
     -RunStartedAfter (Get-Date).AddMinutes(-10) `
     -RunStartedBefore (Get-Date).AddMinutes(10) `
@@ -312,7 +312,7 @@ else {`
 
 
 # To remove the data factory from the resource gorup
-# Remove-AzDataFactory -Name $dataFactoryName -ResourceGroupName $resourceGroupName
+# Remove-AzDataFactoryV2 -Name $dataFactoryName -ResourceGroupName $resourceGroupName
 # 
 # To remove the whole resource group
 # Remove-AzResourceGroup  -Name $resourceGroupName
