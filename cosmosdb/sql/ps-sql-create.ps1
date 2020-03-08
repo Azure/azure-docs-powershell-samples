@@ -11,7 +11,7 @@ $apiKind = "GlobalDocumentDB"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $locations = @("East US", "West US") # Regions ordered by failover priority
-$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$resourceGroupName = "cosmos" # Resource Group must already exist
 $accountName = "cdb-$uniqueId" # Must be all lower case
 $consistencyLevel = "Session"
 $tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
@@ -26,11 +26,13 @@ $conflictResolutionPath = "/myResolutionPath"
 $ttlInSeconds = 120 # Set this to -1 (or don't use it at all) to never expire
 # --------------------------------------------------
 # Account
+Write-Host "Creating account $accountName"
 $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
 	-Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
 	-DefaultConsistencyLevel $consistencyLevel -EnableAutomaticFailover
 
 # Database
+Write-Host "Creating database $databaseName"
 $database = Set-AzCosmosDBSqlDatabase -InputObject $account -Name $databaseName
 
 # Container
@@ -50,6 +52,7 @@ $indexingPolicy = New-AzCosmosDBSqlIndexingPolicy `
 $conflictResolutionPolicy = New-AzCosmosDBSqlConflictResolutionPolicy `
 	-Type LastWriterWins -Path $conflictResolutionPath
 
+Write-Host "Creating container $containerName"
 $container = Set-AzCosmosDBSqlContainer `
 	-InputObject $database -Name $containerName `
 	-Throughput $containerRUs -IndexingPolicy $indexingPolicy `
