@@ -1,32 +1,36 @@
-# Update RU for an Azure Cosmos DB SQL (Core) API database or container
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Update database or container throughput
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$databaseNameNoShared = "MyDatabase" # Database without shared throughput
+$databaseNameShared = "MyDatabase2" # Database with shared throughput
+$containerNameDedicated = "MyContainer" # Container with dedicated throughput
+$newRUsDatabase = 1000
+$newRUsContainer = 600
+# --------------------------------------------------
 
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$databaseName = "database1"
-$containerName = "container1"
-$databaseThroughputResourceName = $accountName + "/sql/" + $databaseName + "/throughput"
-$databaseThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/settings"
-$containerThroughputResourceName = $accountName + "/sql/" + $databaseName + "/" + $containerName + "/throughput"
-$containerThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers/settings"
-$throughput = 500
-$updateResource = "container" # or "database"
+# Update throughput for database with shared throughput
+Write-Host "Updating database shared throughput"
+Set-AzCosmosDBSqlDatabase -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $databaseNameShared `
+    -Throughput $newRUsDatabase
 
-$properties = @{
-    "resource"=@{"throughput"=$throughput}
-}
+# Update throughput for container with dedicated throughput
+# Prepare Set-AzCosmosDBSqlContainer mandatory params by first getting
+# existing container so we can access settings
+$containerDedicated = Get-AzCosmosDBSqlContainer `
+    -ResourceGroupName $resourceGroupName -AccountName $accountName `
+    -DatabaseName $databaseNameNoShared -Name $containerNameDedicated
 
-# Note: if the database or container does not have throughput set the operation will return a "Not Found" error
-if($updateResource -eq "database"){
-Set-AzResource -ResourceType $databaseThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseThroughputResourceName -PropertyObject $properties
-}
-elseif($updateResource -eq "container"){
-Set-AzResource -ResourceType $containerThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $containerThroughputResourceName -PropertyObject $properties
-}
-else {
-    Write-Host("Must select database or container")
-}
+Write-Host "Updating container dedicated throughput"
+Set-AzCosmosDBSqlContainer -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseNameNoShared `
+    -Name $containerNameDedicated `
+    -Throughput $newRUsContainer `
+    -PartitionKeyKind $containerDedicated.Resource.PartitionKey.Kind `
+    -PartitionKeyPath $containerDedicated.Resource.PartitionKey.Paths
+
