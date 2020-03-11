@@ -1,34 +1,28 @@
-# Create an Azure Cosmos Account for SQL (Core) API with IP Firewall
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Create Cosmos SQL API account with firewall
+# --------------------------------------------------
+Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
+# --------------------------------------------------
+$uniqueId = New-RandomString -Length 7 # Random alphanumeric string for unique resource names
+$apiKind = "GlobalDocumentDB"
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$locations = @("East US", "West US") # Regions ordered by failover priority
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "cdb-$uniqueId" # Must be all lower case
+$consistencyLevel = "Session"
+$ipFilter = @("10.0.0.0/8", "11.0.1.0/24")
+$allowAzureAccess = $true # Allow access to Azure networks and portal
+# --------------------------------------------------
 
-#generate a random 10 character alphanumeric string to ensure unique resource names
-$uniqueId=$(-join ((97..122) + (48..57) | Get-Random -Count 15 | % {[char]$_}))
-
-$apiVersion = "2015-04-08"
-$location = "West US 2"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount-$uniqueId" # must be lower case.
-$resourceType = "Microsoft.DocumentDb/databaseAccounts"
-
-$locations = @(
-    @{ "locationName"="West US 2"; "failoverPriority"=0 },
-    @{ "locationName"="East US 2"; "failoverPriority"=1 }
-)
-
-# Add an IP range filter to the properties (must have no spaces)
-$ipRangeFilter = "10.0.0.1,10.1.0.1"
-
-$consistencyPolicy = @{
-    "defaultConsistencyLevel"="Session";
+if ($true -eq $allowAzureAccess) {
+    $ipFilter += "0.0.0.0"
 }
 
-$accountProperties = @{
-    "databaseAccountOfferType"="Standard";
-    "locations"=$locations;
-    "consistencyPolicy"=$consistencyPolicy;
-    "ipRangeFilter"= $ipRangeFilter;
-    "enableMultipleWriteLocations"="false"
-}
-
-New-AzResource -ResourceType $resourceType -ApiVersion $apiVersion `
-    -ResourceGroupName $resourceGroupName -Location $location `
-    -Name $accountName -PropertyObject $accountProperties
+# Account
+Write-Host "Creating account $accountName"
+$account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
+	-Location $locations -Name $accountName -ApiKind $apiKind `
+    -DefaultConsistencyLevel $consistencyLevel -IpRangeFilter $ipFilter
