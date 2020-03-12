@@ -1,31 +1,69 @@
-# Update RU for an Azure Cosmos Cassandra API keyspace or table
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Update database or container throughput
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$keyspaceName = "ks1" # Database without shared throughput
+$tableName = "t1" # Database with shared throughput
+$newRUsKeyspace = 800
+$newRUsTable = 600
 
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$keyspaceName = "keyspace1"
-$tableName = "table1"
-$keyspaceThroughputResourceName = $accountName + "/cassandra/" + $keyspaceName + "/throughput"
-$keyspaceThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/settings"
-$tableThroughputResourceName = $accountName + "/cassandra/" + $keyspaceName + "/" + $tableName + "/throughput"
-$tableThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables/settings"
-$throughput = 500
-$updateResource = "keyspace" # or "table"
+# Schema columns to create schema instance
+# When Get-AzCosmosDBCassandraTable output.Resource.Schema works,
+# can remove the following and retrieve existing schema programmatically
+$partitionKeys = @("machine", "cpu", "mtime")
+$clusterKeys = @( 
+    @{ name = "loadid"; orderBy = "Asc" };
+    @{ name = "duration"; orderBy = "Desc" }
+)
+$columns = @(
+    @{ name = "loadid"; type = "uuid" };
+    @{ name = "machine"; type = "uuid" };
+    @{ name = "cpu"; type = "int" };
+    @{ name = "mtime"; type = "int" };
+    @{ name = "load"; type = "float" };
+    @{ name = "duration"; type = "float" }
+)
+# --------------------------------------------------
 
-$properties = @{
-    "resource"=@{"throughput"=$throughput}
+Write-Host "Updating keyspace throughput"
+Set-AzCosmosDBCassandraKeyspace -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $keyspaceName `
+    -Throughput $newRUsKeyspace
+
+# Retrieve table to get current schema
+# This does not work at the time of this writing
+# For comparison, run Azure CLI command:
+# az cosmosdb cassandra table show -g myResourceGroup -a myaccount -k myKeyspace -n myTable
+
+# $table = Get-AzCosmosDBCassandraTable -ResourceGroupName $resourceGroupName `
+#     -AccountName $accountName -KeyspaceName $keyspaceName `
+#     -Name $tableName
+# $schema = $table.Resource.Schema
+# $schema
+
+
+# Table Schema
+$psClusterKeys = @()
+ForEach ($clusterKey in $clusterKeys) {
+    $psClusterKeys += New-AzCosmosDBCassandraClusterKey -Name $clusterKey.name -OrderBy $clusterKey.orderBy
 }
 
-if($updateResource -eq "keyspace"){
-    Set-AzResource -ResourceType $keyspaceThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $keyspaceThroughputResourceName -PropertyObject $properties
+$psColumns = @()
+ForEach ($column in $columns) {
+    $psColumns += New-AzCosmosDBCassandraColumn -Name $column.name -Type $column.type
 }
-elseif($updateResource -eq "table"){
-Set-AzResource -ResourceType $tableThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $tableThroughputResourceName -PropertyObject $tableProperties
-}
-else {
-    Write-Host("Must select keyspace or table")    
-}
+
+$schema = New-AzCosmosDBCassandraSchema `
+    -PartitionKey $partitionKeys `
+    -ClusterKey $psClusterKeys `
+    -Column $psColumns
+
+Write-Host "Updating table throughput"
+Set-AzCosmosDBCassandraTable -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -KeyspaceName $keyspaceName `
+    -Name $tableName -Throughput $newRUsTable `
+    -Schema $schema
