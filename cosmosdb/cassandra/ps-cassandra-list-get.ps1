@@ -6,8 +6,8 @@
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $resourceGroupName = "cosmos" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$keyspaceName = "ks1"
-$tableName = "t1"
+$keyspaceName = "mykeyspace"
+$tableName = "mytable"
 # --------------------------------------------------
 
 Write-Host "List all accounts in a resource group"
