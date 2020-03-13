@@ -1,5 +1,8 @@
 # Provide your own secure password for use with the VM instances
 $cred = Get-Credential
+$Ptr = [System.Runtime.InteropServices.Marshal]::SecureStringToCoTaskMemUnicode($cred.Password)
+$Password = [System.Runtime.InteropServices.Marshal]::PtrToStringUni($Ptr)
+[System.Runtime.InteropServices.Marshal]::ZeroFreeCoTaskMemUnicode($Ptr)
 
 # Define variables for resource names
 $resourceGroupName = "myResourceGroup"
@@ -104,7 +107,7 @@ Set-AzVmssStorageProfile $vmssConfig `
 # Set up information for authenticating with the virtual machine
 Set-AzVmssOsProfile $vmssConfig `
   -AdminUsername $cred.UserName `
-  -AdminPassword $cred.Password `
+  -AdminPassword $Password `
   -ComputerNamePrefix "myVM"
 
 # Attach the virtual network to the config object
