@@ -25,7 +25,7 @@ Write-Host "Get a keyspace in an account"
 Get-AzCosmosDBCassandraKeyspace -ResourceGroupName $resourceGroupName `
     -AccountName $accountName -Name $keyspaceName
 
-Write-Host "List all tables in an keyspace"
+Write-Host "List all tables in a keyspace"
 Get-AzCosmosDBCassandraTable -ResourceGroupName $resourceGroupName `
     -AccountName $accountName -KeyspaceName $keyspaceName 
 
