@@ -5,8 +5,6 @@
 # a keyspace with shared thoughput, and a table with defined schema, dedicated throughput,
 # and conflict resolution policy with last writer wins and custom resolver path
 # --------------------------------------------------
-Get-Date -Format s
-# --------------------------------------------------
 Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
 # --------------------------------------------------
 $uniqueId = New-RandomString -Length 4 # Random alphanumeric string for unique resource names
@@ -47,6 +45,7 @@ Write-Host "Creating account $accountName"
     # -MaxStalenessIntervalInSeconds $maxStalenessInterval `
     # -MaxStalenessPrefix $maxStalenessPrefix `
     # -EnableMultipleWriteLocations
+# Account creation: use New-AzResource with property object
 # --------------------------------------------------
 $azAccountResourceType = "Microsoft.DocumentDb/databaseAccounts"
 $azApiVersion = "2019-12-12"
@@ -79,6 +78,7 @@ New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
 
 $account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
 # --------------------------------------------------
+# Powershell cmdlets for additional operations
 
 # Keyspace
 Write-Host "Creating keyspace $keyspaceName"
@@ -105,5 +105,3 @@ $schema = New-AzCosmosDBCassandraSchema `
 Write-Host "Creating table $tableName"
 $table = Set-AzCosmosDBCassandraTable -InputObject $keyspace `
     -Name $tableName -Schema $schema -Throughput $tableRUs 
-# --------------------------------------------------
-Get-Date -Format s
