@@ -1,74 +1,46 @@
-# Create an Azure Cosmos Account for MongoDB API with multi-master enabled,
-# shared database throughput and last writer wins conflict policy with custom resolver path
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Create Cosmos MongoDB API account, database, and collection with multi-master enabled,
+# a database with shared thoughput, and a collection with dedicated throughput
+# and conflict resolution policy with last writer wins and custom resolver path
+# --------------------------------------------------
+Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
+# --------------------------------------------------
+$uniqueId = New-RandomString -Length 4 # Random alphanumeric string for unique resource names
+$apiKind = "MongoDB"
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$locations = @("East US", "West US") # Regions ordered by failover priority
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "cdb-mongo-$uniqueId" # Must be all lower case
+$consistencyLevel = "Session"
+$tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
+$databaseName = "mydatabase"
+$databaseRUs = 400
+$collectionName = "mycollection"
+$collectionRUs = 400
+$shardKey = "user_id"
+$partitionKeys = @("user_id", "user_address")
+$ttlKeys = @("_ts")
+$ttlInSeconds = 604800
+# --------------------------------------------------
+Write-Host "Creating account $accountName"
+$account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
+    -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
+    -DefaultConsistencyLevel $consistencyLevel `
+    -EnableMultipleWriteLocations
 
-#generate a random 10 character alphanumeric string to ensure unique resource names
-$uniqueId=$(-join ((97..122) + (48..57) | Get-Random -Count 15 | % {[char]$_}))
+Write-Host "Creating database $databaseName"
+$database = Set-AzCosmosDBMongoDBDatabase -InputObject $account `
+    -Name $databaseName -Throughput $databaseRUs
 
-$apiVersion = "2015-04-08"
-$location = "West US 2"
-$resourceGroupName = "MyResourceGroup"
-$accountName = "mycosmosaccount-$uniqueId" # must be lower case.
-$apiType = "MongoDB"
-$accountResourceType = "Microsoft.DocumentDb/databaseAccounts"
-$databaseName = "database1"
-$databaseResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases"
-$databaseResourceName = $accountName + "/mongodb/" + $databaseName
-$collectionName = "collection2"
-$collectionResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/collections"
-$collectionResourceName = $accountName + "/mongodb/" + $databaseName + "/" + $collectionName
+# Collection
+$index1 = New-AzCosmosDBMongoDBIndex -Key $partitionKeys -Unique $true
+$index2 = New-AzCosmosDBMongoDBIndex -Key $ttlKeys -TtlInSeconds $ttlInSeconds
+$indexes = @($index1, $index2)
 
-# Create account
-$locations = @(
-    @{ "locationName"="West US 2"; "failoverPriority"=0 },
-    @{ "locationName"="East US 2"; "failoverPriority"=1 }
-)
-
-$consistencyPolicy = @{ "defaultConsistencyLevel"="Session" }
-
-$accountProperties = @{
-    "databaseAccountOfferType"="Standard";
-    "locations"=$locations;
-    "consistencyPolicy"=$consistencyPolicy;
-    "enableMultipleWriteLocations"="true"
-}
-
-New-AzResource -ResourceType $accountResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName -Location $location `
-    -Kind $apiType -Name $accountName -PropertyObject $accountProperties -Force
-
-
-# Create database with shared throughput
-$databaseProperties = @{
-    "resource"=@{ "id"=$databaseName };
-    "options"=@{ "Throughput"= 400 }
-} 
-New-AzResource -ResourceType $databaseResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseResourceName -PropertyObject $databaseProperties -Force
-
-
-# Create Collection with a partition key of user_id and unique key index with 
-# last writer wins conflict resolution policy and custom path and a TTL of one week
-$collectionProperties = @{
-    "resource"=@{
-        "id"=$collectionName; 
-        "shardKey"= @{ "user_id"="Hash" };
-        "indexes"= @(
-            @{
-                "key"= @{ "keys"=@("user_id", "user_address") };
-                "options"= @{ "unique"= "true" }
-            };
-            @{
-                "key"= @{ "keys"=@("_ts") };
-                "options"= @{ "expireAfterSeconds"= 604800 }
-            }
-        );
-        "conflictResolutionPolicy"=@{
-            "mode"="lastWriterWins"; 
-            "conflictResolutionPath"="myResolutionPath"
-        }
-    }
-} 
-New-AzResource -ResourceType $collectionResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $collectionResourceName -PropertyObject $collectionProperties -Force
+Write-Host "Creating collection $collectionName"
+$collection = Set-AzCosmosDBMongoDBCollection -InputObject $database `
+    -Name $collectionName -Throughput $collectionRUs `
+    -Shard $shardKey -Index $indexes

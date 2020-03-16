@@ -1,35 +1,35 @@
-# List and Get operations for Azure Cosmos MongoDB API
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount" # must be lower case.
-$databaseName = "database1"
-$collectionName = "collection1"
-$accountResourceName = $accountName + "/mongodb/"
-$databaseResourceName = $accountName + "/mongodb/" + $databaseName
-$databaseResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases"
-$collectionResourceName = $accountName + "/mongodb/" + $databaseName + "/" + $collectionName
-$collectionResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/collections"
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Show list and get operations for accounts, databases, and containers
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$databaseName = "mydatabase"
+$collectionName = "mycollection"
+# --------------------------------------------------
 
-Read-Host -Prompt "List all databases in an account. Press Enter to continue"
+Write-Host "List all accounts in a resource group"
+Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName
 
-Get-AzResource -ResourceType $databaseResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $accountResourceName  | Select-Object Properties
+Write-Host "Get an account in a resource group"
+Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
+    -Name $accountName
 
-Read-Host -Prompt "Get a database in an account. Press Enter to continue"
+Write-Host "List all databases in an account"
+Get-AzCosmosDBMongoDBDatabase -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName
 
-Get-AzResource -ResourceType $databaseResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseResourceName | Select-Object Properties
+Write-Host "Get a database in an account"
+Get-AzCosmosDBMongoDBDatabase -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $databaseName
 
-Read-Host -Prompt "List all collections in a database. Press Enter to continue"
+Write-Host "List all collections in a database"
+Get-AzCosmosDBMongoDBCollection -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseName 
 
-Get-AzResource -ResourceType $collectionResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseResourceName | Select-Object Properties
-
-Read-Host -Prompt "Get a collection in a database. Press Enter to continue"
-
-Get-AzResource -ResourceType $collectionResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $collectionResourceName | Select-Object Properties
+Write-Host "Get a collection in a database"
+Get-AzCosmosDBMongoDBCollection -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseName `
+    -Name $collectionName
