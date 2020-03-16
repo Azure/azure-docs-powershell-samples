@@ -1,13 +1,13 @@
 # Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
 # --------------------------------------------------
 # Purpose
-# Update database or container throughput
+# Update keyspace or table throughput
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $resourceGroupName = "cosmos" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$keyspaceName = "ks1" # Database without shared throughput
-$tableName = "t1" # Database with shared throughput
+$keyspaceName = "ks1"
+$tableName = "t1"
 $newRUsKeyspace = 800
 $newRUsTable = 600
 

@@ -1,7 +1,7 @@
 # Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
 # --------------------------------------------------
 # Purpose
-# Create Cosmos Cassandra API account, database, and container with multi-master enabled,
+# Create Cosmos Cassandra API account, keyspace, and table with multi-master enabled,
 # a keyspace with shared thoughput, and a table with defined schema, dedicated throughput,
 # and conflict resolution policy with last writer wins and custom resolver path
 # --------------------------------------------------
