@@ -1,13 +1,13 @@
-# Get RU for an Azure Cosmos Table API table
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Get RU/s throughput for Azure Cosmos DB Table API table
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$tableName = "mytable"
+# --------------------------------------------------
 
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$tableName = "table1"
-$tableThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/tables/settings"
-$tableThroughputResourceName = $accountName + "/table/" + $tableName + "/throughput"
-
-# Get the throughput for the table
-Get-AzResource -ResourceType $tableThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $tableThroughputResourceName | Select-Object Properties
+Get-AzCosmosDBTableThroughput -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $tableName
