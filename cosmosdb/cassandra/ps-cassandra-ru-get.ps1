@@ -1,20 +1,20 @@
-# Get RU for an Azure Cosmos Cassandra API keyspace or table
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$keyspaceName = "keyspace1"
-$tableName = "table1"
-$keyspaceThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/settings"
-$keyspaceThroughputResourceName = $accountName + "/cassandra/" + $keyspaceName + "/throughput"
-$tableThroughputResourceName = $accountName + "/cassandra/" + $keyspaceName + "/" + $tableName + "/throughput"
-$tableThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables/settings"
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Get keyspace or table throughput
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$keyspaceName = "mykeyspace" # Keyspace with shared throughput
+$tableName = "mytable" # Table with dedicated throughput
+# --------------------------------------------------
 
-# Get the throughput for a keyspace (returns RU/s or error)
-Get-AzResource -ResourceType $keyspaceThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $keyspaceThroughputResourceName | Select-Object Properties
+Write-Host "Get keyspace shared throughput"
+Get-AzCosmosDBCassandraKeyspaceThroughput -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $keyspaceName
 
-# Get the throughput for a table (returns RU/s or error)
-Get-AzResource -ResourceType $tableThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $tableThroughputResourceName | Select-Object Properties
+Write-Host "Get table dedicated throughput"
+Get-AzCosmosDBCassandraTableThroughput -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -KeyspaceName $keyspaceName `
+    -Name $tableName
