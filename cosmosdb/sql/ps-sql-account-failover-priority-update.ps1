@@ -1,44 +1,17 @@
-# Change the failover priority for a single-master Azure Cosmos Account
-# Note: Updating location with failoverPriority = 0 triggers a failover to the new region
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Update Cosmos DB account: Change region failover priority.
+# Note: updating location at priority 0 triggers a failover to the new location
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$locations = @("West US", "East US") # Regions ordered by UPDATED failover priority
+# --------------------------------------------------
 
-#generate a random 10 character alphanumeric string to ensure unique resource names
-$uniqueId=$(-join ((97..122) + (48..57) | Get-Random -Count 15 | % {[char]$_}))
+# Get existing Cosmos DB account
+$account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
 
-$apiVersion = "2015-04-08"
-$location = "West US 2"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount-$uniqueId" # must be lower case.
-$resourceType = "Microsoft.DocumentDb/databaseAccounts"
-
-
-# Provision a new Cosmos account with the regions below
-$locations = @(
-    @{ "locationName"="West US 2"; "failoverPriority"=0 },
-    @{ "locationName"="East US 2"; "failoverPriority"=1 }
-)
-
-$CosmosDBProperties = @{
-    "databaseAccountOfferType"="Standard";
-    "locations"=$locations
-}
-
-New-AzResource -ResourceType $resourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName -Location $location `
-    -Name $accountName -PropertyObject $CosmosDBProperties
-
-# Change the failover priority. Updating write region which will trigger a failover
-Read-Host -Prompt "Press any key to change the failover priority"
-
-$failoverRegions = @(
-    @{ "locationName"="East US 2"; "failoverPriority"=0 },
-    @{ "locationName"="West US 2"; "failoverPriority"=1 }
-)
-
-$failoverPolicies = @{ 
-    "failoverPolicies"= $failoverRegions
-}
-
-Invoke-AzResourceAction -Action failoverPriorityChange `
-    -ResourceType $resourceType -ApiVersion $apiVersion `
-    -ResourceGroupName $resourceGroupName -Name $accountName `
-    -Parameters $failoverPolicies
+# Update account failover priority
+Update-AzCosmosDBAccountFailoverPriority -InputObject $account -FailoverPolicy $locations

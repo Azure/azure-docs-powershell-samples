@@ -1,20 +1,21 @@
-# Get RU for an Azure Cosmos SQL (Core) API database or container
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$databaseName = "database1"
-$containerName = "container1"
-$databaseThroughputResourceName = $accountName + "/sql/" + $databaseName + "/throughput"
-$databaseThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/settings"
-$containerThroughputResourceName = $accountName + "/sql/" + $databaseName + "/" + $containerName + "/throughput"
-$containerThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers/settings"
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Get database or container throughput
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$databaseNameNoShared = "MyDatabase" # Database without shared throughput
+$databaseNameShared = "MyDatabase2" # Database with shared throughput
+$containerNameDedicated = "MyContainer" # Container with dedicated throughput
+# --------------------------------------------------
 
-# Check if throughput is set at database level (returns RU/s or error)
-Get-AzResource -ResourceType $databaseThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseThroughputResourceName  | Select-Object Properties
+Write-Host "Get database shared throughput"
+Get-AzCosmosDBSqlDatabaseThroughput -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $databaseNameShared
 
-# Check if throughput is set at container level (returns RU/s or error)
-Get-AzResource -ResourceType $containerThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $containerThroughputResourceName  | Select-Object Properties
+Write-Host "Get container dedicated throughput"
+Get-AzCosmosDBSqlContainerThroughput -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseNameNoShared `
+    -Name $containerNameDedicated

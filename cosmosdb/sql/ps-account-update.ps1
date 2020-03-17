@@ -1,20 +1,31 @@
-# Update an Azure Cosmos Account and add a region (South Central US)
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Update Cosmos DB account: Add an Azure region (location)
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$locations = @("East US", "West US") # Regions ordered by failover priority
+# --------------------------------------------------
 
-$account = Get-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
-    -ApiVersion "2015-04-08" -ResourceGroupName $resourceGroupName `
-    -Name $accountName
+# Get existing Cosmos DB account
+# $account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
 
-$locations = @(
-    @{ "locationName"="West US 2"; "failoverPriority"=0 },
-    @{ "locationName"="East US 2"; "failoverPriority"=1 },
-    @{ "locationName"="South Central US"; "failoverPriority"=2 }
-)
+# Eventually transition to Update-AzCosmosDBAccountRegion with -Location or -LocationObject
+# Update-AzCosmosDBAccountRegion -InputObject $account -Location $locations
 
-$account.Properties.locations = $locations
-$CosmosDBProperties = $account.Properties
+# Use Set-AzResource with property object pending transition to Update-AzCosmosDBAccountRegion
+$resourceType = "Microsoft.DocumentDb/databaseAccounts"
+$apiVersion = "2019-12-12"
+$locationObjects = @()
+$i = 0
+ForEach ($location in $locations) { $locationObjects += @{ locationName = "$location"; failoverPriority = $i++ } }
+$CosmosDBProperties = @{
+    databaseAccountOfferType = "Standard";
+    locations = $locationObjects;
+}
 
-Set-AzResource -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
-    -ApiVersion "2015-04-08" -ResourceGroupName $resourceGroupName `
-    -Name $accountName -PropertyObject $CosmosDBProperties
+Set-AzResource -ResourceGroupName $resourceGroupName -ResourceType $resourceType `
+    -ApiVersion $apiVersion -Name $accountName `
+    -PropertyObject $CosmosDBProperties -Force
