@@ -1,29 +1,29 @@
-# Update RU for an Azure Cosmos MongoDB API database or collection
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$databaseName = "database1"
-$databaseThroughputResourceName = $accountName + "/mongodb/" + $databaseName + "/throughput"
-$databaseThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/settings"
-$collectionName = "collection1"
-$collectionThroughputResourceName = $accountName + "/mongodb/" + $databaseName + "/" + $collectionName + "/throughput"
-$collectionThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers/settings"
-$throughput = 500
-$updateResource = "database" # or "collection"
-
-$properties = @{
-    "resource"=@{"throughput"=$throughput}
-}
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Update database shared or collection provisioned throughput
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$databaseName = "mydatabase"
+$collectionName = "mycollection"
+$newRUs = 400
+$shardKey = "user_id"
+$updateResource = "collection" # "database" or "collection"
 
 if($updateResource -eq "database"){
-    Set-AzResource -ResourceType $databaseThroughputResourceType `
-        -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-        -Name $databaseThroughputResourceName -PropertyObject $properties
+    Write-Host "Updating database throughput"
+    Set-AzCosmosDBMongoDBDatabase -ResourceGroupName $resourceGroupName `
+        -AccountName $accountName -DatabaseName $databaseName `
+        -Throughput $newRUs
 }
 elseif($updateResource -eq "collection"){
-    Set-AzResource -ResourceType $collectionThroughputResourceType `
-        -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-        -Name $collectionThroughputResourceName -PropertyObject $properties
+    Write-Host "Updating collection throughput"
+    Set-AzCosmosDBMongoDBCollection -ResourceGroupName $resourceGroupName `
+        -AccountName $accountName -DatabaseName $databaseName `
+        -Name $collectionName -Throughput $newRUs `
+        -Shard $shardKey
 }
 else {
     Write-Host("Must select database or collection")    
