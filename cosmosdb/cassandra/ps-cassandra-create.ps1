@@ -58,17 +58,17 @@ ForEach ($location in $locations) {
 }
 
 $azConsistencyPolicy = @{
-    "defaultConsistencyLevel"="$consistencyLevel";
-    "maxIntervalInSeconds"=$maxStalenessInterval;
-    "maxStalenessPrefix"=$maxStalenessPrefix
+    defaultConsistencyLevel = $consistencyLevel;
+    maxIntervalInSeconds = $maxStalenessInterval;
+    maxStalenessPrefix = $maxStalenessPrefix;
 }
 
 $azAccountProperties = @{
-    "capabilities"= @( @{ "name"=$azApiType } );
-    "databaseAccountOfferType"="Standard";
-    "locations"=$azLocations;
-    "consistencyPolicy"=$azConsistencyPolicy;
-    "enableMultipleWriteLocations"="true"
+    capabilities = @( @{ name = $azApiType; } );
+    databaseAccountOfferType = "Standard";
+    locations = $azLocations;
+    consistencyPolicy = $azConsistencyPolicy;
+    enableMultipleWriteLocations = "true";
 }
 
 New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
