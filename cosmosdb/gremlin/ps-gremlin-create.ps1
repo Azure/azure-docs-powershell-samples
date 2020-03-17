@@ -1,69 +1,79 @@
-# Create an Azure Cosmos Account for Gremlin API with multi-master enabled, shared database throughput,'
-# dedicated graph throughput with last writer wins conflict policy and custom resolution path
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Create Cosmos Gremlin API account, database, and graph with multi-master enabled,
+# a database with shared thoughput, and a graph with dedicated throughput,
+# and conflict resolution policy with last writer wins and custom resolver path
+# --------------------------------------------------
+Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
+# --------------------------------------------------
+$uniqueId = New-RandomString -Length 4 # Random alphanumeric string for unique resource names
+$apiKind = "Gremlin"
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$locations = @("East US", "West US") # Regions ordered by failover priority
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "cdb-gr-$uniqueId" # Must be all lower case
+$consistencyLevel = "Session"
+$tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
+$databaseName = "mydatabase"
+$databaseRUs = 400
+$graphName = "mygraph"
+$graphRUs = 400
+$partitionKeys = @("/myPartitionKey")
+$conflictResolutionPath = "/myResolutionPath"
+# --------------------------------------------------
+# Account
+Write-Host "Creating account $accountName"
+# Gremlin not yet supported in New-AzCosmosDBAccount
+# $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
+    # -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
+    # -DefaultConsistencyLevel $consistencyLevel `
+    # -EnableMultipleWriteLocations
+# --------------------------------------------------
+# Account creation: use New-AzResource with property object
+$azAccountResourceType = "Microsoft.DocumentDb/databaseAccounts"
+$azApiVersion = "2019-12-12"
+$azApiType = "EnableGremlin"
 
-
-#generate a random 10 character alphanumeric string to ensure unique resource names
-$uniqueId=$(-join ((97..122) + (48..57) | Get-Random -Count 15 | % {[char]$_}))
-
-$apiVersion = "2015-04-08"
-$location = "West US 2"
-$resourceGroupName = "MyResourceGroup"
-$accountName = "mycosmosaccount-$uniqueId" # must be lower case.
-$apiType = "EnableGremlin"
-$accountResourceType = "Microsoft.DocumentDb/databaseAccounts"
-$databaseName = "database1"
-$databaseResourceName = $accountName + "/gremlin/" + $databaseName
-$databaseResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases"
-$graphName = "graph1"
-$graphResourceName = $accountName + "/gremlin/" + $databaseName + "/" + $graphName
-$graphResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs"
-
-# Create account
-$locations = @(
-    @{ "locationName"="West US 2"; "failoverPriority"=0 },
-    @{ "locationName"="East US 2"; "failoverPriority"=1 }
-)
-
-$consistencyPolicy = @{ "defaultConsistencyLevel"="Session" }
-
-$accountProperties = @{
-    "capabilities"= @( @{ "name"=$apiType } );
-    "databaseAccountOfferType"="Standard";
-    "locations"=$locations;
-    "consistencyPolicy"=$consistencyPolicy;
-    "enableMultipleWriteLocations"="true"
+$azLocations = @()
+$i = 0
+ForEach ($location in $locations) {
+    $azLocations += @{ locationName = "$location"; failoverPriority = $i++ }
 }
 
-New-AzResource -ResourceType $accountResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName -Location $location `
-    -Name $accountName -PropertyObject $accountProperties -Force
-
-
-# Create database with shared throughput
-$databaseProperties = @{
-    "resource"=@{ "id"=$databaseName };
-    "options"=@{ "Throughput"= 400 }
+$azConsistencyPolicy = @{
+    defaultConsistencyLevel = "$consistencyLevel";
 }
-New-AzResource -ResourceType $databaseResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseResourceName -PropertyObject $databaseProperties -Force
 
-
-# Create a graph with a partition key, last writer wins conflict policy and custom conflict resolution path
-$graphProperties = @{
-    "resource"=@{
-        "id"=$graphName; 
-        "partitionKey"=@{
-            "paths"=@("/myPartitionKey"); 
-            "kind"="Hash"
-        };
-        "conflictResolutionPolicy"=@{
-            "mode"="lastWriterWins"; 
-            "conflictResolutionPath"="/myResolutionPath"
-        }
-    };
-    "options"=@{ "Throughput"= 400 }
+$azAccountProperties = @{
+    capabilities = @( @{ name = "$azApiType" } );
+    databaseAccountOfferType = "Standard";
+    locations = $azLocations;
+    consistencyPolicy = $azConsistencyPolicy;
+    enableMultipleWriteLocations = "true";
 }
-New-AzResource -ResourceType $graphResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $graphResourceName -PropertyObject $graphProperties  -Force
+
+New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
+    -ResourceGroupName $resourceGroupName -Location $locations[0] `
+    -Name $accountName -PropertyObject $azAccountProperties `
+    -Tag $tags -Force
+
+$account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
+# --------------------------------------------------
+# Powershell cmdlets for database and graph operations
+
+# Database
+$database = Set-AzCosmosDBGremlinDatabase -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $databaseName `
+    -Throughput $databaseRUs
+
+# Graph
+$conflictResolutionPolicy = New-AzCosmosDBGremlinConflictResolutionPolicy `
+    -Type LastWriterWins -Path $conflictResolutionPath
+
+$graph = Set-AzCosmosDBGremlinGraph -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseName `
+    -Name $graphName -Throughput $graphRUs `
+    -PartitionKeyKind Hash -PartitionKeyPath $partitionKeys `
+    -ConflictResolutionPolicy $conflictResolutionPolicy

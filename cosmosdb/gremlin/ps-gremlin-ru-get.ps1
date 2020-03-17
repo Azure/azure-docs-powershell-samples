@@ -1,20 +1,20 @@
-# Get RU for an Azure Cosmos Gremlin API database or graph
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$databaseName = "database1"
-$databaseThroughputResourceName = $accountName + "/gremlin/" + $databaseName + "/throughput"
-$databaseThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/settings"
-$graphName = "graph1"
-$graphThroughputResourceName = $accountName + "/gremlin/" + $databaseName + "/" + $graphName + "/throughput"
-$graphThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs/settings"
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Get keyspace or table throughput
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$databaseName = "mydatabase"
+$graphName = "mygraph"
+# --------------------------------------------------
 
-# Get the throughput for a database (returns RU/s or error if not set)
-Get-AzResource -ResourceType $databaseThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseThroughputResourceName  | Select-Object Properties
+Write-Host "Get database shared throughput"
+Get-AzCosmosDBGremlinDatabaseThroughput -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $databaseName
 
-# Get the throughput for a graph (returns RU/s or error if not set)
-Get-AzResource -ResourceType $graphThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $graphThroughputResourceName  | Select-Object Properties
+Write-Host "Get graph dedicated throughput"
+Get-AzCosmosDBGremlinGraphThroughput -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseName `
+    -Name $graphName

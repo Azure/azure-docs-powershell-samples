@@ -1,31 +1,34 @@
-# Update RU for an Azure Cosmos SQL Gremlin API database or graph
-
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$databaseName = "database1"
-$databaseThroughputResourceName = $accountName + "/gremlin/" + $databaseName + "/throughput"
-$databaseThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/settings"
-$graphName = "graph1"
-$graphThroughputResourceName = $accountName + "/gremlin/" + $databaseName + "/" + $graphName + "/throughput"
-$graphThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs/settings"
-$throughput = 500
-$updateResource = "database" # or "graph"
-
-$properties = @{
-    "resource"=@{"throughput"=$throughput}
-}
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Update database shared or graph dedicated throughput
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$databaseName = "mydatabase"
+$graphName = "mygraph"
+$newRUs = 400
+$updateResource = "graph" # "database" or "graph"
 
 if($updateResource -eq "database"){
-Set-AzResource -ResourceType $databaseThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseThroughputResourceName -PropertyObject $properties
+    Write-Host "Updating database throughput"
+    Set-AzCosmosDBGremlinDatabase -ResourceGroupName $resourceGroupName `
+        -AccountName $accountName -Name $databaseName `
+        -Throughput $newRUs
 }
 elseif($updateResource -eq "graph"){
-Set-AzResource -ResourceType $graphThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $graphThroughputResourceName -PropertyObject $properties
-}
-else {
-    Write-Host("Must select database or graph")    
+    Write-Host "Updating graph throughput"
+    # Get existing graph object first so we can access partition key
+    # properties, which are required params for Set-AzCosmosDBGremlinGraph
+    $graph = Get-AzCosmosDBGremlinGraph -ResourceGroupName $resourceGroupName `
+        -AccountName $accountName -DatabaseName $databaseName `
+        -Name $graphName -Detailed
+    
+    Set-AzCosmosDBGremlinGraph -ResourceGroupName $resourceGroupName `
+        -AccountName $accountName -DatabaseName $databaseName `
+        -Name $graphName `
+        -Throughput $newRUs `
+        -PartitionKeyKind $graph.Resource.PartitionKey.Kind `
+        -PartitionKeyPath $graph.Resource.PartitionKey.Paths
 }
