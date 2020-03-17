@@ -1,46 +1,61 @@
-# Create an Azure Cosmos account for Table API and a table 
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Create Cosmos Table API account and a Tab;le
+# --------------------------------------------------
+Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
+# --------------------------------------------------
+$uniqueId = New-RandomString -Length 4 # Random alphanumeric string for unique resource names
+$apiKind = "Table"
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$locations = @("East US", "West US") # Regions ordered by failover priority
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "cdb-tbl-$uniqueId" # Must be all lower case
+$consistencyLevel = "Session"
+$tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
+$tableName = "mytable"
+$tableRUs = 400
+# --------------------------------------------------
+# Account
+Write-Host "Creating account $accountName"
+# Cassandra not yet supported in New-AzCosmosDBAccount
+# $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
+    # -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
+    # -DefaultConsistencyLevel $consistencyLevel
+# Account creation: use New-AzResource with property object
+# --------------------------------------------------
+$azAccountResourceType = "Microsoft.DocumentDb/databaseAccounts"
+$azApiVersion = "2019-12-12"
+$azApiType = "EnableTable"
 
-
-#generate a random 10 character alphanumeric string to ensure unique resource names
-$uniqueId=$(-join ((97..122) + (48..57) | Get-Random -Count 15 | % {[char]$_}))
-
-$apiVersion = "2015-04-08"
-$location = "West US 2"
-$resourceGroupName = "mjbArmTest"
-$accountName = "mycosmosaccount-$uniqueId" # must be lower case.
-$apiType = "EnableTable"
-$accountResourceType = "Microsoft.DocumentDb/databaseAccounts"
-$tableName = "table1"
-$tableResourceName = $accountName + "/table/" + $tableName
-$tableResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/tables"
-$throughput = 400
-
-# Create account
-$locations = @(
-    @{ "locationName"="West US 2"; "failoverPriority"=0 },
-    @{ "locationName"="East US 2"; "failoverPriority"=1 }
-)
-
-$consistencyPolicy = @{ "defaultConsistencyLevel"="Session" }
-
-$accountProperties = @{
-    "capabilities"= @( @{ "name"=$apiType } );
-    "databaseAccountOfferType"="Standard";
-    "locations"=$locations;
-    "consistencyPolicy"=$consistencyPolicy;
-    "enableMultipleWriteLocations"="false"
+$azLocations = @()
+$i = 0
+ForEach ($location in $locations) {
+    $azLocations += @{ locationName = "$location"; failoverPriority = $i++ }
 }
 
-New-AzResource -ResourceType $accountResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName -Location $location `
-    -Name $accountName -PropertyObject $accountProperties -Force
-
-
-# Create table
-$tableProperties = @{
-    "resource"=@{ "id"=$tableName };
-    "options"=@{ "Throughput"= $throughput }
+$azConsistencyPolicy = @{
+    defaultConsistencyLevel = "$consistencyLevel";
 }
-New-AzResource -ResourceType $tableResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $tableResourceName -PropertyObject $tableProperties -Force
+
+$azAccountProperties = @{
+    capabilities= @( @{ name = $azApiType } );
+    databaseAccountOfferType = "Standard";
+    locations = $azLocations;
+    consistencyPolicy = $azConsistencyPolicy;
+    enableMultipleWriteLocations = "false";
+}
+
+New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
+    -ResourceGroupName $resourceGroupName -Location $locations[0] `
+    -Name $accountName -PropertyObject $azAccountProperties `
+    -Tag $tags -Force
+
+# $account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
+# --------------------------------------------------
+Write-Host "Creating Table $tableName"
+
+Set-AzCosmosDBTable -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $tableName `
+    -Throughput $tableRUs

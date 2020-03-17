@@ -1,16 +1,15 @@
-# Update RU for an Azure Cosmos Table API table
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Update throughput on existing Azure Cosmos DB Table API table
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "cosmos" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$tableName = "mytable"
+$tableRUs = 600 # New RU/s for the table
+# --------------------------------------------------
 
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$tableName = "table1"
-$tableThroughputResourceName = $accountName + "/table/" + $tableName + "/throughput"
-$tableThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/tables/settings"
-$throughput = 500
-
-$tableProperties = @{
-    "resource"=@{"throughput"=$throughput}
-} 
-Set-AzResource -ResourceType $tableThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $tableThroughputResourceName -PropertyObject $tableProperties
+Set-AzCosmosDBTable -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $tableName `
+    -Throughput $tableRUs
