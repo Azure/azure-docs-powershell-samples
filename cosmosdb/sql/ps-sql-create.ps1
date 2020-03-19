@@ -10,7 +10,7 @@ $uniqueId = New-RandomString -Length 7 # Random alphanumeric string for unique r
 $apiKind = "GlobalDocumentDB"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$locations = @("East US", "West US") # Regions ordered by failover priority
+$locations = @("East US") # Regions ordered by failover priority
 $resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "cosmos-$uniqueId" # Must be all lower case
 $consistencyLevel = "Session"
@@ -34,10 +34,6 @@ $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
 # Database
 Write-Host "Creating database $databaseName"
 $database = Set-AzCosmosDBSqlDatabase -InputObject $account -Name $databaseName
-
-# Container
-# Throughput should be 400 <= $containerRUs <= 100000 for dedicated
-if (($containerRUs -lt 400) -or ($containerRUs -gt 100000)) { $containerRUs = 400 }
 
 $uniqueKey = New-AzCosmosDBSqlUniqueKey -Path $uniqueKeyPath
 $uniqueKeyPolicy = New-AzCosmosDBSqlUniqueKeyPolicy -UniqueKey $uniqueKey

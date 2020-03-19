@@ -26,7 +26,7 @@ Write-Host "Creating account $accountName"
 # Account creation: use New-AzResource with property object
 # --------------------------------------------------
 $azAccountResourceType = "Microsoft.DocumentDb/databaseAccounts"
-$azApiVersion = "2019-12-12"
+$azApiVersion = "2020-03-03"
 $azApiType = "EnableTable"
 
 $azLocations = @()
