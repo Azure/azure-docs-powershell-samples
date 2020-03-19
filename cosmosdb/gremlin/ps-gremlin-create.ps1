@@ -33,7 +33,7 @@ Write-Host "Creating account $accountName"
 # --------------------------------------------------
 # Account creation: use New-AzResource with property object
 $azAccountResourceType = "Microsoft.DocumentDb/databaseAccounts"
-$azApiVersion = "2020-03-03"
+$azApiVersion = "2020-03-01"
 $azApiType = "EnableGremlin"
 
 $azLocations = @()
@@ -51,7 +51,7 @@ $azAccountProperties = @{
     databaseAccountOfferType = "Standard";
     locations = $azLocations;
     consistencyPolicy = $azConsistencyPolicy;
-    enableMultipleWriteLocations = "true";
+    enableAutomaticFailover = "true";
 }
 
 New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `

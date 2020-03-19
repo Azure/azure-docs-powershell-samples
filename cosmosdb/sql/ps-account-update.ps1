@@ -17,7 +17,7 @@ $locations = @("East US", "West US") # Regions ordered by failover priority
 
 # Use Set-AzResource with property object pending transition to Update-AzCosmosDBAccountRegion
 $resourceType = "Microsoft.DocumentDb/databaseAccounts"
-$apiVersion = "2020-03-03"
+$apiVersion = "2020-03-01"
 $locationObjects = @()
 $i = 0
 ForEach ($location in $locations) { $locationObjects += @{ locationName = "$location"; failoverPriority = $i++ } }

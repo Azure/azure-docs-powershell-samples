@@ -29,7 +29,7 @@ Write-Host "Creating account $accountName"
 $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
     -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
     -DefaultConsistencyLevel $consistencyLevel `
-    -EnableMultipleWriteLocations
+    -EnableAutomaticFailover
 
 Write-Host "Creating database $databaseName"
 $database = Set-AzCosmosDBMongoDBDatabase -InputObject $account `
