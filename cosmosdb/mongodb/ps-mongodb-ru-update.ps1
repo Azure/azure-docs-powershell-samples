@@ -4,11 +4,11 @@
 # Update database shared or collection provisioned throughput
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$databaseName = "mydatabase"
-$collectionName = "mycollection"
-$newRUs = 400
+$databaseName = "myDatabase"
+$collectionName = "myCollection"
+$newRUs = 500
 $shardKey = "user_id"
 $updateResource = "collection" # "database" or "collection"
 

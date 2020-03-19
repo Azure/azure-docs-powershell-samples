@@ -1,20 +1,20 @@
 # Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
 # --------------------------------------------------
 # Purpose
-# Create Cosmos Table API account and a Tab;le
+# Create Cosmos Table API account and a Table
 # --------------------------------------------------
 Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
 # --------------------------------------------------
-$uniqueId = New-RandomString -Length 4 # Random alphanumeric string for unique resource names
+$uniqueId = New-RandomString -Length 7 # Random alphanumeric string for unique resource names
 $apiKind = "Table"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $locations = @("East US", "West US") # Regions ordered by failover priority
-$resourceGroupName = "cosmos" # Resource Group must already exist
-$accountName = "cdb-tbl-$uniqueId" # Must be all lower case
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "cosmos-$uniqueId" # Must be all lower case
 $consistencyLevel = "Session"
 $tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
-$tableName = "mytable"
+$tableName = "myTable"
 $tableRUs = 400
 # --------------------------------------------------
 # Account
@@ -52,8 +52,6 @@ New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
     -Name $accountName -PropertyObject $azAccountProperties `
     -Tag $tags -Force
 
-# $account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
-# --------------------------------------------------
 Write-Host "Creating Table $tableName"
 
 Set-AzCosmosDBTable -ResourceGroupName $resourceGroupName `

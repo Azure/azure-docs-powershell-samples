@@ -4,10 +4,10 @@
 # Show list and get operations for accounts, databases, and containers
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$databaseName = "mydatabase"
-$graphName = "mygraph"
+$databaseName = "myDatabase"
+$graphName = "myGraph"
 # --------------------------------------------------
 
 Write-Host "List all accounts in a resource group"

@@ -4,7 +4,7 @@
 # List an account's connection strings and keys; regenerate a key.
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
 $keyKind = "primary" # Other key kinds: secondary, primaryReadOnly, secondaryReadOnly
 # --------------------------------------------------
@@ -13,13 +13,9 @@ Write-Host "List connection strings"
 Get-AzCosmosDBAccountKey -ResourceGroupName $resourceGroupName `
     -Name $accountName -Type "ConnectionStrings"
 
-Write-Host ""
-
 Write-Host "List keys"
 Get-AzCosmosDBAccountKey -ResourceGroupName $resourceGroupName `
     -Name $accountName -Type "Keys"
-
-Write-Host ""
 
 Write-Host "Reset key"
 New-AzCosmosDBAccountKey  -ResourceGroupName $resourceGroupName `

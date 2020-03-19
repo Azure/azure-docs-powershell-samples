@@ -7,20 +7,20 @@
 # --------------------------------------------------
 Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
 # --------------------------------------------------
-$uniqueId = New-RandomString -Length 4 # Random alphanumeric string for unique resource names
+$uniqueId = New-RandomString -Length 7 # Random alphanumeric string for unique resource names
 $apiKind = "Cassandra"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $locations = @("East US", "West US") # Regions ordered by failover priority
-$resourceGroupName = "cosmos" # Resource Group must already exist
-$accountName = "cdb-cass-$uniqueId" # Must be all lower case
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "cosmos-$uniqueId" # Must be all lower case
 $consistencyLevel = "BoundedStaleness"
 $maxStalenessInterval = 300
 $maxStalenessPrefix = 100000
 $tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
-$keyspaceName = "mykeyspace"
+$keyspaceName = "myKeyspace"
 $keyspaceRUs = 400
-$tableName = "mytable"
+$tableName = "myTable"
 $tableRUs = 400
 $partitionKeys = @("machine", "cpu", "mtime")
 $clusterKeys = @( 

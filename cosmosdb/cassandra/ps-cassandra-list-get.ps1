@@ -4,10 +4,10 @@
 # Show list and get operations for accounts, keyspaces, and tables
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$keyspaceName = "mykeyspace"
-$tableName = "mytable"
+$keyspaceName = "myKeyspace"
+$tableName = "myTable"
 # --------------------------------------------------
 
 Write-Host "List all accounts in a resource group"

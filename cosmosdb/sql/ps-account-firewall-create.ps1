@@ -10,8 +10,8 @@ $apiKind = "GlobalDocumentDB"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $locations = @("East US", "West US") # Regions ordered by failover priority
-$resourceGroupName = "cosmos" # Resource Group must already exist
-$accountName = "cdb-$uniqueId" # Must be all lower case
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "cosmos-$uniqueId" # Must be all lower case
 $consistencyLevel = "Session"
 $ipFilter = @("10.0.0.0/8", "11.0.1.0/24")
 $allowAzureAccess = $true # Allow access to Azure networks and portal

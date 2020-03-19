@@ -5,7 +5,7 @@
 # Note: updating location at priority 0 triggers a failover to the new location
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
 $locations = @("West US", "East US") # Regions ordered by UPDATED failover priority
 # --------------------------------------------------

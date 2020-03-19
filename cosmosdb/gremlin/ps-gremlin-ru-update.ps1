@@ -4,11 +4,11 @@
 # Update database shared or graph dedicated throughput
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$databaseName = "mydatabase"
-$graphName = "mygraph"
-$newRUs = 400
+$databaseName = "myDatabase"
+$graphName = "myGraph"
+$newRUs = 500
 $updateResource = "graph" # "database" or "graph"
 
 if($updateResource -eq "database"){

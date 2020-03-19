@@ -4,7 +4,7 @@
 # Update Cosmos DB account: Add an Azure region (location)
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
 $locations = @("East US", "West US") # Regions ordered by failover priority
 # --------------------------------------------------

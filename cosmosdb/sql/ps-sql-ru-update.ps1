@@ -4,13 +4,13 @@
 # Update database or container throughput
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$databaseNameNoShared = "MyDatabase" # Database without shared throughput
-$databaseNameShared = "MyDatabase2" # Database with shared throughput
-$containerNameDedicated = "MyContainer" # Container with dedicated throughput
-$newRUsDatabase = 1000
-$newRUsContainer = 600
+$databaseNameNoShared = "myDatabase" # Database without shared throughput
+$databaseNameShared = "myDatabase2" # Database with shared throughput
+$containerNameDedicated = "myContainer" # Container with dedicated throughput
+$newRUsDatabase = 500
+$newRUsContainer = 500
 # --------------------------------------------------
 
 # Update throughput for database with shared throughput

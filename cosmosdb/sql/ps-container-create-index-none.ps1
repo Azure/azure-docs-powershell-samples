@@ -10,12 +10,12 @@ $apiKind = "GlobalDocumentDB"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $locations = @("East US", "West US") # Regions ordered by failover priority
-$resourceGroupName = "cosmos" # Resource Group must already exist
-$accountName = "cdb-$uniqueId" # Must be all lower case
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "cosmos-$uniqueId" # Must be all lower case
 $consistencyLevel = "Session"
 $tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
-$databaseName = "MyDatabase"
-$containerName = "MyContainer"
+$databaseName = "myDatabase"
+$containerName = "myContainer"
 $containerRUs = 400
 $partitionKeyPath = "/myPartitionKey"
 # --------------------------------------------------

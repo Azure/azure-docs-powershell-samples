@@ -4,11 +4,11 @@
 # Get database or container throughput
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$databaseNameNoShared = "MyDatabase" # Database without shared throughput
-$databaseNameShared = "MyDatabase2" # Database with shared throughput
-$containerNameDedicated = "MyContainer" # Container with dedicated throughput
+$databaseNameNoShared = "myDatabase" # Database without provisioned throughput
+$databaseNameShared = "myDatabase2" # Database with shared throughput
+$containerNameDedicated = "myContainer" # Container with dedicated throughput
 # --------------------------------------------------
 
 Write-Host "Get database shared throughput"

@@ -4,12 +4,12 @@
 # Update keyspace or table throughput
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$keyspaceName = "ks1"
-$tableName = "t1"
-$newRUsKeyspace = 800
-$newRUsTable = 600
+$keyspaceName = "myKeyspace"
+$tableName = "myTable"
+$newRUsKeyspace = 500
+$newRUsTable = 500
 
 # Schema columns to create schema instance
 # Prepare schema as it is mandatory parameter to Set-AzCosmosDBCassandraTable

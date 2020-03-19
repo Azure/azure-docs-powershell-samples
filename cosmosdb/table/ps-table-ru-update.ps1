@@ -4,10 +4,10 @@
 # Update throughput on existing Azure Cosmos DB Table API table
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$tableName = "mytable"
-$tableRUs = 600 # New RU/s for the table
+$tableName = "myTable"
+$tableRUs = 500 # New RU/s for the table
 # --------------------------------------------------
 
 Set-AzCosmosDBTable -ResourceGroupName $resourceGroupName `
