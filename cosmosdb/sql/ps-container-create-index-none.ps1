@@ -23,15 +23,12 @@ $partitionKeyPath = "/myPartitionKey"
 Write-Host "Creating account $accountName"
 $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
 	-Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
-	-DefaultConsistencyLevel $consistencyLevel -EnableAutomaticFailover
+	-DefaultConsistencyLevel $consistencyLevel `
+	-EnableAutomaticFailover:$true
 
 # Database
 Write-Host "Creating database $databaseName"
 $database = Set-AzCosmosDBSqlDatabase -InputObject $account -Name $databaseName
-
-# Container
-# Throughput should be 400 <= $containerRUs <= 100000 for dedicated
-if (($containerRUs -lt 400) -or ($containerRUs -gt 100000)) { $containerRUs = 400 }
 
 $indexingPolicy = New-AzCosmosDBSqlIndexingPolicy -IndexingMode None
 

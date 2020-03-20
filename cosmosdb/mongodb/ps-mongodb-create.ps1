@@ -17,7 +17,6 @@ $accountName = "cosmos-$uniqueId" # Must be all lower case
 $consistencyLevel = "Session"
 $tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
 $databaseName = "myDatabase"
-$databaseRUs = 400
 $collectionName = "myCollection"
 $collectionRUs = 400
 $shardKey = "user_id"
@@ -29,11 +28,11 @@ Write-Host "Creating account $accountName"
 $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
     -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
     -DefaultConsistencyLevel $consistencyLevel `
-    -EnableAutomaticFailover
+    -EnableAutomaticFailover:$true
 
 Write-Host "Creating database $databaseName"
 $database = Set-AzCosmosDBMongoDBDatabase -InputObject $account `
-    -Name $databaseName -Throughput $databaseRUs
+    -Name $databaseName
 
 # Collection
 $index1 = New-AzCosmosDBMongoDBIndex -Key $partitionKeys -Unique $true

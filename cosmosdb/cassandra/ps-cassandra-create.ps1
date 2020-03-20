@@ -1,9 +1,9 @@
 # Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
 # --------------------------------------------------
 # Purpose
-# Create Cosmos Cassandra API account, keyspace, and table with multi-master enabled,
-# a keyspace with shared thoughput, and a table with defined schema, dedicated throughput,
-# and conflict resolution policy with last writer wins and custom resolver path
+# Create Cosmos Cassandra API account with automatic failover,
+# a keyspace, and a table with defined schema, dedicated throughput, and
+# conflict resolution policy with last writer wins and custom resolver path.
 # --------------------------------------------------
 Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
 # --------------------------------------------------
@@ -19,7 +19,6 @@ $maxStalenessInterval = 300
 $maxStalenessPrefix = 100000
 $tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
 $keyspaceName = "myKeyspace"
-$keyspaceRUs = 400
 $tableName = "myTable"
 $tableRUs = 400
 $partitionKeys = @("machine", "cpu", "mtime")
@@ -44,7 +43,7 @@ Write-Host "Creating account $accountName"
     # -DefaultConsistencyLevel $consistencyLevel `
     # -MaxStalenessIntervalInSeconds $maxStalenessInterval `
     # -MaxStalenessPrefix $maxStalenessPrefix `
-    # -EnableAutomaticFailover
+    # -EnableAutomaticFailover:$true
 # Account creation: use New-AzResource with property object
 # --------------------------------------------------
 $azAccountResourceType = "Microsoft.DocumentDb/databaseAccounts"
@@ -83,7 +82,7 @@ $account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $ac
 # Keyspace
 Write-Host "Creating keyspace $keyspaceName"
 $keyspace = Set-AzCosmosDBCassandraKeyspace -InputObject $account `
-    -Name $keyspaceName -Throughput $keyspaceRUs
+    -Name $keyspaceName
 
 # Table Schema
 $psClusterKeys = @()

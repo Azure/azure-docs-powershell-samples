@@ -10,7 +10,7 @@ $uniqueId = New-RandomString -Length 7 # Random alphanumeric string for unique r
 $apiKind = "GlobalDocumentDB"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$locations = @("East US") # Regions ordered by failover priority
+$locations = @("East US", "West US") # Regions ordered by failover priority
 $resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "cosmos-$uniqueId" # Must be all lower case
 $consistencyLevel = "Session"
@@ -29,7 +29,8 @@ $ttlInSeconds = 120 # Set this to -1 (or don't use it at all) to never expire
 Write-Host "Creating account $accountName"
 $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
 	-Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
-	-DefaultConsistencyLevel $consistencyLevel -EnableAutomaticFailover
+	-DefaultConsistencyLevel $consistencyLevel `
+	-EnableAutomaticFailover:$true
 
 # Database
 Write-Host "Creating database $databaseName"
