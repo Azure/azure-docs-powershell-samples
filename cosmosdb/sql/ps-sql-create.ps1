@@ -39,7 +39,7 @@ $database = Set-AzCosmosDBSqlDatabase -InputObject $account -Name $databaseName
 $uniqueKey = New-AzCosmosDBSqlUniqueKey -Path $uniqueKeyPath
 $uniqueKeyPolicy = New-AzCosmosDBSqlUniqueKeyPolicy -UniqueKey $uniqueKey
 
-$includedPathIndex = New-AzCosmosDBSqlIncludedPathIndex -DataType String -Precision -1 -Kind Hash
+$includedPathIndex = New-AzCosmosDBSqlIncludedPathIndex -DataType String -Kind Range
 $includedPath = New-AzCosmosDBSqlIncludedPath -Path $indexPathIncluded -Index $includedPathIndex
 
 $indexingPolicy = New-AzCosmosDBSqlIndexingPolicy `
@@ -58,4 +58,5 @@ $container = Set-AzCosmosDBSqlContainer `
 	-PartitionKeyKind Hash -PartitionKeyPath $partitionKeyPath `
 	-UniqueKeyPolicy $uniqueKeyPolicy `
 	-ConflictResolutionPolicy $conflictResolutionPolicy `
-	-TtlInSeconds $ttlInSeconds
+	-TtlInSeconds $ttlInSeconds `
+	-Debug
