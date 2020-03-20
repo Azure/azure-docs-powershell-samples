@@ -1,7 +1,7 @@
 # Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
 # --------------------------------------------------
 # Purpose
-# Show list and get operations for accounts, databases, and containers
+# List and get operations for accounts, databases, and graphs
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $resourceGroupName = "myResourceGroup" # Resource Group must already exist

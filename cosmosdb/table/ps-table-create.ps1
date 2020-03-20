@@ -19,7 +19,7 @@ $tableRUs = 400
 # --------------------------------------------------
 # Account
 Write-Host "Creating account $accountName"
-# Cassandra not yet supported in New-AzCosmosDBAccount
+# Table not yet supported in New-AzCosmosDBAccount
 # $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
     # -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
     # -DefaultConsistencyLevel $consistencyLevel

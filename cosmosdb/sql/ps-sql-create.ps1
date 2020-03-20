@@ -46,6 +46,8 @@ $indexingPolicy = New-AzCosmosDBSqlIndexingPolicy `
 	-IncludedPath $includedPath -ExcludedPath $indexPathExcluded `
 	-IndexingMode Consistent -Automatic $true
 
+# Conflict resolution policies only applicable in multi-master accounts.
+# Included here to show custom conflict resolution policy.
 $conflictResolutionPolicy = New-AzCosmosDBSqlConflictResolutionPolicy `
 	-Type LastWriterWins -Path $conflictResolutionPath
 
