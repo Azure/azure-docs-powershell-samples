@@ -1,7 +1,7 @@
 # Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
 # --------------------------------------------------
 # Purpose
-# Update database shared or collection provisioned throughput
+# Update collection throughput
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $resourceGroupName = "myResourceGroup" # Resource Group must already exist
@@ -10,21 +10,30 @@ $databaseName = "myDatabase"
 $collectionName = "myCollection"
 $newRUs = 500
 $shardKey = "user_id"
-$updateResource = "collection" # "database" or "collection"
+# --------------------------------------------------
 
-if($updateResource -eq "database"){
-    Write-Host "Updating database throughput"
-    Set-AzCosmosDBMongoDBDatabase -ResourceGroupName $resourceGroupName `
-        -AccountName $accountName -DatabaseName $databaseName `
-        -Throughput $newRUs
+$throughput = Get-AzCosmosDBMongoDBCollectionThroughput -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseName -Name $collectionName
+
+$currentRUs = $throughput.Throughput
+$minimumRUs = $throughput.MinimumThroughput
+
+Write-Host "Current throughput is $currentRUs. Minimum allowed throughput is $minimumRUs."
+
+if ([int]$newRUs -lt [int]$minimumRUs) {
+    Write-Host "Requested new throughput of $newRUs is less than minimum allowed throughput of $minimumRUs."
+    Write-Host "Using minimum allowed throughput of $minimumRUs instead."
+    $newRUs = $minimumRUs
 }
-elseif($updateResource -eq "collection"){
-    Write-Host "Updating collection throughput"
+
+if ([int]$newRUs -eq [int]$currentRUs) {
+    Write-Host "New throughput is the same as current throughput. No change needed."
+}
+else {
+    Write-Host "Updating throughput to $newRUs."
+
     Set-AzCosmosDBMongoDBCollection -ResourceGroupName $resourceGroupName `
         -AccountName $accountName -DatabaseName $databaseName `
         -Name $collectionName -Throughput $newRUs `
         -Shard $shardKey
-}
-else {
-    Write-Host("Must select database or collection")    
 }

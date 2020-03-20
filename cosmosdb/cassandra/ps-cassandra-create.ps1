@@ -18,8 +18,8 @@ $consistencyLevel = "BoundedStaleness"
 $maxStalenessInterval = 300
 $maxStalenessPrefix = 100000
 $tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
-$keyspaceName = "myKeyspace"
-$tableName = "myTable"
+$keyspaceName = "mykeyspace"
+$tableName = "mytable"
 $tableRUs = 400
 $partitionKeys = @("machine", "cpu", "mtime")
 $clusterKeys = @( 
