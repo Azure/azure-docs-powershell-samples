@@ -38,7 +38,7 @@ $throughput = Get-AzCosmosDBCassandraTableThroughput `
 # Get-AzCosmosDBCassandraTableThroughput emits ThroughputSettingsGetPropertiesResource
 # Other APIs' Get-AzCosmosDB[Container]Throughput cmdlets emit PSThroughputSettingsGetResults
 # Eventually transition these to $throughput.Throughput and $throughput.MinimumThroughput
-# if Get-AzCosmosDBCassandraTableThroughput output conforms to other cmdlets
+# if Get-AzCosmosDBCassandraTableThroughput output conforms to other get throughput cmdlets
 $currentRUs = $throughput.Resource.Throughput
 $minimumRUs = $throughput.Resource.MinimumThroughput
 

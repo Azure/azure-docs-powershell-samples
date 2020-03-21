@@ -1,9 +1,8 @@
 # Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
 # --------------------------------------------------
 # Purpose
-# Create Cosmos MongoDB API account, database, and collection with multi-master enabled,
-# a database with shared thoughput, and a collection with dedicated throughput
-# and conflict resolution policy with last writer wins and custom resolver path
+# Create Cosmos MongoDB API account with automatic failover,
+# a database, and a collection with dedicated throughput.
 # --------------------------------------------------
 Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
 # --------------------------------------------------
@@ -34,7 +33,6 @@ Write-Host "Creating database $databaseName"
 $database = Set-AzCosmosDBMongoDBDatabase -InputObject $account `
     -Name $databaseName
 
-# Collection
 $index1 = New-AzCosmosDBMongoDBIndex -Key $partitionKeys -Unique $true
 $index2 = New-AzCosmosDBMongoDBIndex -Key $ttlKeys -TtlInSeconds $ttlInSeconds
 $indexes = @($index1, $index2)

@@ -76,10 +76,7 @@ New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
     -Tag $tags -Force
 
 $account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
-# --------------------------------------------------
-# Powershell cmdlets for additional operations
 
-# Keyspace
 Write-Host "Creating keyspace $keyspaceName"
 $keyspace = Set-AzCosmosDBCassandraKeyspace -InputObject $account `
     -Name $keyspaceName
@@ -100,7 +97,6 @@ $schema = New-AzCosmosDBCassandraSchema `
     -ClusterKey $psClusterKeys `
     -Column $psColumns
 
-# Table
 Write-Host "Creating table $tableName"
 $table = Set-AzCosmosDBCassandraTable -InputObject $keyspace `
     -Name $tableName -Schema $schema -Throughput $tableRUs 

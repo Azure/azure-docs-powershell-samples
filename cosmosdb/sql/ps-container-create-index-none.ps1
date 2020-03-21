@@ -19,14 +19,12 @@ $containerName = "myContainer"
 $containerRUs = 400
 $partitionKeyPath = "/myPartitionKey"
 # --------------------------------------------------
-# Account
 Write-Host "Creating account $accountName"
 $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
 	-Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
 	-DefaultConsistencyLevel $consistencyLevel `
 	-EnableAutomaticFailover:$true
 
-# Database
 Write-Host "Creating database $databaseName"
 $database = Set-AzCosmosDBSqlDatabase -InputObject $account -Name $databaseName
 

@@ -22,7 +22,8 @@ Write-Host "Creating account $accountName"
 # Table not yet supported in New-AzCosmosDBAccount
 # $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
     # -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
-    # -DefaultConsistencyLevel $consistencyLevel
+    # -DefaultConsistencyLevel $consistencyLevel `
+	# -EnableAutomaticFailover:$true
 # Account creation: use New-AzResource with property object
 # --------------------------------------------------
 $azAccountResourceType = "Microsoft.DocumentDb/databaseAccounts"
@@ -47,13 +48,13 @@ $azAccountProperties = @{
     enableAutomaticFailover = "true";
 }
 
+Write-Host "Creating account $accountName"
 New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
     -ResourceGroupName $resourceGroupName -Location $locations[0] `
     -Name $accountName -PropertyObject $azAccountProperties `
     -Tag $tags -Force
 
 Write-Host "Creating Table $tableName"
-
 Set-AzCosmosDBTable -ResourceGroupName $resourceGroupName `
     -AccountName $accountName -Name $tableName `
     -Throughput $tableRUs

@@ -21,7 +21,6 @@ if ($true -eq $allowAzureAccess) {
     $ipFilter += "0.0.0.0"
 }
 
-# Account
 Write-Host "Creating account $accountName"
 $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
 	-Location $locations -Name $accountName -ApiKind $apiKind `

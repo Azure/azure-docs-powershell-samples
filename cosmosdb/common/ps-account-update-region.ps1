@@ -2,10 +2,10 @@
 # --------------------------------------------------
 # Purpose
 # Update Cosmos DB account: Add an Azure region (location)
-# NOTE: if -adding a new- region to a single master account, do not change the first 
-# region in the same operation. If -changing the failover priority- first set the
-# needed regions on the account, then change failover priority.
-# NOTE: this operation will return but account updates may still be
+# NOTE: if adding a region to a single master account, do not change the first 
+# region in the same operation. Change failover priority order in a
+# separate operation.
+# NOTE: this operation will return, but account updates may still be
 # occurring. Check the account or Resource Group's activity log for status.
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****

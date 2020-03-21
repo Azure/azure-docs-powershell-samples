@@ -28,10 +28,6 @@ $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
 Write-Host "Creating database $databaseName"
 $database = Set-AzCosmosDBSqlDatabase -InputObject $account -Name $databaseName
 
-# Container
-# Throughput should be 400 <= $containerRUs <= 100000 for dedicated
-if (($containerRUs -lt 400) -or ($containerRUs -gt 100000)) { $containerRUs = 400 }
-
 Write-Host "Creating container $containerName"
 $container = Set-AzCosmosDBSqlContainer `
 	-InputObject $database -Name $containerName `
