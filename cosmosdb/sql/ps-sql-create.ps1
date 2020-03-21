@@ -58,5 +58,4 @@ $container = Set-AzCosmosDBSqlContainer `
 	-PartitionKeyKind Hash -PartitionKeyPath $partitionKeyPath `
 	-UniqueKeyPolicy $uniqueKeyPolicy `
 	-ConflictResolutionPolicy $conflictResolutionPolicy `
-	-TtlInSeconds $ttlInSeconds `
-	-Debug
+	-TtlInSeconds $ttlInSeconds
