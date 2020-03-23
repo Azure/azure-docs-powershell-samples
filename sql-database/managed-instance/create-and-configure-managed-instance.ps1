@@ -6,7 +6,7 @@ $NScollections = "System.Collections.Generic"
 $SubscriptionId = ''
 # Set the resource group name and location for your managed instance
 $resourceGroupName = "myResourceGroup-$(Get-Random)"
-$location = "westus2"
+$location = "eastus2"
 # Set the networking values for your managed instance
 $vNetName = "myVnet-$(Get-Random)"
 $vNetAddressPrefix = "10.0.0.0/16"
@@ -16,6 +16,9 @@ $miSubnetName = "myMISubnet-$(Get-Random)"
 $miSubnetAddressPrefix = "10.0.0.0/24"
 #Set the managed instance name for the new managed instance
 $instanceName = "myMIName-$(Get-Random)"
+# Set the admin login and password for your managed instance
+$miAdminSqlLogin = "SqlAdmin"
+$miAdminSqlPassword = "ChangeYourAdminPassword1"
 # Set the managed instance service tier, compute level, and license mode
 $edition = "General Purpose"
 $vCores = 8
@@ -113,10 +116,14 @@ Get-AzNetworkSecurityGroup `
                       -DestinationAddressPrefix * `
                       | Set-AzNetworkSecurityGroup
 
+# Create credentials
+$secpassword = ConvertTo-SecureString $miAdminSqlPassword -AsPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential ($miAdminSqlLogin, $secpassword)
+
 # Create managed instance
 New-AzSqlInstance -Name $instanceName `
                       -ResourceGroupName $resourceGroupName -Location $location -SubnetId $miSubnetConfigId `
-                      -AdministratorCredential (Get-Credential) `
+                      -AdministratorCredential $credential `
                       -StorageSizeInGB $maxStorage -VCore $vCores -Edition $edition `
                       -ComputeGeneration $computeGeneration -LicenseType $license
 
