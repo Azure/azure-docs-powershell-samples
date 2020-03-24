@@ -30,7 +30,7 @@ $license = "LicenseIncluded" #"BasePrice" or LicenseIncluded if you have don't h
 Set-AzContext -SubscriptionId $SubscriptionId 
 
 # Create a resource group
-$resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location
+$resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location -Tag @{Owner="SQLDB-Samples"}
 
 # Configure virtual network, subnets, network security group, and routing table
 $networkSecurityGroupMiManagementService = New-AzNetworkSecurityGroup `
