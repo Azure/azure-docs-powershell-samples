@@ -4,10 +4,10 @@
 # Get database or collection throughput
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$databaseName = "mydatabase" # Keyspace with shared throughput
-$collectionName = "mycollection" # Table with dedicated throughput
+$databaseName = "myDatabase" # Keyspace with shared throughput
+$collectionName = "myCollection" # Table with dedicated throughput
 # --------------------------------------------------
 
 Write-Host "Get database shared throughput"

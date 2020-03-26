@@ -1,24 +1,23 @@
 # Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
 # --------------------------------------------------
 # Purpose
-# Create Cosmos Gremlin API account, database, and graph with multi-master enabled,
-# a database with shared thoughput, and a graph with dedicated throughput,
-# and conflict resolution policy with last writer wins and custom resolver path
+# Create Cosmos Gremlin API account, database, and graph
+# with dedicated throughput and conflict resolution policy
+# with last writer wins and custom resolver path
 # --------------------------------------------------
 Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
 # --------------------------------------------------
-$uniqueId = New-RandomString -Length 4 # Random alphanumeric string for unique resource names
+$uniqueId = New-RandomString -Length 7 # Random alphanumeric string for unique resource names
 $apiKind = "Gremlin"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $locations = @("East US", "West US") # Regions ordered by failover priority
-$resourceGroupName = "cosmos" # Resource Group must already exist
-$accountName = "cdb-gr-$uniqueId" # Must be all lower case
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "cosmos-$uniqueId" # Must be all lower case
 $consistencyLevel = "Session"
 $tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
-$databaseName = "mydatabase"
-$databaseRUs = 400
-$graphName = "mygraph"
+$databaseName = "myDatabase"
+$graphName = "myGraph"
 $graphRUs = 400
 $partitionKeys = @("/myPartitionKey")
 $conflictResolutionPath = "/myResolutionPath"
@@ -29,11 +28,11 @@ Write-Host "Creating account $accountName"
 # $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
     # -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
     # -DefaultConsistencyLevel $consistencyLevel `
-    # -EnableMultipleWriteLocations
+    # -EnableAutomaticFailover:$true
 # --------------------------------------------------
 # Account creation: use New-AzResource with property object
 $azAccountResourceType = "Microsoft.DocumentDb/databaseAccounts"
-$azApiVersion = "2019-12-12"
+$azApiVersion = "2020-03-01"
 $azApiType = "EnableGremlin"
 
 $azLocations = @()
@@ -51,7 +50,7 @@ $azAccountProperties = @{
     databaseAccountOfferType = "Standard";
     locations = $azLocations;
     consistencyPolicy = $azConsistencyPolicy;
-    enableMultipleWriteLocations = "true";
+    enableAutomaticFailover = "true";
 }
 
 New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
@@ -59,19 +58,14 @@ New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
     -Name $accountName -PropertyObject $azAccountProperties `
     -Tag $tags -Force
 
-$account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
-# --------------------------------------------------
-# Powershell cmdlets for database and graph operations
-
-# Database
+Write-Host "Creating database $databaseName"
 $database = Set-AzCosmosDBGremlinDatabase -ResourceGroupName $resourceGroupName `
-    -AccountName $accountName -Name $databaseName `
-    -Throughput $databaseRUs
+    -AccountName $accountName -Name $databaseName
 
-# Graph
 $conflictResolutionPolicy = New-AzCosmosDBGremlinConflictResolutionPolicy `
     -Type LastWriterWins -Path $conflictResolutionPath
 
+Write-Host "Creating graph $graphName"
 $graph = Set-AzCosmosDBGremlinGraph -ResourceGroupName $resourceGroupName `
     -AccountName $accountName -DatabaseName $databaseName `
     -Name $graphName -Throughput $graphRUs `

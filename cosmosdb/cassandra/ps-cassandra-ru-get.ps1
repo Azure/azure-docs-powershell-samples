@@ -4,10 +4,10 @@
 # Get keyspace or table throughput
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$keyspaceName = "mykeyspace" # Keyspace with shared throughput
-$tableName = "mytable" # Table with dedicated throughput
+$keyspaceName = "myKeyspace" # Keyspace with shared throughput
+$tableName = "myTable" # Table with dedicated throughput
 # --------------------------------------------------
 
 Write-Host "Get keyspace shared throughput"

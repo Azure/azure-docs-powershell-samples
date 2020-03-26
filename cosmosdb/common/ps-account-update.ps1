@@ -1,33 +1,21 @@
 # Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
 # --------------------------------------------------
 # Purpose
-# Update Cosmos DB account: Add an Azure region (location)
+# Update Cosmos DB account: Change default consistency level
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$locations = @("East US", "West US") # Regions ordered by failover priority
+$consistencyLevel = "BoundedStaleness"
+$maxStalenessInterval = 300
+$maxStalenessPrefix = 100000
 # --------------------------------------------------
 
 # Get existing Cosmos DB account
-# $account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
+$account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
 
-# Eventually transition to Update-AzCosmosDBAccountRegion with -Location or -LocationObject
-# Update-AzCosmosDBAccountRegion -InputObject $account -Location $locations
-# ForEach ($name in $locations){ $locationObjects += New-AzCosmosDBLocationObject -LocationName $name -FailoverPriority ($i++) }
-# Update-AzCosmosDBAccountRegion -InputObject $account -LocationObject $locationObjects
-
-# Use Set-AzResource with property object pending transition to Update-AzCosmosDBAccountRegion
-$resourceType = "Microsoft.DocumentDb/databaseAccounts"
-$apiVersion = "2019-12-12"
-$locationObjects = @()
-$i = 0
-ForEach ($location in $locations) { $locationObjects += @{ locationName = "$location"; failoverPriority = $i++ } }
-$CosmosDBProperties = @{
-    databaseAccountOfferType = "Standard";
-    locations = $locationObjects;
-}
-
-Set-AzResource -ResourceGroupName $resourceGroupName -ResourceType $resourceType `
-    -ApiVersion $apiVersion -Name $accountName `
-    -PropertyObject $CosmosDBProperties -Force
+Write-Host "Updating account $accountName"
+Update-AzCosmosDBAccount -InputObject $account `
+    -DefaultConsistencyLevel $consistencyLevel `
+    -MaxStalenessIntervalInSeconds $maxStalenessInterval `
+    -MaxStalenessPrefix $maxStalenessPrefix

@@ -1,32 +1,33 @@
 # Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
 # --------------------------------------------------
 # Purpose
-# Create Cosmos Table API account and a Tab;le
+# Create Cosmos Table API account and a Table
 # --------------------------------------------------
 Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
 # --------------------------------------------------
-$uniqueId = New-RandomString -Length 4 # Random alphanumeric string for unique resource names
+$uniqueId = New-RandomString -Length 7 # Random alphanumeric string for unique resource names
 $apiKind = "Table"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $locations = @("East US", "West US") # Regions ordered by failover priority
-$resourceGroupName = "cosmos" # Resource Group must already exist
-$accountName = "cdb-tbl-$uniqueId" # Must be all lower case
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "cosmos-$uniqueId" # Must be all lower case
 $consistencyLevel = "Session"
 $tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
-$tableName = "mytable"
+$tableName = "myTable"
 $tableRUs = 400
 # --------------------------------------------------
 # Account
 Write-Host "Creating account $accountName"
-# Cassandra not yet supported in New-AzCosmosDBAccount
+# Table not yet supported in New-AzCosmosDBAccount
 # $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
     # -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
-    # -DefaultConsistencyLevel $consistencyLevel
+    # -DefaultConsistencyLevel $consistencyLevel `
+	# -EnableAutomaticFailover:$true
 # Account creation: use New-AzResource with property object
 # --------------------------------------------------
 $azAccountResourceType = "Microsoft.DocumentDb/databaseAccounts"
-$azApiVersion = "2019-12-12"
+$azApiVersion = "2020-03-01"
 $azApiType = "EnableTable"
 
 $azLocations = @()
@@ -44,18 +45,16 @@ $azAccountProperties = @{
     databaseAccountOfferType = "Standard";
     locations = $azLocations;
     consistencyPolicy = $azConsistencyPolicy;
-    enableMultipleWriteLocations = "false";
+    enableAutomaticFailover = "true";
 }
 
+Write-Host "Creating account $accountName"
 New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
     -ResourceGroupName $resourceGroupName -Location $locations[0] `
     -Name $accountName -PropertyObject $azAccountProperties `
     -Tag $tags -Force
 
-# $account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
-# --------------------------------------------------
 Write-Host "Creating Table $tableName"
-
 Set-AzCosmosDBTable -ResourceGroupName $resourceGroupName `
     -AccountName $accountName -Name $tableName `
     -Throughput $tableRUs

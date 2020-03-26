@@ -1,25 +1,24 @@
 # Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
 # --------------------------------------------------
 # Purpose
-# Create Cosmos Cassandra API account, keyspace, and table with multi-master enabled,
-# a keyspace with shared thoughput, and a table with defined schema, dedicated throughput,
-# and conflict resolution policy with last writer wins and custom resolver path
+# Create Cosmos Cassandra API account with automatic failover,
+# a keyspace, and a table with defined schema, dedicated throughput, and
+# conflict resolution policy with last writer wins and custom resolver path.
 # --------------------------------------------------
 Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
 # --------------------------------------------------
-$uniqueId = New-RandomString -Length 4 # Random alphanumeric string for unique resource names
+$uniqueId = New-RandomString -Length 7 # Random alphanumeric string for unique resource names
 $apiKind = "Cassandra"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $locations = @("East US", "West US") # Regions ordered by failover priority
-$resourceGroupName = "cosmos" # Resource Group must already exist
-$accountName = "cdb-cass-$uniqueId" # Must be all lower case
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "cosmos-$uniqueId" # Must be all lower case
 $consistencyLevel = "BoundedStaleness"
 $maxStalenessInterval = 300
 $maxStalenessPrefix = 100000
 $tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
 $keyspaceName = "mykeyspace"
-$keyspaceRUs = 400
 $tableName = "mytable"
 $tableRUs = 400
 $partitionKeys = @("machine", "cpu", "mtime")
@@ -44,11 +43,11 @@ Write-Host "Creating account $accountName"
     # -DefaultConsistencyLevel $consistencyLevel `
     # -MaxStalenessIntervalInSeconds $maxStalenessInterval `
     # -MaxStalenessPrefix $maxStalenessPrefix `
-    # -EnableMultipleWriteLocations
+    # -EnableAutomaticFailover:$true
 # Account creation: use New-AzResource with property object
 # --------------------------------------------------
 $azAccountResourceType = "Microsoft.DocumentDb/databaseAccounts"
-$azApiVersion = "2019-12-12"
+$azApiVersion = "2020-03-01"
 $azApiType = "EnableCassandra"
 
 $azLocations = @()
@@ -68,7 +67,7 @@ $azAccountProperties = @{
     databaseAccountOfferType = "Standard";
     locations = $azLocations;
     consistencyPolicy = $azConsistencyPolicy;
-    enableMultipleWriteLocations = "true";
+    enableAutomaticFailover = "true";
 }
 
 New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
@@ -77,13 +76,10 @@ New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
     -Tag $tags -Force
 
 $account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
-# --------------------------------------------------
-# Powershell cmdlets for additional operations
 
-# Keyspace
 Write-Host "Creating keyspace $keyspaceName"
 $keyspace = Set-AzCosmosDBCassandraKeyspace -InputObject $account `
-    -Name $keyspaceName -Throughput $keyspaceRUs
+    -Name $keyspaceName
 
 # Table Schema
 $psClusterKeys = @()
@@ -101,7 +97,6 @@ $schema = New-AzCosmosDBCassandraSchema `
     -ClusterKey $psClusterKeys `
     -Column $psColumns
 
-# Table
 Write-Host "Creating table $tableName"
 $table = Set-AzCosmosDBCassandraTable -InputObject $keyspace `
     -Name $tableName -Schema $schema -Throughput $tableRUs 

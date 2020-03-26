@@ -1,13 +1,13 @@
 # Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
 # --------------------------------------------------
 # Purpose
-# Show list and get operations for accounts, databases, and containers
+# List and get operations for accounts, databases, and graphs
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$databaseName = "mydatabase"
-$graphName = "mygraph"
+$databaseName = "myDatabase"
+$graphName = "myGraph"
 # --------------------------------------------------
 
 Write-Host "List all accounts in a resource group"

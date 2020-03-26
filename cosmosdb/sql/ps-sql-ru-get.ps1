@@ -4,18 +4,17 @@
 # Get database or container throughput
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$databaseNameNoShared = "MyDatabase" # Database without shared throughput
-$databaseNameShared = "MyDatabase2" # Database with shared throughput
-$containerNameDedicated = "MyContainer" # Container with dedicated throughput
+$databaseName = "myDatabase"
+$containerName = "myContainer"
 # --------------------------------------------------
 
-Write-Host "Get database shared throughput"
+Write-Host "Get database shared throughput - if none provisioned, will return error."
 Get-AzCosmosDBSqlDatabaseThroughput -ResourceGroupName $resourceGroupName `
-    -AccountName $accountName -Name $databaseNameShared
+    -AccountName $accountName -Name $databaseName
 
-Write-Host "Get container dedicated throughput"
+Write-Host "Get container dedicated throughput - if none provisioned, will return error."
 Get-AzCosmosDBSqlContainerThroughput -ResourceGroupName $resourceGroupName `
-    -AccountName $accountName -DatabaseName $databaseNameNoShared `
-    -Name $containerNameDedicated
+    -AccountName $accountName -DatabaseName $databaseName `
+    -Name $containerName
