@@ -1,9 +1,12 @@
-# Connect-AzAccount
+﻿$NSnetworkModels = "Microsoft.Azure.Commands.Network.Models"
+$NScollections = "System.Collections.Generic"
+
+Connect-AzAccount
 # The SubscriptionId in which to create these objects
 $SubscriptionId = ''
 # Set the resource group name and location for your managed instance
 $resourceGroupName = "myResourceGroup-$(Get-Random)"
-$location = "westus2"
+$location = "eastus2"
 # Set the networking values for your managed instance
 $vNetName = "myVnet-$(Get-Random)"
 $vNetAddressPrefix = "10.0.0.0/16"
@@ -20,36 +23,16 @@ $miAdminSqlPassword = "ChangeYourAdminPassword1"
 $edition = "General Purpose"
 $vCores = 8
 $maxStorage = 256
-$computeGeneration = "Gen4"
+$computeGeneration = "Gen5"
 $license = "LicenseIncluded" #"BasePrice" or LicenseIncluded if you have don't have SQL Server licence that can be used for AHB discount
 
 # Set subscription context
-Set-AzContext -SubscriptionId $subscriptionId 
+Set-AzContext -SubscriptionId $SubscriptionId 
 
 # Create a resource group
-$resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location
+$resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location -Tag @{Owner="SQLDB-Samples"}
 
 # Configure virtual network, subnets, network security group, and routing table
-$virtualNetwork = New-AzVirtualNetwork `
-                      -ResourceGroupName $resourceGroupName `
-                      -Location $location `
-                      -Name $vNetName `
-                      -AddressPrefix $vNetAddressPrefix
-
-                  Add-AzVirtualNetworkSubnetConfig `
-                      -Name $miSubnetName `
-                      -VirtualNetwork $virtualNetwork `
-                      -AddressPrefix $miSubnetAddressPrefix `
-                  | Set-AzVirtualNetwork
-
-$virtualNetwork = Get-AzVirtualNetwork -Name $vNetName -ResourceGroupName $resourceGroupName
-
-$miSubnetConfig = Get-AzVirtualNetworkSubnetConfig `
-                        -Name $miSubnetName `
-                        -VirtualNetwork $virtualNetwork 
-
-$miSubnetConfigId = $miSubnetConfig.Id
-
 $networkSecurityGroupMiManagementService = New-AzNetworkSecurityGroup `
                       -Name 'myNetworkSecurityGroupMiManagementService' `
                       -ResourceGroupName $resourceGroupName `
@@ -60,132 +43,97 @@ $routeTableMiManagementService = New-AzRouteTable `
                       -ResourceGroupName $resourceGroupName `
                       -location $location
 
-Set-AzVirtualNetworkSubnetConfig `
-                      -VirtualNetwork $virtualNetwork `
+$virtualNetwork = New-AzVirtualNetwork `
+                      -ResourceGroupName $resourceGroupName `
+                      -Location $location `
+                      -Name $vNetName `
+                      -AddressPrefix $vNetAddressPrefix
+
+                  Add-AzVirtualNetworkSubnetConfig `
                       -Name $miSubnetName `
+                      -VirtualNetwork $virtualNetwork `
                       -AddressPrefix $miSubnetAddressPrefix `
                       -NetworkSecurityGroup $networkSecurityGroupMiManagementService `
-                      -RouteTable $routeTableMiManagementService | `
-                    Set-AzVirtualNetwork
+                      -RouteTable $routeTableMiManagementService |
+                  Set-AzVirtualNetwork
+
+$virtualNetwork = Get-AzVirtualNetwork -Name $vNetName -ResourceGroupName $resourceGroupName
+
+$subnet= $virtualNetwork.Subnets[0]
+
+# Create a delegation
+$subnet.Delegations = New-Object "$NScollections.List``1[$NSnetworkModels.PSDelegation]"
+$delegationName = "dgManagedInstance" + (Get-Random -Maximum 1000)
+$delegation = New-AzDelegation -Name $delegationName -ServiceName "Microsoft.Sql/managedInstances"
+$subnet.Delegations.Add($delegation)
+
+Set-AzVirtualNetwork -VirtualNetwork $virtualNetwork
+
+$miSubnetConfigId = $subnet.Id
+
+
+
+$allowParameters = @{
+    Access = 'Allow'
+    Protocol = 'Tcp'
+    Direction= 'Inbound'
+    SourcePortRange = '*'
+    SourceAddressPrefix = 'VirtualNetwork'
+    DestinationAddressPrefix = '*'
+}
+$denyInParameters = @{
+    Access = 'Deny'
+    Protocol = '*'
+    Direction = 'Inbound'
+    SourcePortRange = '*'
+    SourceAddressPrefix = '*'
+    DestinationPortRange = '*'
+    DestinationAddressPrefix = '*'
+}
+$denyOutParameters = @{
+    Access = 'Deny'
+    Protocol = '*'
+    Direction = 'Outbound'
+    SourcePortRange = '*'
+    SourceAddressPrefix = '*'
+    DestinationPortRange = '*'
+    DestinationAddressPrefix = '*'
+}
 
 Get-AzNetworkSecurityGroup `
-                      -ResourceGroupName $resourceGroupName `
-                      -Name "myNetworkSecurityGroupMiManagementService" `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 100 `
-                      -Name "allow_management_inbound" `
-                      -Access Allow `
-                      -Protocol Tcp `
-                      -Direction Inbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix * `
-                      -DestinationPortRange 9000,9003,1438,1440,1452 `
-                      -DestinationAddressPrefix * `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 200 `
-                      -Name "allow_misubnet_inbound" `
-                      -Access Allow `
-                      -Protocol * `
-                      -Direction Inbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix $miSubnetAddressPrefix `
-                      -DestinationPortRange * `
-                      -DestinationAddressPrefix * `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 300 `
-                      -Name "allow_health_probe_inbound" `
-                      -Access Allow `
-                      -Protocol * `
-                      -Direction Inbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix AzureLoadBalancer `
-                      -DestinationPortRange * `
-                      -DestinationAddressPrefix * `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 1000 `
-                      -Name "allow_tds_inbound" `
-                      -Access Allow `
-                      -Protocol Tcp `
-                      -Direction Inbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix VirtualNetwork `
-                      -DestinationPortRange 1433 `
-                      -DestinationAddressPrefix * `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 1100 `
-                      -Name "allow_redirect_inbound" `
-                      -Access Allow `
-                      -Protocol Tcp `
-                      -Direction Inbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix VirtualNetwork `
-                      -DestinationPortRange 11000-11999 `
-                      -DestinationAddressPrefix * `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 4096 `
-                      -Name "deny_all_inbound" `
-                      -Access Deny `
-                      -Protocol * `
-                      -Direction Inbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix * `
-                      -DestinationPortRange * `
-                      -DestinationAddressPrefix * `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 100 `
-                      -Name "allow_management_outbound" `
-                      -Access Allow `
-                      -Protocol Tcp `
-                      -Direction Outbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix * `
-                      -DestinationPortRange 80,443,12000 `
-                      -DestinationAddressPrefix * `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 200 `
-                      -Name "allow_misubnet_outbound" `
-                      -Access Allow `
-                      -Protocol * `
-                      -Direction Outbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix * `
-                      -DestinationPortRange * `
-                      -DestinationAddressPrefix $miSubnetAddressPrefix `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 4096 `
-                      -Name "deny_all_outbound" `
-                      -Access Deny `
-                      -Protocol * `
-                      -Direction Outbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix * `
-                      -DestinationPortRange * `
-                      -DestinationAddressPrefix * `
-                      | Set-AzNetworkSecurityGroup
+        -ResourceGroupName $resourceGroupName `
+        -Name "myNetworkSecurityGroupMiManagementService" |
+    Add-AzNetworkSecurityRuleConfig `
+        @allowParameters `
+        -Priority 1000 `
+        -Name "allow_tds_inbound" `
+        -DestinationPortRange 1433 |
+    Add-AzNetworkSecurityRuleConfig `
+        @allowParameters `
+        -Priority 1100 `
+        -Name "allow_redirect_inbound" `
+        -DestinationPortRange 11000-11999 |
+    Add-AzNetworkSecurityRuleConfig `
+        @denyInParameters `
+        -Priority 4096 `
+        -Name "deny_all_inbound" |
+    Add-AzNetworkSecurityRuleConfig `
+        @denyOutParameters `
+        -Priority 4096 `
+        -Name "deny_all_outbound" |
+    Set-AzNetworkSecurityGroup
 
 
-Get-AzRouteTable `
-                      -ResourceGroupName $resourceGroupName `
-                      -Name "myRouteTableMiManagementService" `
-                      | Add-AzRouteConfig `
-                      -Name "ToManagedInstanceManagementService" `
-                      -AddressPrefix 0.0.0.0/0 `
-                      -NextHopType Internet `
-                      | Add-AzRouteConfig `
-                      -Name "ToLocalClusterNode" `
-                      -AddressPrefix $miSubnetAddressPrefix `
-                      -NextHopType VnetLocal `
-                     | Set-AzRouteTable
+# Create credentials
+$secpassword = ConvertTo-SecureString $miAdminSqlPassword -AsPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential ($miAdminSqlLogin, $secpassword)
 
 # Create managed instance
 New-AzSqlInstance -Name $instanceName `
-                      -ResourceGroupName $resourceGroupName -Location westus2 -SubnetId $miSubnetConfigId `
-                      -AdministratorCredential (Get-Credential) `
+                      -ResourceGroupName $resourceGroupName -Location $location -SubnetId $miSubnetConfigId `
+                      -AdministratorCredential $credential `
                       -StorageSizeInGB $maxStorage -VCore $vCores -Edition $edition `
                       -ComputeGeneration $computeGeneration -LicenseType $license
-
-# This script will take a minimum of 3 hours to create a new managed instance in a new virtual network. 
-# A second managed instance is created much faster.
 
 # Clean up deployment 
 # Remove-AzResourceGroup -ResourceGroupName $resourceGroupName
