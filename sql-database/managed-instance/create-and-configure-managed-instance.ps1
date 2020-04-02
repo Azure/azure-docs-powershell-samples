@@ -1,7 +1,7 @@
 ﻿$NSnetworkModels = "Microsoft.Azure.Commands.Network.Models"
 $NScollections = "System.Collections.Generic"
 
-#Connect-AzAccount
+Connect-AzAccount
 # The SubscriptionId in which to create these objects
 $SubscriptionId = ''
 # Set the resource group name and location for your managed instance
@@ -54,8 +54,8 @@ $virtualNetwork = New-AzVirtualNetwork `
                       -VirtualNetwork $virtualNetwork `
                       -AddressPrefix $miSubnetAddressPrefix `
                       -NetworkSecurityGroup $networkSecurityGroupMiManagementService `
-                      -RouteTable $routeTableMiManagementService `
-                  | Set-AzVirtualNetwork
+                      -RouteTable $routeTableMiManagementService |
+                  Set-AzVirtualNetwork
 
 $virtualNetwork = Get-AzVirtualNetwork -Name $vNetName -ResourceGroupName $resourceGroupName
 
@@ -71,50 +71,58 @@ Set-AzVirtualNetwork -VirtualNetwork $virtualNetwork
 
 $miSubnetConfigId = $subnet.Id
 
+
+
+$allowParameters = @{
+    Access = 'Allow'
+    Protocol = 'Tcp'
+    Direction= 'Inbound'
+    SourcePortRange = '*'
+    SourceAddressPrefix = 'VirtualNetwork'
+    DestinationAddressPrefix = '*'
+}
+$denyInParameters = @{
+    Access = 'Deny'
+    Protocol = '*'
+    Direction = 'Inbound'
+    SourcePortRange = '*'
+    SourceAddressPrefix = '*'
+    DestinationPortRange = '*'
+    DestinationAddressPrefix = '*'
+}
+$denyOutParameters = @{
+    Access = 'Deny'
+    Protocol = '*'
+    Direction = 'Outbound'
+    SourcePortRange = '*'
+    SourceAddressPrefix = '*'
+    DestinationPortRange = '*'
+    DestinationAddressPrefix = '*'
+}
+
 Get-AzNetworkSecurityGroup `
-                      -ResourceGroupName $resourceGroupName `
-                      -Name "myNetworkSecurityGroupMiManagementService" `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 1000 `
-                      -Name "allow_tds_inbound" `
-                      -Access Allow `
-                      -Protocol Tcp `
-                      -Direction Inbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix VirtualNetwork `
-                      -DestinationPortRange 1433 `
-                      -DestinationAddressPrefix * `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 1100 `
-                      -Name "allow_redirect_inbound" `
-                      -Access Allow `
-                      -Protocol Tcp `
-                      -Direction Inbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix VirtualNetwork `
-                      -DestinationPortRange 11000-11999 `
-                      -DestinationAddressPrefix * `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 4096 `
-                      -Name "deny_all_inbound" `
-                      -Access Deny `
-                      -Protocol * `
-                      -Direction Inbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix * `
-                      -DestinationPortRange * `
-                      -DestinationAddressPrefix * `
-                      | Add-AzNetworkSecurityRuleConfig `
-                      -Priority 4096 `
-                      -Name "deny_all_outbound" `
-                      -Access Deny `
-                      -Protocol * `
-                      -Direction Outbound `
-                      -SourcePortRange * `
-                      -SourceAddressPrefix * `
-                      -DestinationPortRange * `
-                      -DestinationAddressPrefix * `
-                      | Set-AzNetworkSecurityGroup
+        -ResourceGroupName $resourceGroupName `
+        -Name "myNetworkSecurityGroupMiManagementService" |
+    Add-AzNetworkSecurityRuleConfig `
+        @allowParameters `
+        -Priority 1000 `
+        -Name "allow_tds_inbound" `
+        -DestinationPortRange 1433 |
+    Add-AzNetworkSecurityRuleConfig `
+        @allowParameters `
+        -Priority 1100 `
+        -Name "allow_redirect_inbound" `
+        -DestinationPortRange 11000-11999 |
+    Add-AzNetworkSecurityRuleConfig `
+        @denyInParameters `
+        -Priority 4096 `
+        -Name "deny_all_inbound" |
+    Add-AzNetworkSecurityRuleConfig `
+        @denyOutParameters `
+        -Priority 4096 `
+        -Name "deny_all_outbound" |
+    Set-AzNetworkSecurityGroup
+
 
 # Create credentials
 $secpassword = ConvertTo-SecureString $miAdminSqlPassword -AsPlainText -Force
