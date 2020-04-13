@@ -9,7 +9,6 @@ $accountName = "myaccount" # Must be all lower case
 $databaseName = "myDatabase"
 $collectionName = "myCollection"
 $newRUs = 500
-$shardKey = "user_id"
 # --------------------------------------------------
 
 $throughput = Get-AzCosmosDBMongoDBCollectionThroughput -ResourceGroupName $resourceGroupName `
@@ -31,6 +30,14 @@ if ([int]$newRUs -eq [int]$currentRUs) {
 }
 else {
     Write-Host "Updating throughput to $newRUs."
+
+    # Retrieve collection so we can pass existing shard key back to Set-AzCosmosDBMongoDBCollection
+    $collection = Get-AzCosmosDBMongoDBCollection `
+        -ResourceGroupName $resourceGroupName `
+        -AccountName $accountName -DatabaseName $databaseName `
+        -Name $collectionName
+
+    $shardKey = $collection.Resource.ShardKey.Keys[0]
 
     Set-AzCosmosDBMongoDBCollection -ResourceGroupName $resourceGroupName `
         -AccountName $accountName -DatabaseName $databaseName `

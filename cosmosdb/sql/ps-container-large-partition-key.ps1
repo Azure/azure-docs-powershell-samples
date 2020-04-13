@@ -6,7 +6,7 @@
 Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
 # --------------------------------------------------
 $uniqueId = New-RandomString -Length 7 # Random alphanumeric string for unique resource names
-$apiKind = "GlobalDocumentDB"
+$apiKind = "Sql"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $locations = @("East US", "West US") # Regions ordered by failover priority
