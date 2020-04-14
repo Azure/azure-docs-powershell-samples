@@ -16,4 +16,4 @@ New-AzManagedApplicationDefinition `
   -DisplayName "Managed Storage Account" `
   -Description "Managed Az.Storage Account" `
   -Authorization "${groupid}:$roleid" `
-  -PackageFileUri "https://raw.githubusercontent.com/Azure/azure-managedapp-samples/master/samples/201-managed-storage-account/managedstorage.zip"
+  -PackageFileUri "https://raw.githubusercontent.com/Azure/azure-managedapp-samples/master/Managed%20Application%20Sample%20Packages/201-managed-storage-account/managedstorage.zip"
