@@ -11,28 +11,18 @@
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$locations = @("West US", "East US") # Regions ordered by failover priority
+$locations = @("East US", "West US") # Regions ordered by failover priority
 # --------------------------------------------------
 
-# Get existing Cosmos DB account
-# $account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
+Write-Host "Get Cosmos DB account"
+$account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
 
-# Eventually transition to Update-AzCosmosDBAccountRegion with -Location or -LocationObject
-# Update-AzCosmosDBAccountRegion -InputObject $account -Location $locations
-# ForEach ($name in $locations){ $locationObjects += New-AzCosmosDBLocationObject -LocationName $name -FailoverPriority ($i++) }
-# Update-AzCosmosDBAccountRegion -InputObject $account -LocationObject $locationObjects
-
-# Use Set-AzResource with property object pending transition to Update-AzCosmosDBAccountRegion
-$resourceType = "Microsoft.DocumentDb/databaseAccounts"
-$apiVersion = "2020-03-01"
-$locationObjects = @()
 $i = 0
-ForEach ($location in $locations) { $locationObjects += @{ locationName = "$location"; failoverPriority = $i++ } }
-$CosmosDBProperties = @{
-    databaseAccountOfferType = "Standard";
-    locations = $locationObjects;
+$locationObjects = @()
+
+ForEach ($location in $locations) {
+    $locationObjects += New-AzCosmosDBLocationObject -LocationName $location -FailoverPriority ($i++)
 }
 
-Set-AzResource -ResourceGroupName $resourceGroupName -ResourceType $resourceType `
-    -ApiVersion $apiVersion -Name $accountName `
-    -PropertyObject $CosmosDBProperties -Force
+Write-Host "Update Cosmos DB account region(s)"
+Update-AzCosmosDBAccountRegion -InputObject $account -LocationObject $locationObjects
