@@ -35,47 +35,13 @@ $columns = @(
     @{ name = "duration"; type = "float" }
 )
 # --------------------------------------------------
-# Account
 Write-Host "Creating account $accountName"
-# Cassandra not yet supported in New-AzCosmosDBAccount
-# $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
-    # -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
-    # -DefaultConsistencyLevel $consistencyLevel `
-    # -MaxStalenessIntervalInSeconds $maxStalenessInterval `
-    # -MaxStalenessPrefix $maxStalenessPrefix `
-    # -EnableAutomaticFailover:$true
-# Account creation: use New-AzResource with property object
-# --------------------------------------------------
-$azAccountResourceType = "Microsoft.DocumentDb/databaseAccounts"
-$azApiVersion = "2020-03-01"
-$azApiType = "EnableCassandra"
-
-$azLocations = @()
-$i = 0
-ForEach ($location in $locations) {
-    $azLocations += @{ locationName = "$location"; failoverPriority = $i++ }
-}
-
-$azConsistencyPolicy = @{
-    defaultConsistencyLevel = $consistencyLevel;
-    maxIntervalInSeconds = $maxStalenessInterval;
-    maxStalenessPrefix = $maxStalenessPrefix;
-}
-
-$azAccountProperties = @{
-    capabilities = @( @{ name = $azApiType; } );
-    databaseAccountOfferType = "Standard";
-    locations = $azLocations;
-    consistencyPolicy = $azConsistencyPolicy;
-    enableAutomaticFailover = "true";
-}
-
-New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
-    -ResourceGroupName $resourceGroupName -Location $locations[0] `
-    -Name $accountName -PropertyObject $azAccountProperties `
-    -Tag $tags -Force
-
-$account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
+$account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
+    -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
+    -DefaultConsistencyLevel $consistencyLevel `
+    -MaxStalenessIntervalInSeconds $maxStalenessInterval `
+    -MaxStalenessPrefix $maxStalenessPrefix `
+    -EnableAutomaticFailover:$true
 
 Write-Host "Creating keyspace $keyspaceName"
 $keyspace = Set-AzCosmosDBCassandraKeyspace -InputObject $account `
