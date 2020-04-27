@@ -22,52 +22,22 @@ $graphRUs = 400
 $partitionKeys = @("/myPartitionKey")
 $conflictResolutionPath = "/myResolutionPath"
 # --------------------------------------------------
-# Account
 Write-Host "Creating account $accountName"
-# Gremlin not yet supported in New-AzCosmosDBAccount
-# $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
-    # -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
-    # -DefaultConsistencyLevel $consistencyLevel `
-    # -EnableAutomaticFailover:$true
-# --------------------------------------------------
-# Account creation: use New-AzResource with property object
-$azAccountResourceType = "Microsoft.DocumentDb/databaseAccounts"
-$azApiVersion = "2020-03-01"
-$azApiType = "EnableGremlin"
-
-$azLocations = @()
-$i = 0
-ForEach ($location in $locations) {
-    $azLocations += @{ locationName = "$location"; failoverPriority = $i++ }
-}
-
-$azConsistencyPolicy = @{
-    defaultConsistencyLevel = "$consistencyLevel";
-}
-
-$azAccountProperties = @{
-    capabilities = @( @{ name = "$azApiType" } );
-    databaseAccountOfferType = "Standard";
-    locations = $azLocations;
-    consistencyPolicy = $azConsistencyPolicy;
-    enableAutomaticFailover = "true";
-}
-
-New-AzResource -ResourceType $azAccountResourceType -ApiVersion $azApiVersion `
-    -ResourceGroupName $resourceGroupName -Location $locations[0] `
-    -Name $accountName -PropertyObject $azAccountProperties `
-    -Tag $tags -Force
+$account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
+    -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
+    -DefaultConsistencyLevel $consistencyLevel `
+    -EnableAutomaticFailover:$true
 
 Write-Host "Creating database $databaseName"
-$database = Set-AzCosmosDBGremlinDatabase -ResourceGroupName $resourceGroupName `
-    -AccountName $accountName -Name $databaseName
+$database = Set-AzCosmosDBGremlinDatabase -InputObject $account `
+    -Name $databaseName
 
+# Prepare conflict resolution policy object for graph
 $conflictResolutionPolicy = New-AzCosmosDBGremlinConflictResolutionPolicy `
     -Type LastWriterWins -Path $conflictResolutionPath
 
 Write-Host "Creating graph $graphName"
-$graph = Set-AzCosmosDBGremlinGraph -ResourceGroupName $resourceGroupName `
-    -AccountName $accountName -DatabaseName $databaseName `
+$graph = Set-AzCosmosDBGremlinGraph -InputObject $database `
     -Name $graphName -Throughput $graphRUs `
     -PartitionKeyKind Hash -PartitionKeyPath $partitionKeys `
     -ConflictResolutionPolicy $conflictResolutionPolicy
