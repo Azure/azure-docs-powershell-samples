@@ -30,7 +30,7 @@ if ([int]$newRUs -eq [int]$currentRUs) {
 else {
     Write-Host "Updating throughput to $newRUs."
 
-    Set-AzCosmosDBTable -ResourceGroupName $resourceGroupName `
+    Update-AzCosmosDBTableThroughput -ResourceGroupName $resourceGroupName `
         -AccountName $accountName -Name $tableName `
         -Throughput $newRUs
 }
