@@ -20,7 +20,8 @@ $databaseName = "myDatabase"
 $graphName = "myGraph"
 $graphRUs = 400
 $partitionKeys = @("/myPartitionKey")
-$conflictResolutionPath = "/myResolutionPath"
+# --------------------------------------------------
+$conflictResolutionPath = "/_ts"
 # --------------------------------------------------
 Write-Host "Creating account $accountName"
 $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `

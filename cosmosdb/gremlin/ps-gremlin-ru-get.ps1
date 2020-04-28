@@ -5,7 +5,7 @@
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $resourceGroupName = "myResourceGroup" # Resource Group must already exist
-$accountName = "myAccount" # Must be all lower case
+$accountName = "myaccount" # Must be all lower case
 $databaseName = "myDatabase"
 $graphName = "myGraph"
 # --------------------------------------------------
