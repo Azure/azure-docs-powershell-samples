@@ -9,30 +9,27 @@
 # occurring. Check the account or Resource Group's activity log for status.
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$resourceGroupName = "cosmos" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$locations = @("West US", "East US") # Regions ordered by failover priority
+
+# Regions ordered by failover priority, with each indicating whether AZ-enabled
+# Region AZ status can be checked at https://azure.microsoft.com/global-infrastructure/regions/
+$locations = @(
+    @{name = "West US"; azEnabled = $false};
+    @{name = "East US"; azEnabled = $true};
+    @{name = "South Central US"; azEnabled = $false};
+)
 # --------------------------------------------------
 
-# Get existing Cosmos DB account
-# $account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
+Write-Host "Get Cosmos DB account"
+$account = Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName -Name $accountName
 
-# Eventually transition to Update-AzCosmosDBAccountRegion with -Location or -LocationObject
-# Update-AzCosmosDBAccountRegion -InputObject $account -Location $locations
-# ForEach ($name in $locations){ $locationObjects += New-AzCosmosDBLocationObject -LocationName $name -FailoverPriority ($i++) }
-# Update-AzCosmosDBAccountRegion -InputObject $account -LocationObject $locationObjects
-
-# Use Set-AzResource with property object pending transition to Update-AzCosmosDBAccountRegion
-$resourceType = "Microsoft.DocumentDb/databaseAccounts"
-$apiVersion = "2020-03-01"
-$locationObjects = @()
 $i = 0
-ForEach ($location in $locations) { $locationObjects += @{ locationName = "$location"; failoverPriority = $i++ } }
-$CosmosDBProperties = @{
-    databaseAccountOfferType = "Standard";
-    locations = $locationObjects;
+$locationObjects = @()
+
+ForEach ($location in $locations) {
+    $locationObjects += New-AzCosmosDBLocationObject -LocationName $location.name -IsZoneRedundant $location.azEnabled -FailoverPriority ($i++)
 }
 
-Set-AzResource -ResourceGroupName $resourceGroupName -ResourceType $resourceType `
-    -ApiVersion $apiVersion -Name $accountName `
-    -PropertyObject $CosmosDBProperties -Force
+Write-Host "Update Cosmos DB account region(s)"
+Update-AzCosmosDBAccountRegion -InputObject $account -LocationObject $locationObjects
