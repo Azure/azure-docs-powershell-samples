@@ -33,15 +33,7 @@ if ([int]$newRUs -eq [int]$currentRUs) {
 else {
     Write-Host "Updating throughput to $newRUs."
 
-    # Get existing graph object first so we can access partition key
-    # properties, which are required params for Set-AzCosmosDBGremlinGraph
-    $graph = Get-AzCosmosDBGremlinGraph -ResourceGroupName $resourceGroupName `
+    Update-AzCosmosDBGremlinGraphThroughput -ResourceGroupName $resourceGroupName `
         -AccountName $accountName -DatabaseName $databaseName `
-        -Name $graphName -Detailed
-
-    Set-AzCosmosDBGremlinGraph -ResourceGroupName $resourceGroupName `
-        -AccountName $accountName -DatabaseName $databaseName `
-        -Name $graphName -Throughput $newRUs `
-        -PartitionKeyKind $graph.Resource.PartitionKey.Kind `
-        -PartitionKeyPath $graph.Resource.PartitionKey.Paths
+        -Name $graphName -Throughput $newRUs
 }
