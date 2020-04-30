@@ -6,8 +6,8 @@
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$keyspaceName = "myKeyspace" # Keyspace with shared throughput
-$tableName = "myTable" # Table with dedicated throughput
+$keyspaceName = "mykeyspace" # Keyspace with shared throughput
+$tableName = "mytable" # Table with dedicated throughput
 # --------------------------------------------------
 
 Write-Host "Get keyspace shared throughput"

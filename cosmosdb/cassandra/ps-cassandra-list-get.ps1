@@ -6,8 +6,8 @@
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$keyspaceName = "myKeyspace"
-$tableName = "myTable"
+$keyspaceName = "mykeyspace"
+$tableName = "mytable"
 # --------------------------------------------------
 
 Write-Host "List all accounts in a resource group"
@@ -27,7 +27,7 @@ Get-AzCosmosDBCassandraKeyspace -ResourceGroupName $resourceGroupName `
 
 Write-Host "List all tables in a keyspace"
 Get-AzCosmosDBCassandraTable -ResourceGroupName $resourceGroupName `
-    -AccountName $accountName -KeyspaceName $keyspaceName 
+    -AccountName $accountName -KeyspaceName $keyspaceName
 
 Write-Host "Get a table in a keyspace"
 Get-AzCosmosDBCassandraTable -ResourceGroupName $resourceGroupName `
