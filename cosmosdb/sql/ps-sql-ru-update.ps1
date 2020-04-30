@@ -31,19 +31,7 @@ if ([int]$newRUs -eq [int]$currentRUs) {
 else {
     Write-Host "Updating throughput to $newRUs."
 
-    # Prepare Set-AzCosmosDBSqlContainer mandatory params by first getting
-    # existing container so we can access settings.
-    $container = Get-AzCosmosDBSqlContainer `
-        -ResourceGroupName $resourceGroupName `
+    Update-AzCosmosDBSqlContainerThroughput -ResourceGroupName $resourceGroupName `
         -AccountName $accountName -DatabaseName $databaseName `
-        -Name $containerName
-
-    # NOTE: if the container has a custom conflict resolution policy or
-    # a unique key policy, those parameters must be provided here same
-    # as when the container was created.
-    Set-AzCosmosDBSqlContainer -ResourceGroupName $resourceGroupName `
-        -AccountName $accountName -DatabaseName $databaseName `
-        -Name $containerName -Throughput $newRUs `
-        -PartitionKeyKind $container.Resource.PartitionKey.Kind `
-        -PartitionKeyPath $container.Resource.PartitionKey.Paths
+        -Name $containerName -Throughput $newRUs
 }
