@@ -9,7 +9,6 @@ $accountName = "myaccount" # Must be all lower case
 $databaseName = "myDatabase"
 $collectionName = "myCollection"
 $newRUs = 500
-$shardKey = "user_id"
 # --------------------------------------------------
 
 $throughput = Get-AzCosmosDBMongoDBCollectionThroughput -ResourceGroupName $resourceGroupName `
@@ -32,8 +31,7 @@ if ([int]$newRUs -eq [int]$currentRUs) {
 else {
     Write-Host "Updating throughput to $newRUs."
 
-    Set-AzCosmosDBMongoDBCollection -ResourceGroupName $resourceGroupName `
+    Update-AzCosmosDBMongoDBCollectionThroughput -ResourceGroupName $resourceGroupName `
         -AccountName $accountName -DatabaseName $databaseName `
-        -Name $collectionName -Throughput $newRUs `
-        -Shard $shardKey
+        -Name $collectionName -Throughput $newRUs
 }
