@@ -9,15 +9,14 @@
 # occurring. Check the account or Resource Group's activity log for status.
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$resourceGroupName = "cosmos" # Resource Group must already exist
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
 
 # Regions ordered by failover priority, with each indicating whether AZ-enabled
 # Region AZ status can be checked at https://azure.microsoft.com/global-infrastructure/regions/
 $locations = @(
-    @{name = "West US"; azEnabled = $false};
     @{name = "East US"; azEnabled = $true};
-    @{name = "South Central US"; azEnabled = $false};
+    @{name = "West US"; azEnabled = $false};
 )
 # --------------------------------------------------
 
