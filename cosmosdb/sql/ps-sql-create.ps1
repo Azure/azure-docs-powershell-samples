@@ -40,7 +40,7 @@ $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
 	-EnableAutomaticFailover:$true
 
 Write-Host "Creating database $databaseName"
-$database = Set-AzCosmosDBSqlDatabase -InputObject $account -Name $databaseName
+$database = New-AzCosmosDBSqlDatabase -ParentObject $account -Name $databaseName
 
 $uniqueKey = New-AzCosmosDBSqlUniqueKey -Path $uniqueKeyPath
 $uniqueKeyPolicy = New-AzCosmosDBSqlUniqueKeyPolicy -UniqueKey $uniqueKey
@@ -74,8 +74,8 @@ $conflictResolutionPolicy = New-AzCosmosDBSqlConflictResolutionPolicy `
 	-Type LastWriterWins -Path $conflictResolutionPath
 
 Write-Host "Creating container $containerName"
-Set-AzCosmosDBSqlContainer `
-	-InputObject $database -Name $containerName `
+$container = New-AzCosmosDBSqlContainer `
+	-ParentObject $database -Name $containerName `
 	-Throughput $containerRUs -IndexingPolicy $indexingPolicy `
 	-PartitionKeyKind Hash -PartitionKeyPath $partitionKeyPath `
 	-UniqueKeyPolicy $uniqueKeyPolicy `

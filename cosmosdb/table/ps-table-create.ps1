@@ -24,5 +24,5 @@ $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
     -EnableAutomaticFailover:$true
 
 Write-Host "Creating Table $tableName"
-Set-AzCosmosDBTable -InputObject $account `
+New-AzCosmosDBTable -ParentObject $account `
     -Name $tableName -Throughput $tableRUs

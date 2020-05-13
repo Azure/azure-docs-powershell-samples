@@ -30,7 +30,7 @@ $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
     -EnableAutomaticFailover:$true
 
 Write-Host "Creating database $databaseName"
-$database = Set-AzCosmosDBMongoDBDatabase -InputObject $account `
+$database = New-AzCosmosDBMongoDBDatabase -ParentObject $account `
     -Name $databaseName
 
 $index1 = New-AzCosmosDBMongoDBIndex -Key $partitionKeys -Unique $true
@@ -38,6 +38,6 @@ $index2 = New-AzCosmosDBMongoDBIndex -Key $ttlKeys -TtlInSeconds $ttlInSeconds
 $indexes = @($index1, $index2)
 
 Write-Host "Creating collection $collectionName"
-$collection = Set-AzCosmosDBMongoDBCollection -InputObject $database `
+$collection = New-AzCosmosDBMongoDBCollection -ParentObject $database `
     -Name $collectionName -Throughput $collectionRUs `
     -Shard $shardKey -Index $indexes

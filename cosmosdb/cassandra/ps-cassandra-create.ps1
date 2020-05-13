@@ -44,7 +44,7 @@ $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
     -EnableAutomaticFailover:$true
 
 Write-Host "Creating keyspace $keyspaceName"
-$keyspace = Set-AzCosmosDBCassandraKeyspace -InputObject $account `
+$keyspace = New-AzCosmosDBCassandraKeyspace -ParentObject $account `
     -Name $keyspaceName
 
 # Table Schema
@@ -64,5 +64,5 @@ $schema = New-AzCosmosDBCassandraSchema `
     -Column $psColumns
 
 Write-Host "Creating table $tableName"
-$table = Set-AzCosmosDBCassandraTable -InputObject $keyspace `
+$table = New-AzCosmosDBCassandraTable -ParentObject $keyspace `
     -Name $tableName -Schema $schema -Throughput $tableRUs 
