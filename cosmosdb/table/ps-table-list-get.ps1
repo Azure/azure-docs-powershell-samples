@@ -22,5 +22,4 @@ Get-AzCosmosDBTable -ResourceGroupName $resourceGroupName `
 
 Write-Host "Get a table in an account including throughput"
 Get-AzCosmosDBTable -ResourceGroupName $resourceGroupName `
-    -AccountName $accountName -Name $tableName `
-    -Detailed
+    -AccountName $accountName -Name $tableName

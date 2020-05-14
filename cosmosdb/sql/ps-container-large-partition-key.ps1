@@ -26,10 +26,10 @@ $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
 	-EnableAutomaticFailover:$true
 
 Write-Host "Creating database $databaseName"
-$database = Set-AzCosmosDBSqlDatabase -InputObject $account -Name $databaseName
+$database = New-AzCosmosDBSqlDatabase -ParentObject $account -Name $databaseName
 
 Write-Host "Creating container $containerName"
-$container = Set-AzCosmosDBSqlContainer `
-	-InputObject $database -Name $containerName `
+$container = New-AzCosmosDBSqlContainer `
+	-ParentObject $database -Name $containerName `
 	-Throughput $containerRUs -PartitionKeyVersion 2 `
 	-PartitionKeyKind Hash -PartitionKeyPath $partitionKeyPath

@@ -30,7 +30,7 @@ $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
     -EnableAutomaticFailover:$true
 
 Write-Host "Creating database $databaseName"
-$database = Set-AzCosmosDBGremlinDatabase -InputObject $account `
+$database = New-AzCosmosDBGremlinDatabase -ParentObject $account `
     -Name $databaseName
 
 # Prepare conflict resolution policy object for graph
@@ -38,7 +38,7 @@ $conflictResolutionPolicy = New-AzCosmosDBGremlinConflictResolutionPolicy `
     -Type LastWriterWins -Path $conflictResolutionPath
 
 Write-Host "Creating graph $graphName"
-$graph = Set-AzCosmosDBGremlinGraph -InputObject $database `
+$graph = New-AzCosmosDBGremlinGraph -ParentObject $database `
     -Name $graphName -Throughput $graphRUs `
     -PartitionKeyKind Hash -PartitionKeyPath $partitionKeys `
     -ConflictResolutionPolicy $conflictResolutionPolicy
