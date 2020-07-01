@@ -11,7 +11,6 @@ $serverName = "server-$(Get-Random)"
 # The sample database name
 $databaseName = "mySampleDatabase"
 # The restored database names
-$restoreDatabaseName = "MySampleDatabase_GeoRestore"
 $pointInTimeRestoreDatabaseName = "MySampleDatabase_10MinutesAgo"
 # The ip address range that you want to allow to access your server
 $startIp = "0.0.0.0"
@@ -53,6 +52,10 @@ Restore-AzSqlDatabase `
       -ResourceId $database.ResourceID `
       -Edition "Standard" `
       -ServiceObjectiveName "S0"
+
+# Note: For performing geo-restore for a managed instance database, use -FromGeoBackup parameter with restore. 
+# Sample script: Restore-AzSqlDatabase -FromGeoBackup -ResourceGroupName "TargetResourceGroup" -ServerName "TargetServer" -TargetDatabaseName "RestoredDatabase" -ResourceId $GeoBackup.ResourceID -Edition "Standard" -RequestedServiceObjectiveName "S2"
+
 
 # Clean up deployment 
 # Remove-AzResourceGroup -ResourceGroupName $resourcegroupname
