@@ -10,7 +10,8 @@ $isMaintenance = Get-AzMaintenanceUpdate `
     -ResourceType hosts `
     -ResourceParentName windowScheduler `
     -ResourceParentType hostGroups `
-    -ProviderName Microsoft.Compute | Format-Table
+    -ProviderName Microsoft.Compute
+
 
 # if available, apply the update. Else, write that there are "no availabe updates" to the log
 if ($isMaintenance -ne $null)
