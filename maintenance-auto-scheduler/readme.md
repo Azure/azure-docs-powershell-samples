@@ -24,4 +24,4 @@ We will be implementing this using a Timer Triggered Azure Function. Remember th
 
 5. If updates are available, apply them using [New-AzApplyUpdate](https://docs.microsoft.com/en-us/azure/virtual-machines/maintenance-control-powershell#apply-updates).
 
-6. **Save** and **Run** your function. It will now automatically apply available updates to your resource each time the timer is triggered. ![Run Function](images/run_function.png)
+1. **Save** and **Run** your function. It will now automatically apply available updates to your resource each time the timer is triggered. ![Run Function](images/run_function.png)
