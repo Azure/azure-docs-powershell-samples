@@ -25,5 +25,6 @@ New-AzApplyUpdate `
     -ProviderName Microsoft.Compute
 }
 else {
-Write-Host "No Updates Available"
+   Write-Output 'No Updates Available'
+
 }
