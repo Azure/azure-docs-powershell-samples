@@ -2,7 +2,8 @@
 
 ## Automating Maintenance Control Events
 
-Azure recently launched the [Maintenance Control](https://docs.microsoft.com/en-us/azure/virtual-machines/maintenance-control) feature which alows customers to imperatively apply platform maintenance to Azure Dedicated Hosts and isolated VMs. You may require a way to automatically check for updates and apply them according to a defined schedule. You can do this serverlessly using Azure Functions and PowerShell.
+Azure recently launched the [Maintenance Control](https://docs.microsoft.com/azure/virtual-machines/maintenance-control) feature which allows customers to imperatively apply platform maintenance to Azure Dedicated Hosts and isolated VMs. You may require a way to automatically check for updates and apply them according to a defined schedule. You can do this serverlessly using Azure Functions and PowerShell.
+
 
 ## Setting up The Function 
 
