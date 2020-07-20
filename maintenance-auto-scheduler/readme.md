@@ -30,6 +30,6 @@ We will be implementing this using a Timer Triggered Azure Function. Remember th
 1. Now navigate to the **run.ps1 file.** This is where your function will live. Use [Get-AzMaintenanceUpdate](https://docs.microsoft.com/azure/virtual-machines/maintenance-control-powershell#check-for-pending-updates) check if your Isolated VM or Dedicated Host has any scheduled updates.
 
 
-5. If updates are available, apply them using [New-AzApplyUpdate](https://docs.microsoft.com/en-us/azure/virtual-machines/maintenance-control-powershell#apply-updates).
+1. If updates are available, apply them using [New-AzApplyUpdate](https://docs.microsoft.com/en-us/azure/virtual-machines/maintenance-control-powershell#apply-updates).
 
 1. **Save** and **Run** your function. It will now automatically apply available updates to your resource each time the timer is triggered. ![Run Function](images/run_function.png)
