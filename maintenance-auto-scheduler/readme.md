@@ -13,11 +13,14 @@ We will be implementing this using a Timer Triggered Azure Function. Remember th
 2. Navigate to your new functions app and create a [Timer Triggered](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-scheduled-function#create-a-timer-triggered-function) function. Use the [cron scheduler](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=csharp#ncrontab-expressions) to pick a preferred time for your function to run. You can also [update your schedule](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-scheduled-function#update-the-timer-schedule) on the Azure Portal as required.
 
 3. After you have created your function, you will need a method to login your app and access other resources on the portal. The recommended method is to make your App a [System Assigned](https://docs.microsoft.com/en-us/azure/app-service/overview-managed-identity?tabs=dotnet) Managed Identity and assigning it a role with appropriate permissions. To assign a role:
-* Click **Azure Role Assignments** within the **System Assigned** tab ![Add Identity](images/add_identity.png)
+   * Click **Azure Role Assignments** within the **System Assigned** tab:
+     ![Add Identity](images/add_identity.png)
 
-* Then **Add Role Assignment**
+   * Then **Add Role Assignment**.
 
-* Select **Subscription** as scope and set role to contributor. ![Assign Role](images/assign_role.png)
+   * Select **Subscription** as scope and set role to contributor:
+     ![Assign Role](images/assign_role.png)
+
 
 1. Now navigate to the **run.ps1 file.** This is where your function will live. Use [Get-AzMaintenanceUpdate](https://docs.microsoft.com/azure/virtual-machines/maintenance-control-powershell#check-for-pending-updates) check if your Isolated VM or Dedicated Host has any scheduled updates.
 
