@@ -7,7 +7,8 @@ Azure recently launched the [Maintenance Control](https://docs.microsoft.com/azu
 
 ## Setting up The Function 
 
-We will be implementing this using a Timer Triggered Azure Function. Remember that the Maintenance Control feature is only available to Dedicated Hosts and Isolated VMs. This function is only executable after you have [assigned a configuration](https://docs.microsoft.com/en-us/azure/virtual-machines/maintenance-control-powershell#assign-the-configuration) to your resource. Follow these steps to create your automatic maintenance control Function:
+We will be implementing this using a Timer Triggered Azure Function. Remember that the Maintenance Control feature is only available to Dedicated Hosts and Isolated VMs. This function is only executable after you have [assigned a configuration](https://docs.microsoft.com/azure/virtual-machines/maintenance-control-powershell#assign-the-configuration) to your resource. Follow these steps to create your automatic maintenance control Function:
+
 
 1. Create a new [Functions App](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-scheduled-function) on the Azure portal. (_Note: This example is uses a **PowerShell core** runtime stack and the Azure Shell only supports it on Windows. If you would like to run the function on a Linux Operating System pick a different runtime stack_).
 
