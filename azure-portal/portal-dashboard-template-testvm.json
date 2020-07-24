@@ -252,6 +252,6 @@
     "type": "Microsoft.Portal/dashboards",
     "location": "<location>",
     "tags": {
-        "hidden-title": "<dashboardTitle>"
+        "hidden-title": "<dashboardTitleTag>"
     }
 }
