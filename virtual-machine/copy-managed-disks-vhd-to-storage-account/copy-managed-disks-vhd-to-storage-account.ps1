@@ -42,8 +42,6 @@ $destinationContext = New-AzStorageContext -StorageAccountName $storageAccountNa
 if($useAzCopy -eq 1)
 {
     $containerSASURI = New-AzStorageContainerSASToken -Context $destinationContext -ExpiryTime(get-date).AddSeconds($sasExpiryDuration) -FullUri -Name $storageContainerName -Permission rw
-    $containername,$sastokenkey = $containerSASURI -split "\?"
-    $containerSASURI = "$containername/$destinationVHDFileName`?$sastokenkey"
     azcopy copy $sas.AccessSAS $containerSASURI
 
 }else{
