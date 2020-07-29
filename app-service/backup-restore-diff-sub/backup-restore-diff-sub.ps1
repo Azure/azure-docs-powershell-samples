@@ -15,7 +15,7 @@ Get-AzWebAppBackupList -ResourceGroupName $resourceGroupNameSub1 -Name $webAppNa
 # Note the BackupID property of the backup you want to restore
 
 # Get the backup object that you want to restore by specifying the BackupID
-$backup = (Get-AzWebAppBackupList -ResourceGroupName $resourceGroupNameSub1 -Name $webAppNameSub1 | where {$_.BackupId -eq <replace-with-BackupID>}) 
+$backup = (Get-AzWebAppBackupList -ResourceGroupName $resourceGroupNameSub1 -Name $webAppNameSub1 | where {$_.BackupId -eq '<replace-with-BackupID>'}) 
 
 # Log into the subscription that you want to restore the app to
 Add-AzAccount
