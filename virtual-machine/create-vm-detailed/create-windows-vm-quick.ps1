@@ -14,10 +14,11 @@ New-AzVM `
   -ResourceGroupName $resourceGroup `
   -Name $vmName `
   -Location $location `
-  -ImageName "Win2016Datacenter" `
+  -Image "Win2016Datacenter" `
   -VirtualNetworkName "myVnet" `
   -SubnetName "mySubnet" `
   -SecurityGroupName "myNetworkSecurityGroup" `
   -PublicIpAddressName "myPublicIp" `
   -Credential $cred `
   -OpenPorts 3389
+  

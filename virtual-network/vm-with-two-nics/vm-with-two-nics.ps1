@@ -77,4 +77,3 @@ $vmconfig = Add-AzVMNetworkInterface -VM $vmConfig -id $nicVMbe.Id
 
 # Create a virtual machine
 $vm = New-AzVM -ResourceGroupName $rgName -Location $location -VM $vmConfig
-
