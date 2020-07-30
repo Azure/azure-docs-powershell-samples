@@ -115,25 +115,6 @@ Function Post-LogAnalyticsData($customerId, $sharedKey, $body, $logType)
     return $response.StatusCode
 }
 
-#
-# Create the function to create the authorization signature
-#
-Function Build-Signature ($customerId, $sharedKey, $date, $contentLength, $method, $contentType, $resource)
-{
-    $xHeaders = "x-ms-date:" + $date
-    $stringToHash = $method + "`n" + $contentLength + "`n" + $contentType + "`n" + $xHeaders + "`n" + $resource
-
-    $bytesToHash = [Text.Encoding]::UTF8.GetBytes($stringToHash)
-    $keyBytes = [Convert]::FromBase64String($sharedKey)
-
-    $sha256 = New-Object System.Security.Cryptography.HMACSHA256
-    $sha256.Key = $keyBytes
-    $calculatedHash = $sha256.ComputeHash($bytesToHash)
-    $encodedHash = [Convert]::ToBase64String($calculatedHash)
-    $authorization = 'SharedKey {0}:{1}' -f $customerId,$encodedHash
-    return $authorization
-}
-
 # Submit the data to the API endpoint
 #Post-LogAnalyticsData -customerId $customerId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($json)) -logType $logType
 
@@ -246,70 +227,69 @@ Function ConvertLogLineToJson([String] $logLine)
 }
 
 $storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroup -Name $StorageAccountName -ErrorAction SilentlyContinue
-if($storageAccount -eq $null)
+if($null -eq $storageAccount)
 {
     throw "The storage account specified does not exist in this subscription."
 }
 
 $storageContext = $storageAccount.Context
 $containers = New-Object System.Collections.ArrayList
-$container = Get-AzStorageContainer -Context $storageContext -Name "`$logs" -ErrorAction SilentlyContinue |
+$container = Get-AzStorageContainer -Context $storageContext -Name "$ContainerName" -ErrorAction SilentlyContinue |
         ForEach-Object { $containers.Add($_) } | Out-Null
 
 Write-Output("> Container count: {0}" -f $containers.Count)
 
-$blobCount = 0
-$Token = $Null
-$MaxReturn = 5000
-$SuccessPost = 0
-$FailedPost = 0
+$token = $Null
+$maxReturn = 5000
+$successPost = 0
+$failedPost = 0
 
 # Enumerate containers
 $containers | ForEach-Object {
-    $Container = $_.CloudBlobContainer
-    Write-Output("> Reading container {0}" -f $Container.Name)
+    $container = $_.CloudBlobContainer
+    Write-Output("> Reading container {0}" -f $container.Name)
 
     do {
-        $Blobs = Get-AzStorageBlob -Context $storageContext -Container $Container.Name -MaxCount $MaxReturn -ContinuationToken $Token
-        if($Blobs -eq $Null) {
+        $blobs = Get-AzStorageBlob -Context $storageContext -Container $container.Name -MaxCount $maxReturn -ContinuationToken $token
+        if($Null -eq $blobs) {
             break
         }
 
         #Set-StrictMode will cause Get-AzStorageBlob returns result in different data types when there is only one blob
-        if($Blobs.GetType().Name -eq "AzureStorageBlob") {
-            $Token = $Null
+        if($blobs.GetType().Name -eq "AzureStorageBlob") {
+            $token = $Null
         } else {
-            $Token = $Blobs[$Blobs.Count - 1].ContinuationToken;
+            $token = $blobs[$blobs.Count - 1].ContinuationToken;
         }
 
         # Enumerate log blobs
-        foreach($blob in $Blobs)
+        foreach($blob in $blobs)
         {
             Write-Output("> Downloading blob: {0}" -f $blob.Name)
             $filename = ".\log.txt"
-            Get-AzStorageBlobContent -Context $storageContext -Container $Container.Name -Blob $blob.Name -Destination $filename -Force > Null
+            Get-AzStorageBlobContent -Context $storageContext -Container $container.Name -Blob $blob.Name -Destination $filename -Force > Null
             
             Write-Output("> Posting logs to log analytic worspace: {0}" -f $blob.Name)
-            $Lines = Get-Content $filename
+            $lines = Get-Content $filename
 
             # Enumerate log lines in each log blob
-            foreach($line in $Lines)
+            foreach($line in $lines)
             {
                 $json = ConvertLogLineToJson($line)
                 
                 #Write-Output $json
-                $Response = Post-LogAnalyticsData -customerId $customerId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($json)) -logType $logType
+                $response = Post-LogAnalyticsData -customerId $customerId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($json)) -logType $logType
 
-                if($Response -eq "200") {
-                    $SuccessPost++
+                if($response -eq "200") {
+                    $successPost++
                 } else { 
-                    $FailedPost++
+                    $failedPost++
                     Write-Output "> Failed to post one log to Log Analytics workspace"
                 }
             }
         }
     }
-    While ($Token -ne $Null)
+    While ($token -ne $Null)
 
-    Write-Output "> Log lines posted to Log Analytics workspace: success = $SuccessPost, failure = $FailedPost"
+    Write-Output "> Log lines posted to Log Analytics workspace: success = $successPost, failure = $failedPost"
 }
