@@ -2,7 +2,7 @@
 # --------------------------------------------------
 # Purpose
 # Create Cosmos MongoDB API account with automatic failover,
-# a database, and a collection with dedicated throughput.
+# a database, and a collection with autoscale throughput.
 # --------------------------------------------------
 Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
 # --------------------------------------------------
@@ -15,10 +15,9 @@ $resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "cosmos-$uniqueId" # Must be all lower case
 $serverVersion = "3.6" #3.2 or 3.6
 $consistencyLevel = "Session"
-$tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
 $databaseName = "myDatabase"
 $collectionName = "myCollection"
-$collectionRUs = 400
+$autoscaleMaxThroughput = 4000 #minimum = 4000
 $shardKey = "user_id"
 $partitionKeys = @("user_id", "user_address")
 $ttlKeys = @("_ts")
@@ -26,7 +25,7 @@ $ttlInSeconds = 604800
 # --------------------------------------------------
 Write-Host "Creating account $accountName"
 $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
-    -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
+    -Location $locations -Name $accountName -ApiKind $apiKind `
     -DefaultConsistencyLevel $consistencyLevel `
     -EnableAutomaticFailover:$true -MongoDBServerVersion $serverVersion
 
@@ -40,5 +39,5 @@ $indexes = @($index1, $index2)
 
 Write-Host "Creating collection $collectionName"
 $collection = New-AzCosmosDBMongoDBCollection -ParentObject $database `
-    -Name $collectionName -Throughput $collectionRUs `
+    -Name $collectionName -AutoscaleMaxThroughput $autoscaleMaxThroughput `
     -Shard $shardKey -Index $indexes
