@@ -294,7 +294,6 @@ Write-host "Primary network route table configured successfully."
 
 
 # Create primary managed instance
-
 Write-host "Creating primary managed instance..."
 Write-host "This will take some time, see https://docs.microsoft.com/azure/sql-database/sql-database-managed-instance#managed-instance-management-operations for more information."
 New-AzSqlInstance -Name $primaryInstance `
@@ -507,7 +506,6 @@ Get-AzRouteTable `
 Write-host "Secondary network security group configured successfully."
 
 # Create secondary managed instance
-
 $primaryManagedInstanceId = Get-AzSqlInstance -Name $primaryInstance -ResourceGroupName $resourceGroupName | Select-Object Id
 
 
@@ -578,7 +576,7 @@ $secondaryGatewaySubnet = Get-AzVirtualNetworkSubnetConfig `
                   -VirtualNetwork $secondaryVirtualNetwork
 $drLocation = $secondaryVirtualNetwork.Location
 
-Write-host "Creating primary gateway..."
+Write-host "Creating secondary gateway..."
 Write-host "This will take some time."
 $secondaryGWPublicIP = New-AzPublicIpAddress -Name $secondaryGWPublicIPAddress -ResourceGroupName $resourceGroupName `
          -Location $drLocation -AllocationMethod Dynamic
