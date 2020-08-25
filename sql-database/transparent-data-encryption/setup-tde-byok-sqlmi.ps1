@@ -38,7 +38,7 @@ Update-AzKeyVaultNetworkRuleSet -VaultName $vaultname -DefaultAction Deny
 # 2. Provide TDE Protector key (skip if already done)
 
 # First, give yourself necessary permissions on the AKV, (specify your account instead of contoso.com):
-Set-AzKeyVaultAccessPolicy -VaultName $vaultname -UserPrincipalName "myaccount@contoso.com " -PermissionsToKeys create,import,get,list
+Set-AzKeyVaultAccessPolicy -VaultName $vaultname -UserPrincipalName "myaccount@contoso.com" -PermissionsToKeys create,import,get,list
 
 # The recommended way is to import an existing key from a .pfx file. Replace "<PFX private key password>" with the actual password below:
 $keypath = "c:\some_path\mytdekey.pfx" # Supply your .pfx path and name
