@@ -7,8 +7,8 @@ Connect-AzAccount
 # If there are multiple subscriptions, choose the one where AKV is created: 
 Set-AzContext -SubscriptionId "subscription ID"
 
-# Install the preview version of Az.Sql PowerShell package 1.1.1-preview if you are running this PowerShell locally (uncomment below):
-# Install-Module -Name Az.Sql -RequiredVersion 1.1.1-preview -AllowPrerelease -Force
+# Install the Az.Sql PowerShell package if you are running this PowerShell locally (uncomment below):
+# Install-Module -Name Az.Sql
 
 # 1. Create Resource and setup Azure Key Vault (skip if already done)
 
@@ -19,7 +19,7 @@ New-AzResourceGroup -Name $resourcegroup -Location $location
 
 # Create new Azure Key Vault with a globally unique VaultName and soft-delete option turned on:
 $vaultname = "MyKeyVault" # specify a globally unique VaultName
-New-AzKeyVault -VaultName $vaultname -ResourceGroupName $resourcegroup -Location $location -EnableSoftDelete
+New-AzKeyVault -VaultName $vaultname -ResourceGroupName $resourcegroup -Location $location
 
 # Authorize Managed Instance to use the AKV (wrap/unwrap key and get public part of key, if public part exists): 
 $objectid = (Set-AzSqlInstance -ResourceGroupName $resourcegroup -Name "MyManagedInstance" -AssignIdentity).Identity.PrincipalId
@@ -28,11 +28,17 @@ Set-AzKeyVaultAccessPolicy -BypassObjectIdValidation -VaultName $vaultname -Obje
 # Allow access from trusted Azure services: 
 Update-AzKeyVaultNetworkRuleSet -VaultName $vaultname -Bypass AzureServices
 
+# Allow access from your client IP address(es) to be able to complete remaining steps: 
+Update-AzKeyVaultNetworkRuleSet -VaultName $vaultname -IpAddressRange "xxx.xxx.xxx.xxx/xx"
+
 # Turn the network rules ON by setting the default action to Deny: 
 Update-AzKeyVaultNetworkRuleSet -VaultName $vaultname -DefaultAction Deny
 
 
 # 2. Provide TDE Protector key (skip if already done)
+
+# First, give yourself necessary permissions on the AKV, (specify your account instead of contoso.com):
+Set-AzKeyVaultAccessPolicy -VaultName $vaultname -UserPrincipalName "myaccount@contoso.com" -PermissionsToKeys create,import,get,list
 
 # The recommended way is to import an existing key from a .pfx file. Replace "<PFX private key password>" with the actual password below:
 $keypath = "c:\some_path\mytdekey.pfx" # Supply your .pfx path and name
