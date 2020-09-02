@@ -269,7 +269,7 @@ $containers | ForEach-Object {
             $filename = ".\log.txt"
             Get-AzStorageBlobContent -Context $storageContext -Container $container.Name -Blob $blob.Name -Destination $filename -Force > Null
             
-            Write-Output("> Posting logs to log analytic worspace: {0}" -f $blob.Name)
+            Write-Output("> Posting logs to log analytic workspace: {0}" -f $blob.Name)
             $lines = Get-Content $filename
 
             # Enumerate log lines in each log blob
