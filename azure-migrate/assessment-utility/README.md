@@ -21,7 +21,7 @@ To use this utility the following are required:
     - If you are using the Azure Migrate appliance as a discovery source, the appliance should be deployed and successfully collecting data.
     - If you are using the CSV Import as a discovery source, the import should already be successfully done.
 3. **PowerShell Version:** It's strongly recommended you install the [latest version of PowerShell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell) available for your operating system.
-4. **Azure PowerShell Module:** The script relies on basic [Azure PowerShell](https://docs.microsoft.com/powershell/azure/install-az-ps?view=azps-4.3.0) functionality to connect to your subscription. It checks for the presence of an up-to-date install of the standard Azure PowerShell module to do this.
+4. **Azure PowerShell Module:** The script relies on basic [Azure PowerShell](https://docs.microsoft.com/powershell/azure/install-az-ps) functionality to connect to your subscription. It checks for the presence of an up-to-date install of the standard Azure PowerShell module to do this.
 > Azure [Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview) is a convenient alternative to installing and maintaining the required software on a local machine.
 5. **Power BI Desktop:** To use the Power BI template to visualize and compare assessments, you need to download [Power BI Desktop](https://powerbi.microsoft.com/desktop/). To publish the dashboard online, you need an active Power BI subscription and a workspace(destination) to publish. 
 
