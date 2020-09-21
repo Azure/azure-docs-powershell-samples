@@ -19,7 +19,7 @@ Before you get started, you need to do the following:
 - Ensure that VMware Tools (later than 10.2) is installed on each VM you want to analyze.
 - Ensure you have downloaded the AzMig_Dependencies powershell module in this folder.
 
-### Log in to Azure
+## Log in to Azure
 
 1. Log into your Azure subscription using the Connect-AzAccount cmdlet.
 
@@ -45,7 +45,7 @@ select-azsubscription -subscription "Fabrikam Demo Subscription"
 Import-Module .\AzMig_Dependencies.psm1
 ```
 
-### Enable or disable dependency data collection
+## Enable or disable dependency data collection
 
 1. Get the list of discovered VMware VMs in your Azure Migrate project using the following commands. In the example below, the project name is FabrikamDemoProject, and the resource group it belongs to is FabrikamDemoRG. The list of machines will be saved in FabrikamDemo_VMs.csv
 
@@ -69,7 +69,7 @@ In the following example, dependency analysis is being disabled on the list of V
 Set-AzMigDependencyMappingAgentless -InputCsvFile .\FabrikamDemo_VMs_Disable.csv -Disable
 ```
 
-### Visualize network connections in PowerBI
+## Visualize network connections in PowerBI
 
 1. Run the following command. This command downloads the dependencies data in a CSV and processes it to generate a list of unique dependencies that can be used for visualization in PowerBI. In the example below the project name is FabrikamDemoProject, and the resource group it belongs to is FabrikamDemoRG. The dependencies will be downloaded for machines discovered by FabrikamAppliance. The unique dependencies will be saved in FabrikamDemo_Dependencies.csv
 
