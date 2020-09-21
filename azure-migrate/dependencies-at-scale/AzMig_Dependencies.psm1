@@ -171,10 +171,13 @@ function Get-AzMigDiscoveredVMwareVMs {
     foreach ($item in $vmwareappliancemap) {
         $SiteId = $item.SiteId;
         Write-Debug "Get machines for Site $SiteId"
-        $requesturi = $Properties['baseurl'] + $SiteId + "/machines" + $SDS_APIVERSION # + "&pageSize=2000"
+        $requesturi = $Properties['baseurl'] + $SiteId + "/machines" + $SDS_APIVERSION + "&`$top=400"
+		
+		Write-Host $requesturi
+		
 		$temp = $SiteId -match "\/([^\/]*)\w{4}site$" # Extract the appliance name
 		$appliancename = $Matches[1]
-		Write-Host "Downloading machines for appliance " $appliancename "..."
+		Write-Host "Downloading machines for appliance " $appliancename ". This can take 1-2 minutes..."
         $response = $null
 		try {
 		$response = Invoke-Restmethod -Method Get -Headers $Properties['Headers'] $requesturi;
@@ -188,26 +191,28 @@ function Get-AzMigDiscoveredVMwareVMs {
         }
 		$machines = $response.value
         $DiscoveredMachines += $machines
+	
         
         while($response.nextLink) {
-            $requesturi = $response.nextLink;
+            $requesturi = $response.nextLink + "&`$top=400";
             $response = $null;
             $response = Invoke-Restmethod -Method Get -Headers $Properties['Headers'] $requesturi;
 			if (-not $response) {
 			throw "Could not retrieve machines for appliance $appliancename"
 			}
             $machines = $response.value;
-            $DiscoveredMachines += $machines;      
+            $DiscoveredMachines += $machines;  
         }
     }
+
 	
-	 Write-Host "Debug count"
-            
-    Write-Debug $DiscoveredMachines.count
+	if ($DiscoveredMachines.count -gt 0) {
     
     $DiscoveredMachines | Select-Object -Property @{ expression={$_.properties.displayName}; label='VM display name'}, @{ expression={$_.properties.dependencymapping}; label='Current status'}, @{ expression={$_.id}; label='ARM ID'} | Export-Csv -NoTypeInformation -Path $OutputCsvFile 
 	
-	Write-host "List of machines saved to " $OutputCsvFile
+	Write-host "List of " $DiscoveredMachines.count " machines saved to " $OutputCsvFile
+	
+	}
     
 }   
 Export-ModuleMember -Function Get-AzMigDiscoveredVMwareVMs
