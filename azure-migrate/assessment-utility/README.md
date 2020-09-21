@@ -6,9 +6,9 @@
 
 ## Overview
 
-[Azure Migrate: Server Assessment](https://docs.microsoft.com/en-us/azure/migrate/migrate-services-overview#azure-migrate-server-assessment-tool) is a Microsoft solution used to discover and assesses on-premises VMware VMs, Hyper-V VMs, and physical servers for migration to Azure.
+[Azure Migrate: Server Assessment](https://docs.microsoft.com/azure/migrate/migrate-services-overview#azure-migrate-server-assessment-tool) is a Microsoft solution used to discover and assesses on-premises VMware VMs, Hyper-V VMs, and physical servers for migration to Azure.
 
-Currently, users use the Azure Portal to [create a group of machines](https://docs.microsoft.com/en-us/azure/migrate/how-to-create-a-group#create-a-group-manually), and [create assessments on the group](https://docs.microsoft.com/en-us/azure/migrate/how-to-create-assessment). To compare cost estimates in Azure using combinations of sizing criteria, Reserved Instances and Hybrid benefits, users need to create and compare across multiple assessments. This utility helps automate these activities.
+Currently, users use the Azure Portal to [create a group of machines](https://docs.microsoft.com/azure/migrate/how-to-create-a-group#create-a-group-manually), and [create assessments on the group](https://docs.microsoft.com/azure/migrate/how-to-create-assessment). To compare cost estimates in Azure using combinations of sizing criteria, Reserved Instances and Hybrid benefits, users need to create and compare across multiple assessments. This utility helps automate these activities.
 
 ## How to Use
 
@@ -19,10 +19,10 @@ To use this utility the following are required:
 1. **Azure Migrate Project:** An Azure Migrate project must already have been created.
     - If you are using the Azure Migrate appliance as a discovery source, the appliance should be deployed and successfully collecting data.
     - If you are using the CSV Import as a discovery source, the import should already be successfully done. 
-2. **Azure User Account:** The powershell script uses the Azure Migrate REST APIs. To authorize the API calls, you need to make sure that you are connected to Azure with a user account that can access your Azure Migrate project.
-3. **PowerShell Version:** It's strongly recommended you install the [latest version of PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell) available for your operating system.
-4. **Azure PowerShell Module:** The script relies on basic [Azure PowerShell](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-4.3.0) functionality to connect to your subscription. It checks for the presence of an up-to-date install of the standard Azure PowerShell module to do this.
-> Azure [Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview) is a convenient alternative to installing and maintaining the required software on a local machine.
+1. **Azure User Account:** The powershell script uses the Azure Migrate REST APIs. To authorize the API calls, you need to make sure that you are connected to Azure with a user account that can access your Azure Migrate project.
+1. **PowerShell Version:** It's strongly recommended you install the [latest version of PowerShell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell) available for your operating system.
+1. **Azure PowerShell Module:** The script relies on basic [Azure PowerShell](https://docs.microsoft.com/powershell/azure/install-az-ps) functionality to connect to your subscription. It checks for the presence of an up-to-date install of the standard Azure PowerShell module to do this.
+> Azure [Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview) is a convenient alternative to installing and maintaining the required software on a local machine.
 
 ### Download the Utility
 
@@ -112,7 +112,7 @@ Microsoft and any contributors grant you a license to the Microsoft documentatio
 
 Microsoft, Windows, Microsoft Azure and/or other Microsoft products and services referenced in the documentation may be either trademarks or registered trademarks of Microsoft in the United States and/or other countries. The licenses for this project do not grant you rights to use any Microsoft names, logos, or trademarks. Microsoft's general trademark guidelines can be found at <http://go.microsoft.com/fwlink/?LinkID=254653>.
 
-Privacy information can be found at <https://privacy.microsoft.com/en-us/>
+Privacy information can be found at <https://privacy.microsoft.com/>
 
 Microsoft and any contributors reserve all others rights, whether under their respective copyrights, patents, or trademarks, whether by implication, estoppel or otherwise.
 
