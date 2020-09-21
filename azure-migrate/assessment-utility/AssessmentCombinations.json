@@ -1,0 +1,75 @@
+{
+  "properties":[
+        {
+          "name" : "Perf 3 Year RI AHUB",
+          "sizingCriterion": "PerformanceBased",
+          "reservedInstance": "RI3Year",
+          "azureHybridUseBenefit": "Yes"
+        },
+        {
+          "name" : "Perf 1 Year RI AHUB",
+          "sizingCriterion": "PerformanceBased",
+          "reservedInstance": "RI1Year",
+          "azureHybridUseBenefit": "Yes"
+        },
+        {
+          "name" : "Perf PAYG AHUB",
+          "sizingCriterion": "PerformanceBased",
+          "reservedInstance": "None",
+          "azureHybridUseBenefit": "Yes"
+        },
+        {
+          "name" : "Perf 3 Year RI",
+          "sizingCriterion": "PerformanceBased",
+          "reservedInstance": "RI3Year",
+          "azureHybridUseBenefit": "No"
+        },
+        {
+          "name" : "Perf 1 Year RI",
+          "sizingCriterion": "PerformanceBased",
+          "reservedInstance": "RI1Year",
+          "azureHybridUseBenefit": "No"
+        },
+        {
+          "name" : "Perf PAYG",
+          "sizingCriterion": "PerformanceBased",
+          "reservedInstance": "None",
+          "azureHybridUseBenefit": "No"
+        },
+        {
+          "name" : "As is 3 Year RI AHUB",
+          "sizingCriterion": "AsOnPremises",
+          "reservedInstance": "RI3Year",
+          "azureHybridUseBenefit": "Yes"
+        },
+        {
+          "name" : "As is 1 Year RI AHUB",
+          "sizingCriterion": "AsOnPremises",
+          "reservedInstance": "RI1Year",
+          "azureHybridUseBenefit": "Yes"
+        },
+        {
+          "name" : "As is PAYG AHUB",
+          "sizingCriterion": "AsOnPremises",
+          "reservedInstance": "None",
+          "azureHybridUseBenefit": "Yes"
+        },
+        {
+          "name" : "As is 3 Year RI",
+          "sizingCriterion": "AsOnPremises",
+          "reservedInstance": "RI3Year",
+          "azureHybridUseBenefit": "No"
+        },
+        {
+          "name" : "As is 1 Year RI",
+          "sizingCriterion": "AsOnPremises",
+          "reservedInstance": "RI1Year",
+          "azureHybridUseBenefit": "No"
+        },
+        {
+          "name" : "As is PAYG",
+          "sizingCriterion": "AsOnPremises",
+          "reservedInstance": "None",
+          "azureHybridUseBenefit": "No"
+        }]
+}
