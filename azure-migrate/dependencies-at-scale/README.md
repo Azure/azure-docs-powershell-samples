@@ -74,7 +74,7 @@ Set-AzMigDependencyMappingAgentless -InputCsvFile .\FabrikamDemo_VMs_Disable.csv
 1. Run the following command. This command downloads the dependencies data in a CSV and processes it to generate a list of unique dependencies that can be used for visualization in PowerBI. In the example below the project name is FabrikamDemoProject, and the resource group it belongs to is FabrikamDemoRG. The dependencies will be downloaded for machines discovered by FabrikamAppliance. The unique dependencies will be saved in FabrikamDemo_Dependencies.csv
 
 ```PowerShell
-Get-AzMigDependenciesAgentless -ResourceGroup IgniteProject -Appliance FabrikamAppliance -ProjectName IgniteProject -OutputCsvFile "FabrikamDemo_Dependencies.csv"
+Get-AzMigDependenciesAgentless -ResourceGroup FabrikamDemoRG -Appliance FabrikamAppliance -ProjectName FabrikamDemoProject -OutputCsvFile "FabrikamDemo_Dependencies.csv"
 ```
 
 2. Download the PowerBI template. 
