@@ -10,7 +10,10 @@ $uniqueId = New-RandomString -Length 7 # Random alphanumeric string for unique r
 $apiKind = "Cassandra"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$locations = @("East US", "West US") # Regions ordered by failover priority
+$locations = @()
+$locations += New-AzCosmosDBLocationObject -LocationName "East Us" -FailoverPriority 0 -IsZoneRedundant 0
+$locations += New-AzCosmosDBLocationObject -LocationName "West Us" -FailoverPriority 1 -IsZoneRedundant 0
+
 $resourceGroupName = "mjbArmTest"#"myResourceGroup" # Resource Group must already exist
 $accountName = "cosmos-$uniqueId" # Must be all lower case
 $consistencyLevel = "Session"
@@ -33,7 +36,7 @@ $columns = @(
 # --------------------------------------------------
 Write-Host "Creating account $accountName"
 $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
-    -Location $locations -Name $accountName -ApiKind $apiKind `
+    -LocationObject $locations -Name $accountName -ApiKind $apiKind `
     -DefaultConsistencyLevel $consistencyLevel `
     -EnableAutomaticFailover:$true
 

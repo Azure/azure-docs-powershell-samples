@@ -44,7 +44,6 @@ select-azsubscription -subscription "Fabrikam Demo Subscription"
 ```PowerShell
 Import-Module .\AzMig_Dependencies.psm1
 ```
-
 ## Enable or disable dependency data collection
 
 1. Get the list of discovered VMware VMs in your Azure Migrate project using the following commands. In the example below, the project name is FabrikamDemoProject, and the resource group it belongs to is FabrikamDemoRG. The list of machines will be saved in FabrikamDemo_VMs.csv
