@@ -171,7 +171,7 @@ function Get-AzMigDiscoveredVMwareVMs {
     foreach ($item in $vmwareappliancemap) {
         $SiteId = $item.SiteId;
         Write-Debug "Get machines for Site $SiteId"
-        $requesturi = $Properties['baseurl'] + $SiteId + "/machines" + $SDS_APIVERSION + "&pageSize=2000"
+        $requesturi = $Properties['baseurl'] + $SiteId + "/machines" + $SDS_APIVERSION # + "&pageSize=2000"
 		$temp = $SiteId -match "\/([^\/]*)\w{4}site$" # Extract the appliance name
 		$appliancename = $Matches[1]
 		Write-Host "Downloading machines for appliance " $appliancename "..."
