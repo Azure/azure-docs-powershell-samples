@@ -10,7 +10,7 @@
 
 Currently, users use the Azure Portal to [create a group of machines](https://docs.microsoft.com/azure/migrate/how-to-create-a-group#create-a-group-manually), and [create assessments on the group](https://docs.microsoft.com/azure/migrate/how-to-create-assessment). To compare cost estimates in Azure using combinations of sizing criteria, Reserved Instances and Hybrid benefits, users need to create and compare across multiple assessments. This utility helps automate these activities and visualize the cost estimates across multiple assessments.
 
-The documentation on the Network Connections PowerBI template can be found [here](https://github.com/Azure/azure-docs-powershell-samples/tree/master/azure-migrate/dependencies-at-scale).
+The documentation on the Network Connections PowerBI template can be found in the [azure-migrate/dependencies-at-scale](https://github.com/Azure/azure-docs-powershell-samples/tree/master/azure-migrate/dependencies-at-scale) section of the azure-docs-powershell-samples GitHub repo.
 
 ## How to Use
 
