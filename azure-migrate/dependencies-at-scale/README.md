@@ -18,8 +18,8 @@ Before you get started, you need to do the following:
 - Set up an [Azure Migrate appliance](https://docs.microsoft.com/azure/migrate/migrate-appliance) to discover the on-premises VMware VMs. The appliance discovers on-premises machines, and sends metadata and performance data to Azure Migrate:Server Assessment.
 - Ensure that VMware Tools (later than 10.2) is installed on each VM you want to analyze.
 - Ensure you have downloaded the AzMig_Dependencies powershell module in this folder.
-- Ensure you have PowerShell available. It is recommended you use the [latest version of Powershell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell?view=powershell-7).
-- Ensure you have the [Azure PowerShell](https://docs.microsoft.com/powershell/azure/install-az-ps?view=azps-4.7.0) module installed. 
+- Ensure you have PowerShell available. It is recommended you use the [latest version of PowerShell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell).
+- Ensure you have the [Azure PowerShell](https://docs.microsoft.com/powershell/azure/install-az-ps) module installed. 
 
 ## Log in to Azure
 
