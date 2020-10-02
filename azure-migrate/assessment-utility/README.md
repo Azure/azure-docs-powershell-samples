@@ -48,16 +48,23 @@ Connect-AzAccount
 . .\AzureMigrateAssessmentCreationUtility.ps1
 ```
 
-3. You are all ready to get started. Type the following cmdlet to know the Azure Migrate assessment project name
+3. You are all ready to get started.  You might find it easier to start can declare some variables instead of typing the same information, with each step.  The first step is to find the name of your Azure Migrate assessment project name. 
 
 ```powershell
+# Declare variables
+$subscriptionId = "Your Azure Subscription ID"
+$resourceGroupName = "The name of the resource group where your Azure Migrate project resides"
+
+#Query the name of your Azure Migrate project
 Get-AzureMigrateAssessmentProject -subscriptionId $subscriptionId -resourceGroupName $resourceGroupName
 ```
+The information returned will look as below, take note of what is returned in the *name* field. 
+![PowerShell Output](images/migrateoutput.jpg)
 
 4. Once you have discovered servers in your Azure Migrate project, type the following cmdlet to create multiple assessments:
 
 ```powershell
-New-AssessmentCreation -subscriptionId "4bd2aa0f-2bd2-4d67-91a8-5a4533d58600" -resourceGroupName "rajosh-rg" -assessmentProjectName "rajoshSelfHost-Physical92c3project" -discoverySource "Appliance"
+New-AssessmentCreation -subscriptionId $ubscriptionID -resourceGroupName $resourceGroupName -assessmentProjectName "Enter the information discovered in step 3" -discoverySource "Appliance"
 
 $subscriptionId = "<your subscription ID>"
 $resourceGroupName = "<your resource group name>"
