@@ -52,8 +52,8 @@ Connect-AzAccount
 
 ```powershell
 # Declare variables
-$subscriptionId = "Your Azure Subscription ID"
-$resourceGroupName = "The name of the resource group where your Azure Migrate project resides"
+$subscriptionId = "<Your Azure Subscription ID>"
+$resourceGroupName = "<The name of the resource group where your Azure Migrate project resides>"
 
 #Query the name of your Azure Migrate project
 Get-AzureMigrateAssessmentProject -subscriptionId $subscriptionId -resourceGroupName $resourceGroupName
@@ -64,16 +64,18 @@ The information returned will look as below, take note of what is returned in th
 4. Once you have discovered servers in your Azure Migrate project, type the following cmdlet to create multiple assessments:
 
 ```powershell
-New-AssessmentCreation -subscriptionId $ubscriptionID -resourceGroupName $resourceGroupName -assessmentProjectName "Enter the information discovered in step 3" -discoverySource "Appliance"
-
-$subscriptionId = "<your subscription ID>"
-$resourceGroupName = "<your resource group name>"
+#Declare Variables
+$subscriptionId = "<Your Azure Subscription ID>"
+$resourceGroupName = "<The name of the resource group where your Azure Migrate project resides>"
 $assessmentProjectName = "<your assessment project name>"
 $discoverySource = "<the discovery source you used to discover servers in the project- Appliance or Import>"
+
+New-AssessmentCreation -subscriptionId $subscriptionID -resourceGroupName $resourceGroupName -assessmentProjectName "Enter the information discovered in step 3" -discoverySource "Appliance"
+
 ```
 > If you are unsure what the subscription ID and resource group values should be, navigate to the Azure portal, browse to your Azure migrate project and click on servers where you can see the project settings by clicking on change next to the project name. To get the Subscription Id, search for Subscriptions in the portal and click on your subscription. You can see the subscription ID and resource group name listed there.
 
-5. Other cmdlets available in the script:
+Other cmdlets available in the script:
 ```powershell
 # Create a new Group and all all machines in the project
 $group = New-Group-Add-Machines -token $token -subscriptionId $subscriptionId -resourceGroupName $resourceGroupName -assessmentProjectName $assessmentProjectName -discoverySource $discoverySource -groupName $groupName
