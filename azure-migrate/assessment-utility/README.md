@@ -43,7 +43,7 @@ Connect-AzAccount
 ```
 
 2. Navigate to the folder where you extracted the ZIP file and access the script in the assessment-utility folder:
-
+> Please note this script is dependent upon AssessmentCombinations.json and CommonAssessmentProperties.json, so please ensure they are stored in the same folder as the PowerShell script. 
 ```powershell
 . .\AzureMigrateAssessmentCreationUtility.ps1
 ```
