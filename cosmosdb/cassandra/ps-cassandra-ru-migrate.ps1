@@ -15,6 +15,7 @@ Invoke-AzCosmosDBCassandraKeyspaceThroughputMigration -ResourceGroupName $resour
     -AccountName $accountName -Name $keyspaceName -ThroughputType Autoscale
 
 Write-Host "Migrate keyspace with autoscale throughput to standard throughput."
+
 Invoke-AzCosmosDBCassandraKeyspaceThroughputMigration -ResourceGroupName $resourceGroupName `
     -AccountName $accountName -Name $keyspaceName -ThroughputType Manual
 
