@@ -173,7 +173,7 @@ function Get-AzMigDiscoveredVMwareVMs {
         Write-Debug "Get machines for Site $SiteId"
         $requesturi = $Properties['baseurl'] + $SiteId + "/machines" + $SDS_APIVERSION + "&`$top=400"
 		
-		Write-Host $requesturi
+		#Write-Host $requesturi
 		
 		$temp = $SiteId -match "\/([^\/]*)\w{4}site$" # Extract the appliance name
 		$appliancename = $Matches[1]
@@ -422,7 +422,7 @@ $jsonPayload = @"
    }
 "@
 	# Make the export dependencies call to get the SAS URI from which to download the dependencies
-	Write-Host $url
+	# Write-Host $url
     $response = Invoke-RestMethod -Uri $url -Headers $Properties['Headers'] -ContentType "application/json" -Method "POST" -Body $jsonPayload # -Debug -Verbose
     
 	if (-not $response) {
