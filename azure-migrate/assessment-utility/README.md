@@ -42,31 +42,40 @@ To use this utility the following are required:
 Connect-AzAccount
 ```
 
-2. Navigate to the folder where you extracted the ZIP file and access the script in the assessment-utility folder:
-
+2. Navigate to the folder where you extracted the ZIP file and access the module in the assessment-utility folder:
+> Please note this module is dependent upon AssessmentCombinations.json and CommonAssessmentProperties.json, so please ensure they are stored in the same folder as the PowerShell script. 
 ```powershell
-. .\AzureMigrateAssessmentCreationUtility.ps1
+Import-Module .\AzureMigrateAssessmentCreationUtility.ps1
 ```
 
-3. You are all ready to get started. Type the following cmdlet to know the Azure Migrate assessment project name
+3. You are all ready to get started.  You might find it easier to start can declare some variables instead of typing the same information, with each step.  The first step is to find the name of your Azure Migrate assessment project name. 
 
 ```powershell
+# Declare variables
+$subscriptionId = "<Your Azure Subscription ID>"
+$resourceGroupName = "<The name of the resource group where your Azure Migrate project resides>"
+
+#Query the name of your Azure Migrate project
 Get-AzureMigrateAssessmentProject -subscriptionId $subscriptionId -resourceGroupName $resourceGroupName
 ```
+The information returned will look as below, take note of what is returned in the *name* field. 
+![PowerShell Output](images/migrateoutput.jpg)
 
 4. Once you have discovered servers in your Azure Migrate project, type the following cmdlet to create multiple assessments:
 
 ```powershell
-New-AssessmentCreation -subscriptionId "4bd2aa0f-2bd2-4d67-91a8-5a4533d58600" -resourceGroupName "rajosh-rg" -assessmentProjectName "rajoshSelfHost-Physical92c3project" -discoverySource "Appliance"
-
-$subscriptionId = "<your subscription ID>"
-$resourceGroupName = "<your resource group name>"
+#Declare Variables
+$subscriptionId = "<Your Azure Subscription ID>"
+$resourceGroupName = "<The name of the resource group where your Azure Migrate project resides>"
 $assessmentProjectName = "<your assessment project name>"
 $discoverySource = "<the discovery source you used to discover servers in the project- Appliance or Import>"
+
+New-AssessmentCreation -subscriptionId $subscriptionID -resourceGroupName $resourceGroupName -assessmentProjectName "Enter the information discovered in step 3" -discoverySource "Appliance"
+
 ```
 > If you are unsure what the subscription ID and resource group values should be, navigate to the Azure portal, browse to your Azure migrate project and click on servers where you can see the project settings by clicking on change next to the project name. To get the Subscription Id, search for Subscriptions in the portal and click on your subscription. You can see the subscription ID and resource group name listed there.
 
-5. Other cmdlets available in the script:
+Other cmdlets available in the script:
 ```powershell
 # Create a new Group and all all machines in the project
 $group = New-Group-Add-Machines -token $token -subscriptionId $subscriptionId -resourceGroupName $resourceGroupName -assessmentProjectName $assessmentProjectName -discoverySource $discoverySource -groupName $groupName
