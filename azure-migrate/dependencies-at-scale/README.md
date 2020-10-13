@@ -38,7 +38,7 @@ Connect-AzAccount -EnvironmentName AzureUSGovernment
 2. Select the subscription in which you have created the Azure Migrate project 
 
 ```PowerShell
-select-azsubscription -subscription "Fabrikam Demo Subscription"
+Select-AZSubscription -subscription "Fabrikam Demo Subscription"
 ```
 
 3. Import the downloaded AzMig_Dependencies powershell module
@@ -53,6 +53,7 @@ Import-Module .\AzMig_Dependencies.psm1
 ```PowerShell
 Get-AzMigDiscoveredVMwareVMs -ResourceGroupName "FabrikamDemoRG" -ProjectName "FabrikamDemoProject" -OutputCsvFile "FabrikamDemo_VMs.csv"
 ```
+> Please note the project name in the above query is the same one that is displayed in the Azure Portal. 
 
 In the file, you can see the VM display name, current status of dependency collection and the ARM ID of all discovered VMs. 
 
@@ -85,10 +86,14 @@ Get-AzMigDependenciesAgentless -ResourceGroup FabrikamDemoRG -Appliance Fabrikam
 - Click on "Get Data" on the tool bar. 
 - Choose "Text/CSV" from Common data sources.
 - Choose the dependencies file downloaded
-- Click "Load"
-- You will see a table is imported with the name of the CSV file. You can see the table in the fields bar on the right. Rename it to AzMig_Dependencies
+- Click "Transform Data"
+- You will see a table is imported with the name of the CSV file. On the right hand side you will see the option to rename the table, rename it to AzMig_Dependencies
+- Click "Close & Apply"
 - Click on refresh from the tool bar.
 
 The Network Connections chart and the Source server name, Destination server name, Source process name, Destination process name slicers should light up with the imported data.
 
 4. Visualize the map of network connections filtering by servers and processes.
+> Below is an example output when the data is visualized within PowerBI
+
+![PowerShell Output](images/PowerBI_example_output.jpg)
