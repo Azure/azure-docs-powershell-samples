@@ -45,7 +45,7 @@ Connect-AzAccount
 2. Navigate to the folder where you extracted the ZIP file and access the module in the assessment-utility folder:
 > Please note this module is dependent upon AssessmentCombinations.json and CommonAssessmentProperties.json, so please ensure they are stored in the same folder as the PowerShell script. 
 ```powershell
-Import-Module .\AzureMigrateAssessmentCreationUtility.ps1
+Import-Module .\AzureMigrateAssessmentCreationUtility.psm1
 ```
 
 3. You are all ready to get started.  You might find it easier to start can declare some variables instead of typing the same information, with each step.  The first step is to find the name of your Azure Migrate assessment project name. 
