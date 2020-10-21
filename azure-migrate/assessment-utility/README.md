@@ -1,7 +1,7 @@
 
 # assessment-utility
 
-1. A **PowerShell script**(AzureMigrateAssessmentCreationUtility.ps1) used to automate the creation of multiple assessments for migration to Azure in Azure Migrate.
+1. A **PowerShell module**(AzureMigrateAssessmentCreationUtility.psm1) used to automate the creation of multiple assessments for migration to Azure in Azure Migrate.
 2. A **PowerBI template**(Azure Migrate Assessment Comparison PowerBI Template.pbit) to visualize and compare cost estimates of migrating to Azure VMs.
 
 ## Overview
@@ -45,7 +45,7 @@ Connect-AzAccount
 2. Navigate to the folder where you extracted the ZIP file and access the module in the assessment-utility folder:
 > Please note this module is dependent upon AssessmentCombinations.json and CommonAssessmentProperties.json, so please ensure they are stored in the same folder as the PowerShell script. 
 ```powershell
-Import-Module .\AzureMigrateAssessmentCreationUtility.ps1
+Import-Module .\AzureMigrateAssessmentCreationUtility.psm1
 ```
 
 3. You are all ready to get started.  You might find it easier to start can declare some variables instead of typing the same information, with each step.  The first step is to find the name of your Azure Migrate assessment project name. 
@@ -112,6 +112,10 @@ Before you can use the PowerBI template, please ensure that the assessment repor
 **Note**: Power BI may throw an error if you refresh after importing a subset of Excel workbooks. You may have to reopen the template and import all the workbooks again.
 3. Select "Save as" option from the File menu and save the file after .pbix format
 4. Publish the dashboard following the steps [here](https://docs.microsoft.com/power-bi/create-reports/desktop-upload-desktop-files)
+
+> Below is a sample output of the data within PowerBI
+
+![PowerShell Output](images/PowerBI_example_output.jpg)
 
 ### Modify the PowerBI template
 
