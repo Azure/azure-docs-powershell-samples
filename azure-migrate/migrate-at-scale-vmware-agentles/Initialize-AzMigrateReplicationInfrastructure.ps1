@@ -1,4 +1,3 @@
-
 # ----------------------------------------------------------------------------------
 #
 # Copyright Microsoft Corporation
@@ -20,7 +19,6 @@ Az.Resources
 Az.KeyVault
 Az.ServiceBus
 Az.Migrate
-
 Example Invocation:  .\Initialize-AzMigrateReplicationInfrastructure.ps1 -ResourceGroupName TestRG  -ProjectName TestProject -Vmwareagentless -TargetRegion centralus
 #>
 
