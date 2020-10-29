@@ -45,7 +45,7 @@ Start-Sleep -second 600
 # Note: Point-in-time restore requires database to be at least 5 minutes old
 Restore-AzSqlDatabase `
       -FromPointInTimeBackup `
-      -PointInTime (Get-Date).AddMinutes(-2) `
+      -PointInTime (Get-Date).AddMinutes(-7) `
       -ResourceGroupName $resourceGroupName `
       -ServerName $serverName `
       -TargetDatabaseName $pointInTimeRestoreDatabaseName `
