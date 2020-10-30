@@ -14,7 +14,6 @@ if ($PSScriptRoot -eq "") {
 . "$scriptsPath\AzMigrate_Shared.ps1"
 . "$scriptsPath\AzMigrate_CSV_Processor.ps1"
 
-#TODO - Most of the logError should also return. please check this in all scripts
 
 Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     
@@ -43,8 +42,8 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $ReplicatingServermachine = $AzMigrateShared.GetReplicationServer($azMigrateRG, $azMigrateProjName, $sourceMachineName)
     if((-not $ReplicatingServermachine) -or ($csvItem.OK_TO_MIGRATE -ne 'Y') -or ($csvItem.OK_TO_CLEANUP -ne 'Y')){ `
         
-        $processor.Logger.LogError("We cannot initiate stop replication as either is it not configured in csv file OR the state of this machine replication is not suitable for initiating Migration Now: '$($sourceMachineName)'")
-        $reportItem.AdditionalInformation = "We cannot initiate stop replication as either is it not configured in csv file OR the state of this machine replication is not suitable for initiating Migration Now: '$($sourceMachineName)'. Please Run AzMigrate_UpdateReplicationStatus.ps1 and look at the output csv file which may provide more details"
+        $processor.Logger.LogError("We cannot initiate stop replication as either is it not configured in csv file OR the state of this machine replication is not suitable for initiating Stop Replication Now: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "We cannot initiate stop replication as either is it not configured in csv file OR the state of this machine replication is not suitable for initiating Stop Replication Now: '$($sourceMachineName)'. Please Run AzMigrate_UpdateReplicationStatus.ps1 and look at the output csv file which may provide more details"
         $processor.Logger.LogTrace("Current Migration State of machine: '$($ReplicatingServermachine.MigrationState)'")
         $processor.Logger.LogTrace("Current Migration State Description of machine: '$($ReplicatingServermachine.MigrationStateDescription)'")
         return
@@ -54,11 +53,11 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $StopReplicationJob = Remove-AzMigrateServerReplication -InputObject $ReplicatingServermachine
     
     if (-not $StopReplicationJob){
-        $processor.Logger.LogError("Stopping the Migration couldn't be initiated for the specified machine: '$($sourceMachineName)'")        
+        $processor.Logger.LogError("Stop replication couldn't be initiated for the specified machine: '$($sourceMachineName)'")        
     }
     else {
-        $processor.Logger.LogTrace("Stopping the Migration Job is initiated for the specified machine: '$($sourceMachineName)'")
-        $reportItem.AdditionalInformation = "Stopping the Migration Job is initiated for the specified machine: '$($sourceMachineName)'"
+        $processor.Logger.LogTrace("Stop replication Job is initiated for the specified machine: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "Stop replication Job is initiated for the specified machine: '$($sourceMachineName)'"
     }    
 }
 

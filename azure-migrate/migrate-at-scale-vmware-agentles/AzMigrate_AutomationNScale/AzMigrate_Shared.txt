@@ -148,13 +148,16 @@ class AzMigrate_Shared
     {
         #region Validation-Errorlogging
         if ([string]::IsNullOrEmpty($AzMigrateResourceGroupName)) {
-            $this.Logger.LogError("Azure Migrate Resource Group Name is not specified")            
+            $this.Logger.LogError("Azure Migrate Resource Group Name is not specified")    
+            return $null
         }
         if ([string]::IsNullOrEmpty($AzMigrateProjectName)) {
             $this.Logger.LogError("Azure Migrate Project Name is not specified")
+            return $null
         }
         if ([string]::IsNullOrEmpty($machineName)) {
             $this.Logger.LogError("Azure machine name is not specified")
+            return $null
         }
         #endregion
 
@@ -180,30 +183,36 @@ class AzMigrate_Shared
         
         #region Validation-Errorlogging
         if ([string]::IsNullOrEmpty($AzMigrateResourceGroupName)) {
-            $this.Logger.LogError("Azure Migrate Resource Group Name is not specified")            
+            $this.Logger.LogError("Azure Migrate Resource Group Name is not specified")    
+            return $null        
         }
         if ([string]::IsNullOrEmpty($AzMigrateProjectName)) {
             $this.Logger.LogError("Azure Migrate Project Name is not specified")
+            return $null
         }
         if ([string]::IsNullOrEmpty($machineName)) {
             $this.Logger.LogError("Azure machine name is not specified")
+            return $null
         }
         #endregion
 
         $DiscoveredServerMachine = $null
+        $ReplicatingServer = $null
+
         # Get a specific Discovered VM in an Azure Migrate project
         $DiscoveredServerMachine = $this.GetDiscoveredServer($AzMigrateResourceGroupName, $AzMigrateProjectName, $machineName)
         
+        if(-not $DiscoveredServerMachine)
+        {
+            try {
+                # Retrieve the replicating VM details by using the discovered VM identifier
+                $ReplicatingServer = Get-AzMigrateServerReplication -DiscoveredMachineId $DiscoveredServerMachine.ID
+            }
+            catch {
+                $this.Logger.LogError("Replication Server is not available. This might be due to where replication was not started at all OR Migration and cleanup activity was done for '$($AzMigrateResourceGroupName)-$($AzMigrateProjectName)-$($machineName)'")
+            }
+        }
 
-        $ReplicatingServer = $null
-        try {
-            # Retrieve the replicating VM details by using the discovered VM identifier
-            $ReplicatingServer = Get-AzMigrateServerReplication -DiscoveredMachineId $DiscoveredServerMachine.ID
-        }
-        catch {
-            $this.Logger.LogError("Replication Server is not available. This might be due to where replication was not started at all OR Migration and cleanup activity was done for '$($AzMigrateResourceGroupName)-$($AzMigrateProjectName)-$($machineName)'")
-        }
-        
         if (-not $ReplicatingServer)
         {
             $this.Logger.LogTrace("Azure Migrate Replicating Server could not be retrieved for '$($AzMigrateResourceGroupName)-$($AzMigrateProjectName)-$($machineName)'")
@@ -218,10 +227,12 @@ class AzMigrate_Shared
         
         #region Validation-Errorlogging
         if ([string]::IsNullOrEmpty($AzMigrateResourceGroupName)) {
-            $this.Logger.LogErrorAndThrow("Azure Migrate Resource Group Name is not specified")
+            $this.Logger.LogError("Azure Migrate Resource Group Name is not specified")
+            return $null
         }
         if ([string]::IsNullOrEmpty($AzMigrateProjectName)) {
-            $this.Logger.LogErrorAndThrow("Azure Migrate Project Name is not specified")
+            $this.Logger.LogError("Azure Migrate Project Name is not specified")
+            return $null
         }
         #endregion
 

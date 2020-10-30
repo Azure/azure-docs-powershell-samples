@@ -3,7 +3,6 @@ Param(
     $CsvFilePath
 )
 
-#<todo> - think of moving this to AzMigrate_Shared
 $ErrorActionPreference = "Stop"
 
 $scriptsPath = $PSScriptRoot

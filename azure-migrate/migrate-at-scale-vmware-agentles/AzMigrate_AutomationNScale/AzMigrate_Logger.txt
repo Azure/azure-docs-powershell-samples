@@ -23,7 +23,7 @@ class MigrationLogger {
                 $fileName = [string]::Concat("log.", $this.ScriptName, ".", $this.FormatDate($this.StartDate), ".txt")
             }
         }
-        else {
+        else {            
             $fileName = [string]::Concat("logs\", "log.", $this.ScriptName, ".", $this.FormatDate($this.StartDate), ".txt")
         }        
 
