@@ -19,14 +19,14 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $reportItem | Add-Member NoteProperty "ProtectionState" $null
     $reportItem | Add-Member NoteProperty "ProtectionStateDescription" $null
     $reportItem | Add-Member NoteProperty "ReplicationJobId" $null
-    
+
     $vaultName = $csvItem.VAULT_NAME
     $sourceAccountName = $csvItem.ACCOUNT_NAME
     $sourceProcessServer = $csvItem.PROCESS_SERVER
     $sourceConfigurationServer = $csvItem.CONFIGURATION_SERVER
     $targetPostFailoverResourceGroup = $csvItem.TARGET_RESOURCE_GROUP
     $targetPostFailoverStorageAccountName = $csvItem.TARGET_STORAGE_ACCOUNT
-    $targetPostFailoverLogStorageAccountName = $csvItem.TARGET_LOGSTORAGE_ACCOUNT 
+    $targetPostFailoverLogStorageAccountName = $csvItem.TARGET_LOGSTORAGE_ACCOUNT
     $targetPostFailoverVNET = $csvItem.TARGET_VNET
     $targetPostFailoverSubnet = $csvItem.TARGET_SUBNET
     $sourceMachineName = $csvItem.SOURCE_MACHINE_NAME
@@ -35,6 +35,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $targetStorageAccountRG = $csvItem.TARGET_STORAGE_ACCOUNT_RG
     $targetLogStorageAccountRG = $csvItem.TARGET_LOGSTORAGE_ACCOUNT_RG
     $targetVNETRG = $csvItem.TARGET_VNET_RG
+    $recoveryVmManagedDiskType = $csvItem.RECOVERY_VM_MANAGED_DISK_TYPE
 
     $vaultServer = $asrCommon.GetAndEnsureVaultContext($vaultName)
     $fabricServer = $asrCommon.GetFabricServer($sourceConfigurationServer)
@@ -58,7 +59,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $targetResourceGroupObj = Get-AzResourceGroup -Name $targetPostFailoverResourceGroup
         $targetVnetObj = Get-AzVirtualNetwork `
             -Name $targetPostFailoverVNET `
-            -ResourceGroupName $targetVNETRG 
+            -ResourceGroupName $targetVNETRG
         $targetPolicyMap  =  Get-AzRecoveryServicesAsrProtectionContainerMapping `
             -ProtectionContainer $protectionContainer | Where-Object { $_.PolicyFriendlyName -eq $replicationPolicy }
         if ($targetPolicyMap -eq $null) {
@@ -80,8 +81,8 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
             -ProtectableItem $protectableVM `
             -Name (New-Guid).Guid `
             -ProtectionContainerMapping $targetPolicyMap `
-            -RecoveryAzureStorageAccountId $targetPostFailoverStorageAccount.Id `
-	    -LogStorageAccountId $targetPostFailoverLogStorageAccount.Id `
+            -DiskType $recoveryVmManagedDiskType `
+	        -LogStorageAccountId $targetPostFailoverLogStorageAccount.Id `
             -ProcessServer $sourceProcessServerObj `
             -Account $sourceAccountObj `
             -RecoveryResourceGroupId $targetResourceGroupObj.ResourceId `
@@ -91,7 +92,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
 
         $replicationJobObj = Get-AzRecoveryServicesAsrJob -Name $replicationJob.Name
         while ($replicationJobObj.State -eq 'NotStarted') {
-            Write-Host "." -NoNewline 
+            Write-Host "." -NoNewline
             $replicationJobObj = Get-AzRecoveryServicesAsrJob -Name $replicationJob.Name
         }
         $reportItem.ReplicationJobId = $replicationJob.Name
@@ -103,7 +104,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
                 LogError $replicationJobError.ServiceErrorDetails.PossibleCauses
             }
         } else {
-            $processor.Logger.LogTrace("ReplicationJob initiated")      
+            $processor.Logger.LogTrace("ReplicationJob initiated")
         }
     } else {
         $protectedItem = Get-AzRecoveryServicesAsrReplicationProtectedItem `
