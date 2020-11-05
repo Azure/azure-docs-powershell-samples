@@ -248,10 +248,12 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
             $Disk = @{}
             if($OSDiskID -eq $tmpdisk.Uuid)
             {
+                $processor.Logger.LogTrace("We found the OSDiskID specified in the csv file in the discovered server data for: '$($sourceMachineName)-$($tmpdisk.Uuid)'")
                 $OSDiskFound = $true
                 $Disk.Add("IsOSDisk", "true")            
             }
             else {
+                $processor.Logger.LogTrace("The Current Disk in the discovered server data doesn't seem to be an OS Disk for now, we will continue to search for other disk to see if they are OS Disk in the discovered server data: '$($sourceMachineName)-$($tmpdisk.Uuid)'")
                 $Disk.Add("IsOSDisk", "false")
             }
             $Disk.Add("DiskID", $tmpdisk.Uuid)
@@ -302,9 +304,24 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         
         if ($DisktoInclude.Count -gt 0) {
             if (-not $OSDiskFound) {
-                #No OSDisk found, so marking the first disk as OSDisk
-                $DisktoInclude[0].IsOSDisk = "true"
-                $OSDiskFound = $true
+                #No OSDisk found yet, so checking for scsi0:0 and if available we will mark it as an OS Disk
+                $processor.Logger.LogTrace("We will now search for scsi0:0 disk and if we find it, we will set that as an OSDisk as we didn't find any OS Disk yet for: '$($sourceMachineName)'")
+                foreach($tmpdisk in $DiscoveredServer.Disk)
+                {
+                    if($tmpdisk.Name -eq "scsi0:0")
+                    {
+                        $processor.Logger.LogTrace("We found scsi0:0 disk, so we will set this as an OSDisk for: '$($sourceMachineName)-$($tmpdisk.Uuid)'")
+                        #Here Uuid will be unique for each disk so we should get one match when we look it up with DiskID and we can then set IsOSDisk property to true
+                        $DisktoInclude | Where-Object {$_.DiskID -eq $tmpdisk.Uuid} | ForEach-Object { $_.IsOSDisk = "true"}
+                        $OSDiskFound = $true
+                    }
+                }
+                #We still didn't find any OSDisk yet, we will now go ahead and mark the first disk as OSDisk
+                if (-not $OSDiskFound) {
+                    $processor.Logger.LogTrace("We didn't find any OS Disk yet, so we will set the first disk as an OSDisk for: '$($sourceMachineName)'")
+                    $DisktoInclude[0].IsOSDisk = "true"
+                    $OSDiskFound = $true
+                }
             }
             $params.Add("DiskToInclude", $DisktoInclude)
         }
