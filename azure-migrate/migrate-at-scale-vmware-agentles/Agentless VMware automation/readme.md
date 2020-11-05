@@ -15,6 +15,8 @@ This article helps you understand how to use scripts to migrate large number of 
 
 The Azure Migrate VMware migration automation scripts are available for download at [Azure PowerShell Samples]https://github.com/Azure/azure-docs-powershell-samples/tree/master/azure-migrate/migrate-at-scale-vmware-agentles) repo on GitHub. The scripts can be used to migrate VMware VMs to Azure using the agentless migration method. The Azure Migrate PowerShell commands used in these scripts are documented [here](https://aka.ms/azuremigratepowershellvmware).
 
+The implementation logic for these scripts is dervived from our [automation scripts for using agent-based method for migrating large number of VMs](https://github.com/Azure/azure-docs-powershell-samples/tree/master/azure-migrate/migrate-at-scale-with-site-recovery).
+
 ## Current limitations
 - These scripts support migration of VMware VMs with all disks. You can update the scripts if you want to selectively replicate the disks attached to a VMware VM. 
 - The scripts support use of assessment recommendations. If assessment recommendations aren't used, then all disks attached to the VMware VM are migrated to the same managed disk type (Standard or Premium). You can update the scripts if you want to use multiple types of managed disks with the same VM

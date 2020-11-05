@@ -162,14 +162,32 @@ class AzMigrate_Shared
         #endregion
 
         $DiscoveredServer = $null
-        # Get a specific Discovered VM in an Azure Migrate project
-        $DiscoveredServer = Get-AzMigrateDiscoveredServer -ProjectName $AzMigrateProjectName `
+        $DiscoveredServerList = $null
+        # Get Discovered machines in an Azure Migrate project
+        $DiscoveredServerList = Get-AzMigrateDiscoveredServer -ProjectName $AzMigrateProjectName `
                                                         -ResourceGroupName $AzMigrateResourceGroupName `
                                                         -DisplayName $machineName
 
-        if (-not $DiscoveredServer)
+        if (-not $DiscoveredServerList)
         {
             $this.Logger.LogTrace("Discovery Details for the Server could not be retrieved for '$($AzMigrateResourceGroupName)-$($AzMigrateProjectName)-$($machineName)'")
+        }
+        elseif ($DiscoveredServerList.Count -gt 1) {
+            #There were multiple discovery server found due to like match
+            foreach ($ds in $DiscoveredServerList) {
+                if($ds.DisplayName -eq $machineName){
+                    #get exact match based on the display name
+                    $this.Logger.LogTrace("We have multiple discovered instances which was returned for DisplayName like servers but we just found our discovered server for '$($machineName)'")
+                    return $ds
+                }
+                else {
+                    $this.Logger.LogTrace("We have multiple discovered instances which was returned for DisplayName like servers. We have not found our specific discovered server yet for '$($machineName)'")
+                }
+             }
+        }
+        elseif ($DiscoveredServerList.Count -eq 1) {
+            #only one discovered server Instance found.
+            $DiscoveredServer = $DiscoveredServerList
         }
 
         return $DiscoveredServer
@@ -202,7 +220,7 @@ class AzMigrate_Shared
         # Get a specific Discovered VM in an Azure Migrate project
         $DiscoveredServerMachine = $this.GetDiscoveredServer($AzMigrateResourceGroupName, $AzMigrateProjectName, $machineName)
         
-        if(-not $DiscoveredServerMachine)
+        if($DiscoveredServerMachine)
         {
             try {
                 # Retrieve the replicating VM details by using the discovered VM identifier
