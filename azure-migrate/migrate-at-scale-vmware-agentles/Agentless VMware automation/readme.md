@@ -94,7 +94,7 @@ Once the CSV is ready, you can execute the following steps to migrate your on-pr
 **Step #** | **Script Name** | **Description**
 --- | --- | ---
 1 | AzMigrate_StartReplication.ps1 | Enable replication for all the VMs listed in the csv, the script creates a CSV output and a log file for troubleshooting.
-2 | AzMigrate_ReplicationStatus.ps1 | Check the status of replication, the script creates a csv output with the status for each VM and a log file for troubleshooting.
+2 | AzMigrate_UpdateReplicationStatus.ps1 | Check the status of replication, the script creates a csv output with the status for each VM and a log file for troubleshooting.
 3 | AzMigrate_UpdateMachineProperties.ps1 | Once the VMs have completed initial replication, use this script to update the target properties of the VM (Compute and Network properties). The script creates a CSV output with the job details for each VM.
 4 | AzMigrate_StartTestMigration.ps1 |  Start the test failover for all VMs listed in the csv that are configured for test migration. The script creates a CSV output with the job details for each VM.
 5 | AzMigrate_CleanUpTestMigration.ps1 | Once you manually validate the VMs that were test failed-over, use this script to clean up the test failover VMs for all VMs listed in the csv that are configured for test migration cleanup. The script creates a CSV output with the job details for each VM.
