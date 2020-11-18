@@ -71,7 +71,7 @@ function New-AssessmentCreation {
 
     #Create a new group with all machines discovered in the project based on the mentioned discovery source
     $groupName = "AllMachines_"+$discoverySource
-    $group = New-Group-Add-Machines -token $token -subscriptionId $subscriptionId -resourceGroupName $resourceGroupName -assessmentProjectName $assessmentProjectName -discoverySource $discoverySource -groupName $groupName
+    $group = New-GroupAddMachines -token $token -subscriptionId $subscriptionId -resourceGroupName $resourceGroupName -assessmentProjectName $assessmentProjectName -discoverySource $discoverySource -groupName $groupName
 
     #Creating assessment on the newly created group
     ##PUT https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Migrate/assessmentProjects/{projectName}/groups/{groupName}/assessments/{assessmentName}?api-version=2019-10-01
@@ -225,7 +225,7 @@ function Get-GroupStatus {
 .SYNOPSIS
 Creates a new group in the specified Azure Migrate project within a specified Azure subscription.
 .DESCRIPTION
-The New-Group-Add-Machines cmdlet creates a new group based on discovery source and adds all machines in the group from the Azure Migrate project.
+The New-GroupAddMachines cmdlet creates a new group based on discovery source and adds all machines in the group from the Azure Migrate project.
 .PARAMETER token
 Specifies the Azure authentication token.
 .PARAMETER subscriptionId
@@ -240,13 +240,13 @@ Specifies the Azure Migrate discovery source (Appliance/Import) to query.
 Specifies the group name to query.
 .EXAMPLE
 Cretae a new group with group name ALl_Machines
-PS C:\Assessment_Utility> New-Group-Add-Machines -subscriptionId "4bd2aa0f-2bd2-4d67-91a8-5a4533d58600" -resourceGroupName "rajosh-rg" -assessmentProjectName "rajoshSelfHost-Physical92c3project" -groupName "All_machines"
+PS C:\Assessment_Utility> New-GroupAddMachines -subscriptionId "4bd2aa0f-2bd2-4d67-91a8-5a4533d58600" -resourceGroupName "rajosh-rg" -assessmentProjectName "rajoshSelfHost-Physical92c3project" -groupName "All_machines"
 
 .NOTES
 1. The function returns an object with group details.
 2. This function needs to be called before assessment creation so that group creation has completed
 #>
-function New-Group-Add-Machines {
+function New-GroupAddMachines {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $true)][string]$token,
