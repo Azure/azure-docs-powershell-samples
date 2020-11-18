@@ -78,7 +78,7 @@ New-AssessmentCreation -subscriptionId $subscriptionID -resourceGroupName $resou
 Other cmdlets available in the script:
 ```powershell
 # Create a new Group and all all machines in the project
-$group = New-Group-Add-Machines -token $token -subscriptionId $subscriptionId -resourceGroupName $resourceGroupName -assessmentProjectName $assessmentProjectName -discoverySource $discoverySource -groupName $groupName
+$group = New-GroupAddMachines -token $token -subscriptionId $subscriptionId -resourceGroupName $resourceGroupName -assessmentProjectName $assessmentProjectName -discoverySource $discoverySource -groupName $groupName
 
 # Get status of an update operation to group
 $group = Get-GroupStatus -token $token -subscriptionId $subscriptionId -resourceGroupName $resourceGroupName -assessmentProjectName $assessmentProjectName -groupName $groupName
