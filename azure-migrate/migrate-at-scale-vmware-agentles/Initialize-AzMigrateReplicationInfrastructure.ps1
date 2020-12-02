@@ -1,3 +1,4 @@
+
 # ----------------------------------------------------------------------------------
 #
 # Copyright Microsoft Corporation
@@ -19,6 +20,7 @@ Az.Resources
 Az.KeyVault
 Az.ServiceBus
 Az.Migrate
+
 Example Invocation:  .\Initialize-AzMigrateReplicationInfrastructure.ps1 -ResourceGroupName TestRG  -ProjectName TestProject -Vmwareagentless -TargetRegion centralus
 #>
 
@@ -55,6 +57,21 @@ process {
         if($Scenario -ne "agentlessVMware"){
             throw "We currently support only agentlessVMware."
         }
+
+        # Validate user specified target region
+        $TargetRegion = $TargetRegion.ToLower()
+        $allAvailableAzureLocations = Get-AzLocation
+        $matchingLocationByLocationName = $allAvailableAzureLocations | Where-Object  {$_.Location -eq $TargetRegion} 
+        $matchingLocationByDisplayName =  $allAvailableAzureLocations | Where-Object  {$_.DisplayName -eq $TargetRegion}
+       
+        if($matchingLocationByLocationName){
+            $TargetRegion = $matchingLocationByLocationName.Location
+        }elseif($matchingLocationByDisplayName){
+            $TargetRegion = $matchingLocationByDisplayName.Location
+        }else{
+            throw "Creation of resources required for replication failed due to invalid location. Run Get-AzLocation to verify the validity of the location and retry this step."
+        }
+
         # Get/Set SubscriptionId
         if(($SubscriptionId -eq $null) -or ($SubscriptionId -eq "")){
             $context = Get-AzContext
@@ -266,6 +283,7 @@ public static int hashForArtifact(String artifact)
                     enabledForDeployment = $true;
                     enabledForDiskEncryption = $false;
                     enabledForTemplateDeployment = $true;
+                    enableSoftDelete = $true;
                     accessPolicies = $accessPolicies
                 }
 
