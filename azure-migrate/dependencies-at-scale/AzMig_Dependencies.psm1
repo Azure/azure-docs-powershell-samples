@@ -44,17 +44,9 @@ function GetRequestProperties()
 		New-Variable -Name ResourceURL -Value "https://management.core.windows.net/" -Option Constant
 	}
 
-    $TokenCache = $CurrentContext.TokenCache
+    $TokenCache = (Get-AzAccessToken -ResourceUrl $ResourceURL -TenantId $TenantId).Token
     if (-not $TokenCache) {
         throw "Missing or incomaptible module version. Get the latest version of the Az.Accounts module"
-    }
-
-    $TokenCacheItem = $TokenCache.ReadItems() |
-                      Where-Object -Property TenantId -eq $TenantId |
-                      Where-Object -Property DisplayableId -eq $UserId |
-                      Where-Object -Property Resource -eq $ResourceURL
-    if (-not $TokenCacheItem) {
-        throw "Something went wrong. Open a new PowerShell session, login with Connect-AzAccount and then try again"
     }
 
     $authorityURL = $CurrentContext.Environment.ActiveDirectoryAuthority +$TenantId
