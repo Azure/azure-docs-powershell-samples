@@ -19,7 +19,8 @@ Before you get started, you need to do the following:
 - Ensure that VMware Tools (later than 10.2) is installed on each VM you want to analyze.
 - Ensure you have downloaded the AzMig_Dependencies powershell module in this folder.
 - Ensure you have PowerShell available. It is recommended you use the [latest version of PowerShell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell).
-- Ensure you have the [Azure PowerShell](https://docs.microsoft.com/powershell/azure/install-az-ps) module installed. 
+- Ensure you have the [Azure PowerShell](https://docs.microsoft.com/powershell/azure/install-az-ps) module installed.
+- The Az.Accounts module is required and must be at least version 2.2.0 or higher.
 
 ## Log in to Azure
 
