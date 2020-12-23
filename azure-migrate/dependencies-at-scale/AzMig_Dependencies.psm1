@@ -17,6 +17,10 @@ function GetRequestProperties()
         Import-Module Az.Accounts
     }
     
+    if ((Get-Module Az.Accounts).Version -lt "2.2.0") {
+        throw "At least Az.Accounts 2.2.0 is required, please update before continuing."
+    }
+    
     $CurrentContext = Get-AzContext
     if (-not $CurrentContext) {
         throw "Not logged in. Use Connect-AzAccount to log in"
