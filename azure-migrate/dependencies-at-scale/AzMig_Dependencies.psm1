@@ -44,27 +44,12 @@ function GetRequestProperties()
 		New-Variable -Name ResourceURL -Value "https://management.core.windows.net/" -Option Constant
 	}
 
-    $TokenCache = (Get-AzAccessToken -ResourceUrl $ResourceURL -TenantId $TenantId).Token
-    if (-not $TokenCache) {
-        throw "Missing or incomaptible module version. Get the latest version of the Az.Accounts module"
+    $Token = (Get-AzAccessToken -ResourceUrl $ResourceURL -TenantId $TenantId).Token
+    if (-not $Token) {
+        throw "Missing token, please make sure you are signed in."
     }
 
-    $authorityURL = $CurrentContext.Environment.ActiveDirectoryAuthority +$TenantId
-    $AuthContext = [Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext]::new($authorityURL, $TokenCache)
-
-    if (-not $AuthContext) {
-        throw "Couldn't get Auth Context. ADAL Library version missing or incompatible. Get the latest version of the Az.Accounts module"
-    }  
-
-    $Task = $AuthContext.AcquireTokenSilentAsync($ResourceURL, "1950a258-227b-4e31-a9cf-717495945fc2") 
-    while (-not $Task.AsyncWaitHandle.WaitOne(200)) {}
-    $Result = $Task.GetAwaiter().GetResult()
-
-    if((-not $Result) -or (-not $Result.AccessToken)) {
-        throw "Something went wrong while fetching access token"
-    }
-
-    $AuthorizationHeader = "Bearer " + $Result.AccessToken
+    $AuthorizationHeader = "Bearer " + $Token
     $Headers = [ordered]@{Accept = "application/json"; Authorization = $AuthorizationHeader} 
 	
 	if($Environment -eq "AzureUSGovernment") {
