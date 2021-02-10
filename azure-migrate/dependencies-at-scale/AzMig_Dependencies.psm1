@@ -17,6 +17,10 @@ function GetRequestProperties()
         Import-Module Az.Accounts
     }
     
+    if ((Get-Module Az.Accounts).Version -lt "2.2.0") {
+        throw "At least Az.Accounts 2.2.0 is required, please update before continuing."
+    }
+    
     $CurrentContext = Get-AzContext
     if (-not $CurrentContext) {
         throw "Not logged in. Use Connect-AzAccount to log in"
@@ -44,35 +48,12 @@ function GetRequestProperties()
 		New-Variable -Name ResourceURL -Value "https://management.core.windows.net/" -Option Constant
 	}
 
-    $TokenCache = $CurrentContext.TokenCache
-    if (-not $TokenCache) {
-        throw "Missing or incomaptible module version. Get the latest version of the Az.Accounts module"
+    $Token = (Get-AzAccessToken -ResourceUrl $ResourceURL -TenantId $TenantId).Token
+    if (-not $Token) {
+        throw "Missing token, please make sure you are signed in."
     }
 
-    $TokenCacheItem = $TokenCache.ReadItems() |
-                      Where-Object -Property TenantId -eq $TenantId |
-                      Where-Object -Property DisplayableId -eq $UserId |
-                      Where-Object -Property Resource -eq $ResourceURL
-    if (-not $TokenCacheItem) {
-        throw "Something went wrong. Open a new PowerShell session, login with Connect-AzAccount and then try again"
-    }
-
-    $authorityURL = $CurrentContext.Environment.ActiveDirectoryAuthority +$TenantId
-    $AuthContext = [Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext]::new($authorityURL, $TokenCache)
-
-    if (-not $AuthContext) {
-        throw "Couldn't get Auth Context. ADAL Library version missing or incompatible. Get the latest version of the Az.Accounts module"
-    }  
-
-    $Task = $AuthContext.AcquireTokenSilentAsync($ResourceURL, "1950a258-227b-4e31-a9cf-717495945fc2") 
-    while (-not $Task.AsyncWaitHandle.WaitOne(200)) {}
-    $Result = $Task.GetAwaiter().GetResult()
-
-    if((-not $Result) -or (-not $Result.AccessToken)) {
-        throw "Something went wrong while fetching access token"
-    }
-
-    $AuthorizationHeader = "Bearer " + $Result.AccessToken
+    $AuthorizationHeader = "Bearer " + $Token
     $Headers = [ordered]@{Accept = "application/json"; Authorization = $AuthorizationHeader} 
 	
 	if($Environment -eq "AzureUSGovernment") {
