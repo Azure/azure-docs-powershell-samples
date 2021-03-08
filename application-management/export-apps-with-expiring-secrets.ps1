@@ -21,150 +21,129 @@ $AlreadyExpired = Read-Host
 
 $now = get-date
 
-foreach($app in $Applications)
-{
-$AppName = $app.DisplayName
-$AppID = $app.objectid
-$ApplID = $app.AppId
-$AppCreds = Get-AzureADApplication -ObjectId $AppID | select PasswordCredentials, KeyCredentials
-$secret = $AppCreds.PasswordCredentials
-$cert = $AppCreds.KeyCredentials
+foreach ($app in $Applications) {
+    $AppName = $app.DisplayName
+    $AppID = $app.objectid
+    $ApplID = $app.AppId
+    $AppCreds = Get-AzureADApplication -ObjectId $AppID | select PasswordCredentials, KeyCredentials
+    $secret = $AppCreds.PasswordCredentials
+    $cert = $AppCreds.KeyCredentials
 
-    foreach($s in $secret)
-    {
-    $StartDate = $s.StartDate
-    $EndDate = $s.EndDate
+    foreach ($s in $secret) {
+        $StartDate = $s.StartDate
+        $EndDate = $s.EndDate
+        $operation = $EndDate - $now
+        $ODays = $operation.Days
 
-    $operation = $EndDate - $now
-    $ODays = $operation.Days
-
-
-        if ($AlreadyExpired -eq "No")
-        {
-            if ($ODays -le $Days -and $ODays -ge 0)
-                {
+        if ($AlreadyExpired -eq "No") {
+            if ($ODays -le $Days -and $ODays -ge 0) {
 
                 $Owner = Get-AzureADApplicationOwner -ObjectId $app.ObjectId
                 $Username = $Owner.UserPrincipalName -join ";"
                 $OwnerID = $Owner.ObjectID -join ";"
-                if ($owner.UserPrincipalName -eq $Null)
-                    {
+                if ($owner.UserPrincipalName -eq $Null) {
                     $Username = $Owner.DisplayName + " **<This is an Application>**"
-                    }
-                    if ($Owner.DisplayName -eq $null)
-                    {
+                }
+                if ($Owner.DisplayName -eq $null) {
                     $Username = "<<No Owner>>"
-                    }
+                }
 
                 $Log = New-Object System.Object
 
-            $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
-            $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-            $Log | Add-Member -MemberType NoteProperty -Name "Secret Start Date" -Value $StartDate
-            $Log | Add-Member -MemberType NoteProperty -Name "Secret End Date" -value $EndDate
-            $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $Null
-            $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $Null
+                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
+                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
+                $Log | Add-Member -MemberType NoteProperty -Name "Secret Start Date" -Value $StartDate
+                $Log | Add-Member -MemberType NoteProperty -Name "Secret End Date" -value $EndDate
+                $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $Null
+                $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $Null
+                $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
+                $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
 
-            $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
-            $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
-            $Logs += $Log
-                }
+                $Logs += $Log
+            }
         }
-        elseif ($AlreadyExpired -eq "Yes")
-        {
-            if ($ODays -le $Days)
-            {
+        elseif ($AlreadyExpired -eq "Yes") {
+            if ($ODays -le $Days) {
                 $Owner = Get-AzureADApplicationOwner -ObjectId $app.ObjectId
                 $Username = $Owner.UserPrincipalName -join ";"
                 $OwnerID = $Owner.ObjectID -join ";"
-                if ($owner.UserPrincipalName -eq $Null)
-                    {
+                if ($owner.UserPrincipalName -eq $Null) {
                     $Username = $Owner.DisplayName + " **<This is an Application>**"
-                    }
-                    if ($Owner.DisplayName -eq $null)
-                    {
+                }
+                if ($Owner.DisplayName -eq $null) {
                     $Username = "<<No Owner>>"
-                    }
+                }
 
-            $Log = New-Object System.Object
+                $Log = New-Object System.Object
     
-            $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
-            $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-            $Log | Add-Member -MemberType NoteProperty -Name "Secret Start Date" -Value $StartDate
-            $Log | Add-Member -MemberType NoteProperty -Name "Secret End Date" -value $EndDate
-            $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $Null
-            $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $Null
+                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
+                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
+                $Log | Add-Member -MemberType NoteProperty -Name "Secret Start Date" -Value $StartDate
+                $Log | Add-Member -MemberType NoteProperty -Name "Secret End Date" -value $EndDate
+                $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $Null
+                $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $Null
+                $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
+                $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
 
-            $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
-            $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
-            $Logs += $Log
+                $Logs += $Log
             }
         }
     }
 
-    foreach($c in $cert)
-    {
-    $CStartDate = $c.StartDate
-    $CEndDate = $c.EndDate
-    $COperation = $CEndDate - $now
-    $CODays = $COperation.Days
+    foreach ($c in $cert) {
+        $CStartDate = $c.StartDate
+        $CEndDate = $c.EndDate
+        $COperation = $CEndDate - $now
+        $CODays = $COperation.Days
 
-        if ($AlreadyExpired -eq "No")
-        {
-            if ($CODays -le $Days -and $CODays -ge 0)
-            {
+        if ($AlreadyExpired -eq "No") {
+            if ($CODays -le $Days -and $CODays -ge 0) {
 
                 $Owner = Get-AzureADApplicationOwner -ObjectId $app.ObjectId
                 $Username = $Owner.UserPrincipalName -join ";"
                 $OwnerID = $Owner.ObjectID -join ";"
-                if ($owner.UserPrincipalName -eq $Null)
-                    {
+                if ($owner.UserPrincipalName -eq $Null) {
                     $Username = $Owner.DisplayName + " **<This is an Application>**"
-                    }
-                    if ($Owner.DisplayName -eq $null)
-                    {
+                }
+                if ($Owner.DisplayName -eq $null) {
                     $Username = "<<No Owner>>"
-                    }
+                }
 
-            $Log = New-Object System.Object
+                $Log = New-Object System.Object
 
-            $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
-            $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-            $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $CStartDate
-            $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $CEndDate
+                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
+                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
+                $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $CStartDate
+                $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $CEndDate
+                $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
+                $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
 
-            $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
-            $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
-            $Logs += $Log
+                $Logs += $Log
             }
         }
-        elseif ($AlreadyExpired -eq "Yes")
-        {
-            if ($CODays -le $Days)
-            {
+        elseif ($AlreadyExpired -eq "Yes") {
+            if ($CODays -le $Days) {
 
                 $Owner = Get-AzureADApplicationOwner -ObjectId $app.ObjectId
                 $Username = $Owner.UserPrincipalName -join ";"
                 $OwnerID = $Owner.ObjectID -join ";"
-                if ($owner.UserPrincipalName -eq $Null)
-                    {
+                if ($owner.UserPrincipalName -eq $Null) {
                     $Username = $Owner.DisplayName + " **<This is an Application>**"
-                    }
-                    if ($Owner.DisplayName -eq $null)
-                    {
+                }
+                if ($Owner.DisplayName -eq $null) {
                     $Username = "<<No Owner>>"
-                    }
+                }
 
-            $Log = New-Object System.Object
+                $Log = New-Object System.Object
 
-            $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
-            $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-            $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $CStartDate
-            $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $CEndDate
+                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
+                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
+                $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $CStartDate
+                $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $CEndDate
+                $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
+                $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
 
-            $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
-            $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
-            $Logs += $Log
+                $Logs += $Log
             }
         }
     }

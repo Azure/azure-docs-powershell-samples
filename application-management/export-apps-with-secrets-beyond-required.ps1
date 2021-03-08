@@ -22,92 +22,77 @@ $Months = "Number of months"
 $Path = "add a path here\File.csv"
 ###################################################################
 #Repeating Function to get an Access Token based on the parameters:
-function RefreshToken($loginURL,$ClientID,$clientSecret,$tenantName)
-{ 
-$body = @{grant_type="client_credentials";client_id=$ClientID;client_secret=$ClientSecret;scope="https://graph.microsoft.com/.default"} 
-$oauthResponse = Invoke-RestMethod -Method POST -Uri $loginURL/$TenantName/oauth2/v2.0/token -Body $body 
-return $oauthResponse
+function RefreshToken($loginURL, $ClientID, $clientSecret, $tenantName) { 
+    $body = @{grant_type = "client_credentials"; client_id = $ClientID; client_secret = $ClientSecret; scope = "https://graph.microsoft.com/.default" } 
+    $oauthResponse = Invoke-RestMethod -Method POST -Uri $loginURL/$TenantName/oauth2/v2.0/token -Body $body 
+    return $oauthResponse
 }
 
 #BUILD THE ACCESS TOKEN
-$oauth=RefreshToken -loginURL $loginURL -resource $resource -ClientID $ClientID -clientSecret $ClientSecret -tenantName $TenantName
+$oauth = RefreshToken -loginURL $loginURL -resource $resource -ClientID $ClientID -clientSecret $ClientSecret -tenantName $TenantName
 $Identity = $oauth.access_token
 
 ##############################################
 
-$headerParams = @{'Authorization'="$($oauth.token_type) $($Identity)"}
+$headerParams = @{'Authorization' = "$($oauth.token_type) $($Identity)" }
 $AppsSecrets = "https://graph.microsoft.com/v1.0/applications"
 
 $ApplicationsList = (Invoke-WebRequest -Headers $headerParams -Uri $AppsSecrets -Method GET)
 $Logs = @()
-
 $NextCounter = 0
 
-do{
-foreach ($event in ($ApplicationsList.Content | ConvertFrom-Json| select -ExpandProperty value))
-{ 
-    $ids = $event.id
-    $AppName = $event.displayName
-    $AppID = $event.appId
+do {
+    foreach ($event in ($ApplicationsList.Content | ConvertFrom-Json | select -ExpandProperty value)) { 
+        $ids = $event.id
+        $AppName = $event.displayName
+        $AppID = $event.appId
+        $secrets = $event.passwordCredentials
+        $NextCounter++
 
-    $secrets = $event.passwordCredentials
-    
-    $NextCounter++
+        foreach ($s in $secrets) {
+            $StartDate = $s.startDateTime
+            $EndDate = $s.endDateTime
+            $pos = $StartDate.IndexOf("T")
+            $leftPart = $StartDate.Substring(0, $pos)
+            $position = $EndDate.IndexOf("T")
+            $leftPartEnd = $EndDate.Substring(0, $pos)
+            $DatestringStart = [Datetime]::ParseExact($leftPart, 'yyyy-MM-dd', $null)
+            $DatestringEnd = [Datetime]::ParseExact($leftPartEnd, 'yyyy-MM-dd', $null)
+            $OptimalDate = $DatestringStart.AddMonths($Months)
 
-    foreach ($s in $secrets)
-    {
-    $StartDate = $s.startDateTime
-    $EndDate = $s.endDateTime
-     
-    $pos = $StartDate.IndexOf("T")
-    $leftPart = $StartDate.Substring(0, $pos)
-    $position = $EndDate.IndexOf("T")
-    $leftPartEnd = $EndDate.Substring(0, $pos)
+            if ($OptimalDate -lt $DatestringEnd) {
+                $Log = New-Object System.Object
+                $Log | Add-Member -MemberType NoteProperty -Name "Application" -Value $AppName
+                $Log | Add-Member -MemberType NoteProperty -Name  "AppID" -value $AppID
+                $Log | Add-Member -MemberType NoteProperty -Name "Secret Start Date" -Value $DatestringStart
+                $Log | Add-Member -MemberType NoteProperty -Name  "Secret End Date" -value $DatestringEnd
 
-    $DatestringStart = [Datetime]::ParseExact($leftPart, 'yyyy-MM-dd', $null)
-    $DatestringEnd = [Datetime]::ParseExact($leftPartEnd, 'yyyy-MM-dd', $null)
-    $OptimalDate = $DatestringStart.AddMonths($Months)
+                $Owners = "https://graph.microsoft.com/v1.0/applications/$ids/owners"
+                $ApplicationsOwners = (Invoke-WebRequest -Headers $headerParams -Uri $Owners -Method GET)
 
-        if ($OptimalDate -lt $DatestringEnd)
-            {
-             $Log = New-Object System.Object
-             $Log | Add-Member -MemberType NoteProperty -Name "Application" -Value $AppName
-             $Log | Add-Member -MemberType NoteProperty -Name  "AppID" -value $AppID
-             $Log | Add-Member -MemberType NoteProperty -Name "Secret Start Date" -Value $DatestringStart
-             $Log | Add-Member -MemberType NoteProperty -Name  "Secret End Date" -value $DatestringEnd
-
-            $Owners = "https://graph.microsoft.com/v1.0/applications/$ids/owners"
-            $ApplicationsOwners = (Invoke-WebRequest -Headers $headerParams -Uri $Owners -Method GET)
-
-            foreach($user in ($ApplicationsOwners.Content | ConvertFrom-Json| select -ExpandProperty value))
-                {
-                $Owner = $user.displayname
-
-                $Log | Add-Member -MemberType NoteProperty -Name  "AppOwner" -value $Owner
+                foreach ($user in ($ApplicationsOwners.Content | ConvertFrom-Json | select -ExpandProperty value)) {
+                    $Owner = $user.displayname
+                    $Log | Add-Member -MemberType NoteProperty -Name  "AppOwner" -value $Owner
                 }
-            $Logs += $Log
+                $Logs += $Log
             }
-     }
-
-    If ($NextCounter -eq 100)
-    {
-    $odata = $ApplicationsList.Content | ConvertFrom-Json
-    $AppsSecrets  = $odata.'@odata.nextLink'
-        try
-        {
-        $ApplicationsList = Invoke-WebRequest -UseBasicParsing -Headers $headerParams -Uri $AppsSecrets -Method Get -ContentType "application/Json"
-        }
-        catch
-        {
-        $_
         }
 
-    $NextCounter = 0
-    sleep 1
+        If ($NextCounter -eq 100) {
+            $odata = $ApplicationsList.Content | ConvertFrom-Json
+            $AppsSecrets = $odata.'@odata.nextLink'
+            try {
+                $ApplicationsList = Invoke-WebRequest -UseBasicParsing -Headers $headerParams -Uri $AppsSecrets -Method Get -ContentType "application/Json"
+            }
+            catch {
+                $_
+            }
+
+            $NextCounter = 0
+            sleep 1
+        }
     }
 
-}
-
-} while($AppsSecrets -ne $null)
+} while ($AppsSecrets -ne $null)
 
 $Logs | Export-CSV $Path -NoTypeInformation -Encoding UTF8
