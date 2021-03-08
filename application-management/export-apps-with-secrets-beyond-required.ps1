@@ -83,7 +83,6 @@ foreach ($event in ($ApplicationsList.Content | ConvertFrom-Json| select -Expand
                 {
                 $Owner = $user.displayname
 
-               
                 $Log | Add-Member -MemberType NoteProperty -Name  "AppOwner" -value $Owner
                 }
             $Logs += $Log
