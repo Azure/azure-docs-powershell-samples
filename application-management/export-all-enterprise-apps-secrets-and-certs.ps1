@@ -12,14 +12,18 @@
 
 Connect-AzureAD
 
-$Applications = Get-AzureADApplication -all $true
+#$Applications = Get-AzureADApplication -all $true
+$EnterpriseApps = Get-AzureADServicePrincipal -all $true
 $Logs = @()
 
-foreach ($app in $Applications) {
-    $AppName = $app.DisplayName
-    $AppID = $app.objectid
-    $ApplID = $app.AppId
-    $AppCreds = Get-AzureADApplication -ObjectId $AppID | select PasswordCredentials, KeyCredentials
+foreach ($Eapp in $EnterpriseApps) {
+    $AppName = $Eapp.DisplayName
+    $AppID = $Eapp.objectid
+    $ApplID = $Eapp.AppId
+
+    #$AppCreds = Get-AzureADApplication -ObjectId $AppID | select PasswordCredentials, KeyCredentials
+    $AppCreds = Get-AzureADServicePrincipal -ObjectId $AppID | select PasswordCredentials, KeyCredentials
+
     $secret = $AppCreds.PasswordCredentials
     $cert = $AppCreds.KeyCredentials
 
@@ -44,7 +48,7 @@ foreach ($app in $Applications) {
         #$operation = $EndDate - $now
         #$ODays = $operation.Days
 
-        $Owner = Get-AzureADApplicationOwner -ObjectId $app.ObjectId
+        $Owner = Get-AzureADServicePrincipalOwner -ObjectId $Eapp.ObjectId
         $Username = $Owner.UserPrincipalName -join ";"
         $OwnerID = $Owner.ObjectID -join ";"
         if ($owner.UserPrincipalName -eq $Null) {
@@ -74,7 +78,7 @@ foreach ($app in $Applications) {
         #$COperation = $CEndDate - $now
         #$CODays = $COperation.Days
 
-        $Owner = Get-AzureADApplicationOwner -ObjectId $app.ObjectId
+        $Owner = Get-AzureADServicePrincipalOwner -ObjectId $Eapp.ObjectId
         $Username = $Owner.UserPrincipalName -join ";"
         $OwnerID = $Owner.ObjectID -join ";"
         if ($owner.UserPrincipalName -eq $Null) {
@@ -99,4 +103,4 @@ foreach ($app in $Applications) {
 
 Write-host "Add the Path you'd like us to export the CSV file to, in the format of <C:\Users\<USER>\Desktop\Users.csv>" -ForegroundColor Green
 $Path = Read-Host
-$Logs | Export-CSV $Path -NoTypeInformation -Encoding UTF8  
+$Logs | Export-CSV $Path -NoTypeInformation -Encoding UTF8   
