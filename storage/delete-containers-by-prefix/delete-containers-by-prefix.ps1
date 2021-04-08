@@ -10,7 +10,6 @@
 # these are for the storage account to be used
 #   and the prefix for which to search
 $resourceGroup = "containerdeletetestrg"
-$location = "eastus"
 $storageAccountName = "containerdeletetest"
 $prefix = "image"
 

@@ -30,9 +30,6 @@ $ResourceGroup = "{ReplaceWithYourResourceGroup}"
 # Storage account name
 $StorageAccountName = "{ReplaceWithYourStorageAccountName}"
 
-# Container name for analytics logs
-$ContainerName = "`$logs"
-
 # Replace with your Workspace Id
 # Find in: Azure Portal > Log Analytics > {Your workspace} > Advanced Settings > Connected Sources > Windows Servers > WORKSPACE ID
 $CustomerId = "{ReplaceWithYourLogAnalyticsWorkspaceId}"  

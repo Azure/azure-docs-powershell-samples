@@ -27,6 +27,11 @@ Select-AzSubscription -SubscriptionId $SubscriptionId
 
 $snapshot = Get-AzSnapshot -ResourceGroupName $resourceGroupName -SnapshotName $snapshotName 
 
-$diskConfig = New-AzDiskConfig -SkuName $storageType -Location $location -CreateOption Copy -SourceResourceId $snapshot.Id
+$diskConfig = New-AzDiskConfig `
+    -SkuName $storageType `
+    -Location $location `
+    -CreateOption Copy `
+    -SourceResourceId $snapshot.Id `
+    -DiskSizeGB $diskSize
  
 New-AzDisk -Disk $diskConfig -ResourceGroupName $resourceGroupName -DiskName $diskName
