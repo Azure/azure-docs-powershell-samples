@@ -32,6 +32,6 @@ $storageAccountId = '/subscriptions/yourSubscriptionId/resourceGroups/yourResour
 #Set the context to the subscription Id where Managed Disk will be created
 Select-AzSubscription -SubscriptionId $SubscriptionId
 
-$diskConfig = New-AzDiskConfig -AccountType $storageType -Location $location -CreateOption Import -StorageAccountId $storageAccountId -SourceUri $sourceVHDURI -OsType $OsType
+$diskConfig = New-AzDiskConfig -AccountType $storageType -Location $location -CreateOption Import -StorageAccountId $storageAccountId -SourceUri $sourceVHDURI -OsType $OsType -DiskSizeGB $diskSize
 
 New-AzDisk -Disk $diskConfig -ResourceGroupName $resourceGroupName -DiskName $diskName
