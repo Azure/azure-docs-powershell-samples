@@ -28,14 +28,14 @@ $resourcegroup = New-AzResourceGroup -Name $resourceGroupName -Location $locatio
 
 # Create a storage account 
 $storageAccount = New-AzStorageAccount -ResourceGroupName $resourceGroupName `
-    -AccountName $storageAccountName `
+    -Name $storageAccountName `
     -Location $location `
-    -Type "Standard_LRS"
+    -SkuName "Standard_LRS"
 
 # Create a storage container 
 $storageContainer = New-AzStorageContainer -Name $storageContainerName `
     -Context $(New-AzStorageContext -StorageAccountName $storageAccountName `
-        -StorageAccountKey $(Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -StorageAccountName $storageAccountName).Value[0])
+        -StorageAccountKey $(Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -Name $storageAccountName).Value[0])
 
 # Download sample database from Github
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 #required by Github
@@ -45,7 +45,7 @@ Invoke-WebRequest -Uri "https://github.com/Microsoft/sql-server-samples/releases
 Set-AzStorageBlobContent -Container $storagecontainername `
     -File $bacpacFilename `
     -Context $(New-AzStorageContext -StorageAccountName $storageAccountName `
-        -StorageAccountKey $(Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -StorageAccountName $storageAccountName).Value[0])
+        -StorageAccountKey $(Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -Name $storageAccountName).Value[0])
 
 # Create a new server with a system wide unique server name
 $server = New-AzSqlServer -ResourceGroupName $resourceGroupName `

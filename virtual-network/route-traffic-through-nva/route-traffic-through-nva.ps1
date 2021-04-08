@@ -82,3 +82,4 @@ $routeTableBE = New-AzRouteTable -Name 'MyRouteTable-BackEnd' -ResourceGroupName
 # Associate the route table to the BackEnd subnet.
 Set-AzVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name 'MySubnet-BackEnd' `
   -AddressPrefix '10.0.2.0/24' -RouteTable $routeTableBE
+  

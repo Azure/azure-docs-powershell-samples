@@ -10,9 +10,13 @@ $uniqueId = New-RandomString -Length 7 # Random alphanumeric string for unique r
 $apiKind = "MongoDB"
 # --------------------------------------------------
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
-$locations = @("East US", "West US") # Regions ordered by failover priority
+$locations = @()
+$locations += New-AzCosmosDBLocationObject -LocationName "East Us" -FailoverPriority 0 -IsZoneRedundant 0
+$locations += New-AzCosmosDBLocationObject -LocationName "West Us" -FailoverPriority 1 -IsZoneRedundant 0
+
 $resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "cosmos-$uniqueId" # Must be all lower case
+$serverVersion = "3.6" #3.2 or 3.6
 $consistencyLevel = "Session"
 $tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
 $databaseName = "myDatabase"
@@ -25,9 +29,9 @@ $ttlInSeconds = 604800
 # --------------------------------------------------
 Write-Host "Creating account $accountName"
 $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
-    -Location $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
+    -LocationObject $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
     -DefaultConsistencyLevel $consistencyLevel `
-    -EnableAutomaticFailover:$true
+    -EnableAutomaticFailover:$true -MongoDBServerVersion $serverVersion
 
 Write-Host "Creating database $databaseName"
 $database = New-AzCosmosDBMongoDBDatabase -ParentObject $account `

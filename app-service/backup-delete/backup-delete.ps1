@@ -8,4 +8,4 @@ Get-AzWebAppBackupList -ResourceGroupName $resourceGroupName -Name $webappname
 
 # Delete the backup by specifying the BackupID
 Remove-AzWebAppBackup -ResourceGroupName $resourceGroupName -Name $webappname `
--BackupId <replace-with-BackupID>
+-BackupId '<replace-with-BackupID>'
