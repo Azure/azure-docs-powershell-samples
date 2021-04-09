@@ -52,7 +52,7 @@ Set-AzRecoveryServicesProtectionPolicy `
 $namedContainer = Get-AzRecoveryServicesContainer -ContainerType "AzureVM" -Status "Registered" -FriendlyName "myVM"
 $item = Get-AzRecoveryServicesBackupItem -Container $namedContainer -WorkloadType "AzureVM"
 $job = Backup-AzRecoveryServicesBackupItem -Item $item
-$joblist = Get-AzRecoveryServicesJob â€“Status "InProgress"
+$joblist = Get-AzRecoveryServicesJob -Status "InProgress"
 Wait-AzRecoveryServicesJob `
         -Job $joblist[0] `
         -Timeout 43200
