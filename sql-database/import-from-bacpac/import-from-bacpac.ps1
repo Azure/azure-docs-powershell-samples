@@ -62,7 +62,7 @@ $serverFirewallRule = New-AzSqlServerFirewallRule -ResourceGroupName $resourceGr
 $importRequest = New-AzSqlDatabaseImport -ResourceGroupName $resourceGroupName `
     -ServerName $serverName `
     -DatabaseName $databaseName `
-    -DatabaseMaxSizeBytes "262144000" `
+    -DatabaseMaxSizeBytes 100GB `
     -StorageKeyType "StorageAccessKey" `
     -StorageKey $(Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -StorageAccountName $storageAccountName).Value[0] `
     -StorageUri "https://$storageaccountname.blob.core.windows.net/$storageContainerName/$bacpacFilename" `
