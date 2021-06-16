@@ -132,32 +132,51 @@ function Get-AzMigDiscoveredVMwareVMs {
    
     $discoverySolution = $response
      
-    $map = $discoverysolution.properties.details.extendedDetails.applianceNameToSiteIdMapV2
-    $map = $map | ConvertFrom-Json
-    Write-Debug $map.count
-    if($map) {$map | Write-Debug}
-    if (-not $map.count) {throw "No Migrate Appliance in project"}
+    $appMap = @{}
 
-    $vmwareappliancemap = @()
+    if ($null -ne $discoverySolution.properties.details.extendedDetails.applianceNameToSiteIdMapV2) {
+        $appMapV2 = $discoverySolution.properties.details.extendedDetails.applianceNameToSiteIdMapV2 | ConvertFrom-Json
+        # Fetch all appliance from V2 map first. Then these can be updated if found again in V3 map.
+        foreach ($item in $appMapV2) {
+            $appMap[$item.ApplianceName] = $item.SiteId
+        }
+    }
+    
+    if ($null -ne $discoverySolution.properties.details.extendedDetails.applianceNameToSiteIdMapV3) {
+        $appMapV3 = $discoverySolution.properties.details.extendedDetails.applianceNameToSiteIdMapV3 | ConvertFrom-Json
+        foreach ($item in $appMapV3) {
+            $t = $item.psobject.properties
+            $appMap[$t.Name] = $t.Value.SiteId
+        }    
+    }
+
+    if ($null -eq $discoverySolution.properties.details.extendedDetails.applianceNameToSiteIdMapV2 -And
+         $null -eq $discoverySolution.properties.details.extendedDetails.applianceNameToSiteIdMapV3 ) {
+        throw "Server Discovery Solution missing Appliance Details. Invalid Solution."           
+    }
+
+
+    
+
+    $vmwareappliancemap = @{}
     #Discard non-VMware appliances
-   
-    $map | foreach {if($_.SiteId -match "VMwareSites") {$vmwareappliancemap += $_}}
+
+    $appMap.GetEnumerator() | foreach {if($_.Value -match "VMwareSites") {$vmwareappliancemap[$_.Key] = $_.Value}}
     Write-Debug $vmwareappliancemap.count
-    if($vmwareappliancemap) {$vmwareappliancemap | Write-Debug};
+    if($vmwareappliancemap) {$vmwareappliancemap | Out-String | Write-Debug};
     if (-not $vmwareappliancemap.count) {throw "No VMware VMs discovered in project"};
     
 	Write-Host "Please wait while the list of discovered machines is downloaded..."
     
     $DiscoveredMachines = @()
-    foreach ($item in $vmwareappliancemap) {
-        $SiteId = $item.SiteId;
+    foreach ($item in $vmwareappliancemap.GetEnumerator()) {
+        $SiteId = $item.Value;
         Write-Debug "Get machines for Site $SiteId"
         $requesturi = $Properties['baseurl'] + $SiteId + "/machines" + $SDS_APIVERSION + "&`$top=400"
 		
 		#Write-Host $requesturi
 		
-		$temp = $SiteId -match "\/([^\/]*)\w{4}site$" # Extract the appliance name
-		$appliancename = $Matches[1]
+		$appliancename = $item.Key
 		Write-Host "Downloading machines for appliance " $appliancename ". This can take 1-2 minutes..."
         $response = $null
 		try {
@@ -448,4 +467,3 @@ $jsonPayload = @"
 	Remove-Item $temp_filename
 }
 Export-ModuleMember -Function Get-AzMigDependenciesAgentless
-
