@@ -1,4 +1,4 @@
-$appdirectory="<Replace with your app directory>"
+$filePath="<Replace with full file path>"
 $webappname="mywebapp$(Get-Random)"
 $location="West Europe"
 
@@ -23,16 +23,37 @@ $username = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userName
 $password = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userPWD").value
 $url = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@publishUrl").value
 
-# Upload files recursively 
-Set-Location $appdirectory
-$webclient = New-Object -TypeName System.Net.WebClient
-$webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-$files = Get-ChildItem -Path $appdirectory -Recurse | Where-Object{!($_.PSIsContainer)}
-foreach ($file in $files)
-{
-    $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')
-    $uri = New-Object System.Uri("$url/$relativepath")
-    "Uploading to " + $uri.AbsoluteUri
-    $webclient.UploadFile($uri, $file.FullName)
-} 
-$webclient.Dispose()
+# Upload file 
+$file = Get-Item -Path $filePath
+$uri = New-Object System.Uri("$url/$($file.Name)")
+
+$request = [System.Net.FtpWebRequest]([System.net.WebRequest]::Create($uri))
+$request.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
+$request.Credentials = New-Object System.Net.NetworkCredential($username,$password)
+
+# Enable SSL for FTPS. Should be $false if FTP.
+$request.EnableSsl = $true;
+
+# Write the file to the request object.
+$fileBytes = [System.IO.File]::ReadAllBytes($filePath)
+$request.ContentLength = $fileBytes.Length;
+$requestStream = $request.GetRequestStream()
+
+try {
+    $requestStream.Write($fileBytes, 0, $fileBytes.Length)
+}
+finally {
+    $requestStream.Dispose()
+}
+
+Write-Host "Uploading to $($uri.AbsoluteUri)"
+
+try {
+    $response = [System.Net.FtpWebResponse]($request.GetResponse())
+    Write-Host "Status: $($response.StatusDescription)"
+}
+finally {
+    if ($null -ne $response) {
+        $response.Close()
+    }
+}
