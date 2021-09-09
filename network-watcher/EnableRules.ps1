@@ -64,7 +64,7 @@ function EnableDisableFirewallRule
     if(!($DisableRule))
     {
         #TCP Firewall Rule
-        $existingRule = (New-object –comObject HNetCfg.FwPolicy2).rules | Where-Object {$_.name -like $firewallRuleName}
+        $existingRule = (New-object -comObject HNetCfg.FwPolicy2).rules | Where-Object {$_.name -like $firewallRuleName}
         if(!($existingRule))
         { 
             netsh advfirewall firewall add rule action="Allow" Description=$firewallRuleDescription Dir=$direction LocalPort=$portNumber Name=$firewallRuleName Protocol=$protocolName
