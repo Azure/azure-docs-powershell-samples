@@ -61,7 +61,6 @@ function Upgrade-SqlVMsToFullMode {
         [ValidateNotNullOrEmpty()]
         [string[]]
         $SubscriptionList,
-        [Parameter(Mandatory = $false, ParameterSetName = 'TenantId')]
         [string]
         $TenantId
     )
