@@ -9,7 +9,7 @@ products:
 
 # Sample code for Azure PowerShell Documentation
 
-This repository contains the PowerShell code featured in Azure PowerShell documentation.
+This repository contains the Azure PowerShell code featured in Azure PowerShell documentation.
 
 ## Samples
 
@@ -61,7 +61,7 @@ can accept your pull request you must sign our
 ## License
 
 The MIT License applies to the code contained in this repo. For more information, see
-[LICENSE](LICENSE.md).
+[LICENSE](LICENSE).
 
 # Microsoft Open Source Code of Conduct
 
