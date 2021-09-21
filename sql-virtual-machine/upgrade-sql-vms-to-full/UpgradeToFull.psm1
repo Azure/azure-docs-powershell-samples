@@ -6,12 +6,12 @@
 
 <#
     .SYNOPSIS
-    Upgrades all Azure SQL VM running LightWeight to Full mode.
+    Updates all Azure SQL VM running LightWeight to Full mode.
 
     .DESCRIPTION
-    Identify and upgrade all Azure SQL VM running LightWeight extension from list of subscriptions or unique subscription. 
+    Identify and update all Azure SQL VM running LightWeight extension from list of subscriptions or unique subscription. 
     A summary is displayed at the end of the script run.
-    The Output summary contains the number of SQL VMs that successfully upgraded, failed or were skipped because of various reasons.
+    The Output summary contains the number of SQL VMs that successfully updated, failed or were skipped because of various reasons.
     Reasons may include Multiple Instances on the VM, Failover Cluster VM, status of the VM not available at the time of the script.
     Failed VMs may correspond to authorization issues, SQL Server not running on the VM, VM not running or Guest Agent on the VM not running.
 
@@ -30,30 +30,30 @@
       found here: https://www.powershellgallery.com/packages/Az.SqlVirtualMachine/0.1.0
 
     .PARAMETER SubscriptionList
-    List of Subscriptions whose SQL VMs need to be upgraded
+    List of Subscriptions whose SQL VMs need to be updated
     
     .PARAMETER TenantId
     Tenant id where the subscriptions are hosted
     
     .EXAMPLE
-    #To upgrade all SQL VMs in a single subscription
-    Upgrade-SqlVMsToFullMode -SubscriptionList SubscriptionId1
+    #To update all SQL VMs in a single subscription
+    Update-SqlVMsToFullMode -SubscriptionList SubscriptionId1
     -----------------------------------------------------------------------------------------------------------------------------------------------
     Summary
     -----------------------------------------------------------------------------------------------------------------------------------------------
     Total VMs Found: 10
-    Number of VMs upgraded successfully: 5
-    Number of VMs failed to upgrade due to VMNotRunning or AuthorizationErrors: 1
+    Number of VMs updated successfully: 5
+    Number of VMs failed to update due to VMNotRunning or AuthorizationErrors: 1
     Number of VMs skipped: 2
     
-    Please find the detailed report in file UpgradeSqlVMToFullScriptReport1571314821.txt
-    Please find the error details in file VMsNotUpgradedDueToError1571314821.log
+    Please find the detailed report in file UpdateSqlVMToFullScriptReport1571314821.txt
+    Please find the error details in file VMsNotUpdatedDueToError1571314821.log
     -----------------------------------------------------------------------------------------------------------------------------------------------
 
     .LINK
     https://www.powershellgallery.com/packages/Az.SqlVirtualMachine/0.1.0
 #>
-function Upgrade-SqlVMsToFullMode {
+function Update-SqlVMsToFullMode {
     [CmdletBinding(DefaultParameterSetName = 'SubscriptionList')]
     Param
     (
@@ -71,10 +71,10 @@ function Upgrade-SqlVMsToFullMode {
     Update-Globals
 
     $subsCompleted = 0
-    #loop over all subscriptions to upgrade VMs
+    #loop over all subscriptions to update VMs
     foreach ($SubscriptionId in $SubscriptionList) {
         [int]$percent = ($subsCompleted * 100) / $SubscriptionList.Count
-        Write-Progress -Activity "Upgrade SQL VMs in $($SubscriptionId) $($subsCompleted+1)/$($SubscriptionList.Count)" -Status "$percent% Complete:" -PercentComplete $percent -CurrentOperation "UpgradeVMsInSub" -Id 1;
+        Write-Progress -Activity "Update SQL VMs in $($SubscriptionId) $($subsCompleted+1)/$($SubscriptionList.Count)" -Status "$percent% Complete:" -PercentComplete $percent -CurrentOperation "UpdateVMsInSub" -Id 1;
 
         $isSubValid = $false
         if ($TenantId){
@@ -84,11 +84,11 @@ function Upgrade-SqlVMsToFullMode {
         }
 
         if ($isSubValid) {
-            Upgrade-SqlVMForSubscription -Subscription $SubscriptionId -Credential $credential
+            Update-SqlVMForSubscription -Subscription $SubscriptionId -Credential $credential
         }
         $subsCompleted++
     }
-    Write-Progress -Activity "Upgrade SQL VMs to Full mode" -Status "100% Complete:" -PercentComplete 100 -CurrentOperation "UpgradeVMsInSub" -Id 1 -Completed;
+    Write-Progress -Activity "Update SQL VMs to Full mode" -Status "100% Complete:" -PercentComplete 100 -CurrentOperation "UpdateVMsInSub" -Id 1 -Completed;
 
     #Report 
     new-Report
@@ -96,7 +96,7 @@ function Upgrade-SqlVMsToFullMode {
 
 <#
     .SYNOPSIS
-    Upgrade SQL VMs in a given subscription
+    Update SQL VMs in a given subscription
 
     .PARAMETER Subscription
     Subscription for searching the VM
@@ -104,7 +104,7 @@ function Upgrade-SqlVMsToFullMode {
     .PARAMETER Credential
     Credential to connect to subscription
 #>
-function Upgrade-SqlVMForSubscription (
+function Update-SqlVMForSubscription (
     [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]
@@ -112,7 +112,7 @@ function Upgrade-SqlVMForSubscription (
     [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     $Credential) {
-    [System.Collections.ArrayList]$vmList = GetSqlVmList
+    [System.Collections.ArrayList]$vmList = Get-SqlVmList
     #update vm count
     $Global:TotalVMs += $vmList.Count
 
@@ -125,15 +125,15 @@ function Upgrade-SqlVMForSubscription (
     while (($retryCount -le $MAX_RETRIES) -and ($vmList.Count -gt 0)) {
         if ($retryCount -gt 0) {
             [int]$percent = ($retryCount * 100) / $MAX_RETRIES
-            Write-Progress -Activity "Retrying upgrade" -Status "$percent% Complete:" -PercentComplete $percent -CurrentOperation "Retrying" -Id 2;
+            Write-Progress -Activity "Retrying update" -Status "$percent% Complete:" -PercentComplete $percent -CurrentOperation "Retrying" -Id 2;
         }
         $retryCount++
         if ($retryCount -eq $MAX_RETRIES) {
             $retryIfRequired = $false 
         }
-        [System.Collections.ArrayList]$vmList = UpgradeSqlVmFromList -VMList $vmList -RetryIfRequired $retryIfRequired
+        [System.Collections.ArrayList]$vmList = Update-SqlVmFromList -VMList $vmList -RetryIfRequired $retryIfRequired
         if (($vmList.Count -eq 0) -or ($retryCount -eq $MAX_RETRIES )) {
-            Write-Progress -Activity "Retrying upgrade" -Status "100% Complete:" -PercentComplete 100 -CurrentOperation "Retrying" -Completed -Id 2;
+            Write-Progress -Activity "Retrying update" -Status "100% Complete:" -PercentComplete 100 -CurrentOperation "Retrying" -Completed -Id 2;
         }
     }
 }
@@ -145,11 +145,11 @@ function Upgrade-SqlVMForSubscription (
     .OUTPUTS
     System.Collections.ArrayList list of VMs
 #>
-function GetSqlVmList() {
+function Get-SqlVmList() {
     $vmList = [System.Collections.ArrayList]@()
 
     $vmsInSub = Get-AzSqlVM
-    # We will get all VMs that are Windows, since they're the only allowed to upgrade to Full
+    # We will get all VMs that are Windows, since they're the only allowed to update to Full
     # also all the VMs that were properly registered
     foreach ($vm in $vmsInSub) {
         if (($vm.Sku -ne 'Unknown') -and ($vm.Offer -like '*WS*') -and ($vm.SqlManagementType -eq 'LightWeight')) {
@@ -245,7 +245,7 @@ function Assert-SubscriptionMFA(
 #Globals for reporting and logging
 $Global:TotalVMs = 0
 $Global:SubscriptionsFailedToConnect = [System.Collections.ArrayList]@()
-$Global:UpgradedVMs = [System.Collections.ArrayList]@()
+$Global:UpdatedVMs = [System.Collections.ArrayList]@()
 $Global:FailedVMs = [System.Collections.ArrayList]@()
 $Global:SkippedVMs = [System.Collections.ArrayList]@()
 $Global:LogFile = $null
@@ -259,11 +259,11 @@ function Update-Globals() {
     [int]$timestamp = Get-Date (Get-Date)  -UFormat %s
     $Global:TotalVMs = 0
     $Global:SubscriptionsFailedToConnect = [System.Collections.ArrayList]@()
-    $Global:UpgradedVMs = [System.Collections.ArrayList]@()
+    $Global:UpdatedVMs = [System.Collections.ArrayList]@()
     $Global:FailedVMs = [System.Collections.ArrayList]@()
     $Global:SkippedVMs = [System.Collections.ArrayList]@()
-    $Global:LogFile = "VMsNotUpgradedDueToError" + $timestamp + ".log"
-    $Global:ReportFile = "UpgradeSqlVMToFullScriptReport" + $timestamp + ".txt"
+    $Global:LogFile = "VMsNotUpdatedDueToError" + $timestamp + ".log"
+    $Global:ReportFile = "UpdateSqlVMToFullScriptReport" + $timestamp + ".txt"
     Remove-Item $Global:LogFile -ErrorAction Ignore
     Remove-Item $Global:ReportFile -ErrorAction Ignore
     $txtLogHeader = "Subscription,[Resource Group],[VM Name],[ErrorCode],Error Message"
@@ -352,10 +352,10 @@ function CannotBeRetried(
 
 <#
     .SYNOPSIS
-    Given a list of SQL VMs, upgrade SQL VMs to Full
+    Given a list of SQL VMs, update SQL VMs to Full
 
     .PARAMETER VMList
-    List of SQL VMs for which will be upgraded to Full
+    List of SQL VMs for which will be updated to Full
 
     .PARAMETER RetryIfRequired
     Flag to specify if resource creation needs to be retried
@@ -363,7 +363,7 @@ function CannotBeRetried(
     .OUTPUTS
     System.Collections.ArrayList List of SQL VMs whose creation failed with retryable errors
 #>
-function UpgradeSqlVmFromList(
+function Update-SqlVmFromList(
     [ValidateNotNullOrEmpty()]
     [array]
     $VMList,
@@ -373,20 +373,20 @@ function UpgradeSqlVmFromList(
     $retryableVMs = [System.Collections.ArrayList]@()
     [Int32]$numberOfVMs = $VMList.Count
     $completed = 0
-    Write-Progress -Activity "Upgrade SQL VM" -Status "0% Complete:" -PercentComplete 0 -CurrentOperation "UpgradingVMs" -Id 3
+    Write-Progress -Activity "Update SQL VM" -Status "0% Complete:" -PercentComplete 0 -CurrentOperation "UpgradingVMs" -Id 3
 
     # for each vm in the list try upgrading to Full
     foreach ($vm in $VMList) {
         # write progress of the loop
         [int]$percent = ($completed * 100) / $numberOfVMs
-        Write-Progress -Activity "Upgrade SQL VM $($completed+1)/$($VMList.count)" -Status "$percent% Complete:" -PercentComplete $percent -CurrentOperation "UpdatingVMs" -Id 3
+        Write-Progress -Activity "Update SQL VM $($completed+1)/$($VMList.count)" -Status "$percent% Complete:" -PercentComplete $percent -CurrentOperation "UpdatingVMs" -Id 3
 
         $name = $vm.Name
         $resourceGroupName = $vm.ResourceGroupName
         $SqlManagementType = 'Full'
 
-        # assert that in fact we can upgrade
-        if (Assert-CanUpgradeToFull -VmName $name -ResourceGroup $resourceGroupName){
+        # assert that in fact we can update
+        if (Assert-CanUpdateToFull -VmName $name -ResourceGroup $resourceGroupName){
             $tmp = $Global:Error.Clear()
             $tmp = Update-AzSqlVM -Name $name -ResourceGroupName $resourceGroupName -SqlManagementType $SqlManagementType -ErrorAction SilentlyContinue
 
@@ -407,7 +407,7 @@ function UpgradeSqlVmFromList(
                     }
                 }
             }else {
-                $tmp = $Global:UpgradedVMs.Add($vm)
+                $tmp = $Global:UpdatedVMs.Add($vm)
             }
         }else{
             $tmp = $Global:SkippedVMs.Add($vm)
@@ -421,7 +421,7 @@ function UpgradeSqlVmFromList(
 
 <#
     .SYNOPSIS
-    Given a VM, check if Extension can upgrade to Full
+    Given a VM, check if Extension can update to Full
 
     .PARAMETER VmName
     Name of the VM
@@ -430,15 +430,15 @@ function UpgradeSqlVmFromList(
     Name of the resource group
 
     .OUTPUTS
-    bool if you can upgrade or not
+    bool if you can update or not
 #>
-function Assert-CanUpgradeToFull(
+function Assert-CanUpdateToFull(
     [Parameter(Mandatory = $true)]
     $VmName,
     [Parameter(Mandatory = $true)]
     $ResourceGroup){
 
-    # Get extension status first to check if upgrade is possible
+    # Get extension status first to check if update is possible
     $tmp = $Global:Error.Clear()
     $tmp = Get-AzVMExtension -Name "SqlIaaSExtension" -VMName $VmName -ResourceGroupName $ResourceGroup -Status -ErrorAction SilentlyContinue
     if ($Global:Error) {
@@ -502,16 +502,16 @@ function new-Report() {
 
 
     #display success
-    $txtSuccessful = "Number of VMs upgraded successfully: $($Global:UpgradedVMs.Count)"
-    show-VMDetailsInReport -Message $txtSuccessful -VMList $Global:UpgradedVMs
+    $txtSuccessful = "Number of VMs updated successfully: $($Global:UpdatedVMs.Count)"
+    show-VMDetailsInReport -Message $txtSuccessful -VMList $Global:UpdatedVMs
 
     #display failure
     if ($Global:FailedVMs.Count -gt 0) {
-        $txtFailed = "Number of VMs failed to upgrade due to VMNotRunning or AuthorizationErrors: $($Global:FailedVMs.Count)"
+        $txtFailed = "Number of VMs failed to update due to VMNotRunning or AuthorizationErrors: $($Global:FailedVMs.Count)"
         show-VMDetailsInReport -Message $txtFailed -VMList $Global:FailedVMs
     }
 
-    #display VMs that cannot upgrade from LightWeight
+    #display VMs that cannot update from LightWeight
     if ($Global:SkippedVMs.Count -gt 0) {
         $txtFailed = "Number of VMs skipped: $($Global:SkippedVMs.Count)"
         show-VMDetailsInReport -Message $txtFailed -VMList $Global:SkippedVMs
