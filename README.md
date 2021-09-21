@@ -1,6 +1,6 @@
 ---
 page_type: sample
-description: "A collection of samples used in the Azure PowerShell Documentation."
+description: "A collection of Azure PowerShell code samples used in Microsoft's official Azure PowerShell Documentation."
 languages:
 - powershell
 products:
