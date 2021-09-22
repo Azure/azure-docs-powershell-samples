@@ -58,6 +58,17 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         }
         return
     }
+    
+    #Code added to accommodate for Target Subscription if the replicated machine is suppose to land in a different Target subscription
+    $targetSubscriptionID = $csvItem.TARGET_SUBSCRIPTION_ID
+    if ([string]::IsNullOrEmpty($targetSubscriptionID)) {
+        $processor.Logger.LogTrace("TARGET_SUBSCRIPTION_ID is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "TARGET_SUBSCRIPTION_ID is not mentioned for: '$($sourceMachineName)'"         
+    }
+    else {
+        Set-AzContext -SubscriptionId $targetSubscriptionID
+    }    
+    #End Code for Target Subscription
 
     $targetVnetName = $csvItem.TESTMIGRATE_VNET_NAME
     if ([string]::IsNullOrEmpty($targetVnetName)) {
@@ -74,6 +85,21 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         return
     }
     
+
+    #Code added to accommodate for Target Subscription if the replicated machine is suppose to land in a different Target subscription
+    #We are reverting to Azure Migrate Subscription
+    if (-not([string]::IsNullOrEmpty($targetSubscriptionID))) {
+        $azMigProjSubscriptionID = $csvItem.AZMIGRATEPROJECT_SUBSCRIPTION_ID
+        if ([string]::IsNullOrEmpty($azMigProjSubscriptionID)){
+            $processor.Logger.LogTrace("AZMIGRATEPROJECT_SUBSCRIPTION_ID is not mentioned for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "AZMIGRATEPROJECT_SUBSCRIPTION_ID is not mentioned for: '$($sourceMachineName)'"
+            return
+        }
+        else {
+            Set-AzContext -SubscriptionId $azMigProjSubscriptionID
+        }        
+    } 
+    #End Code for Target Subscription
 
     $TestMigrationJob = Start-AzMigrateTestMigration -InputObject $ReplicatingServermachine -TestNetworkID $Target_VNet.Id
     if (-not $TestMigrationJob){
