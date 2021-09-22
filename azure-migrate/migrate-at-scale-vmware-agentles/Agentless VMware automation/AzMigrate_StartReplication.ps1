@@ -48,6 +48,17 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         return
     }
 
+    #Code added to accommodate for Target Subscription if the replicated machine is suppose to land in a different Target subscription
+    $targetSubscriptionID = $csvItem.TARGET_SUBSCRIPTION_ID
+    if ([string]::IsNullOrEmpty($targetSubscriptionID)) {
+        $processor.Logger.LogTrace("TARGET_SUBSCRIPTION_ID is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "TARGET_SUBSCRIPTION_ID is not mentioned for: '$($sourceMachineName)'"         
+    }
+    else {
+        Set-AzContext -Subscription $targetSubscriptionID
+    }    
+    #End Code for Target Subscription
+
     $targetResourceGroup = $csvItem.TARGET_RESOURCE_GROUP_NAME
     if ([string]::IsNullOrEmpty($targetResourceGroup)) {
         $processor.Logger.LogTrace("TARGET_RESOURCE_GROUP_NAME is not mentioned for: '$($sourceMachineName)'")
@@ -95,6 +106,21 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     else {
         $params.Add("TargetSubnetName", $targetSubnetName)
     }
+
+    #Code added to accommodate for Target Subscription if the replicated machine is suppose to land in a different Target subscription
+    #We are reverting to Azure Migrate Subscription
+    if (-not([string]::IsNullOrEmpty($targetSubscriptionID))) {
+        $azMigProjSubscriptionID = $csvItem.AZMIGRATEPROJECT_SUBSCRIPTION_ID
+        if ([string]::IsNullOrEmpty($azMigProjSubscriptionID)){
+            $processor.Logger.LogTrace("AZMIGRATEPROJECT_SUBSCRIPTION_ID is not mentioned for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "AZMIGRATEPROJECT_SUBSCRIPTION_ID is not mentioned for: '$($sourceMachineName)'"
+            return
+        }
+        else {
+            Set-AzContext -Subscription $azMigProjSubscriptionID
+        }        
+    } 
+    #End Code for Target Subscription
 
     #Get the Discovery Data for this machine
     $DiscoveredServer = $AzMigrateShared.GetDiscoveredServer($azMigrateRG, $azMigrateProjName, $sourceMachineName)
