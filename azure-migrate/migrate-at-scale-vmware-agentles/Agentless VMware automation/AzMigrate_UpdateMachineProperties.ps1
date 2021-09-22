@@ -53,6 +53,17 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     # parameters to pass to New-AzMigrateServerReplication
     $params = @{}
     $params.Add("InputObject", $ReplicatingServermachine)
+    
+    #Code added to accommodate for Target Subscription if the replicated machine is suppose to land in a different Target subscription
+    $targetSubscriptionID = $csvItem.TARGET_SUBSCRIPTION_ID
+    if ([string]::IsNullOrEmpty($targetSubscriptionID)) {
+        $processor.Logger.LogTrace("TARGET_SUBSCRIPTION_ID is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "TARGET_SUBSCRIPTION_ID is not mentioned for: '$($sourceMachineName)'"         
+    }
+    else {
+        Set-AzContext -SubscriptionId $targetSubscriptionID
+    }    
+    #End Code for Target Subscription
 
     #Get the Target ResourceGroup where we want to provision the VM in Azure
     $targetResourceGroup = $csvItem.UPDATED_TARGET_RESOURCE_GROUP_NAME
@@ -89,6 +100,20 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         }    
     }
     
+    #Code added to accommodate for Target Subscription if the replicated machine is suppose to land in a different Target subscription
+    #We are reverting to Azure Migrate Subscription
+    if (-not([string]::IsNullOrEmpty($targetSubscriptionID))) {
+        $azMigProjSubscriptionID = $csvItem.AZMIGRATEPROJECT_SUBSCRIPTION_ID
+        if ([string]::IsNullOrEmpty($azMigProjSubscriptionID)){
+            $processor.Logger.LogTrace("AZMIGRATEPROJECT_SUBSCRIPTION_ID is not mentioned for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "AZMIGRATEPROJECT_SUBSCRIPTION_ID is not mentioned for: '$($sourceMachineName)'"
+            return
+        }
+        else {
+            Set-AzContext -SubscriptionId $azMigProjSubscriptionID
+        }        
+    } 
+    #End Code for Target Subscription
 
     $targetMachineName = $csvItem.UPDATED_TARGET_MACHINE_NAME 
     if ([string]::IsNullOrEmpty($targetMachineName)) {
