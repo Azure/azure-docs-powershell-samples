@@ -52,6 +52,7 @@ AZMIGRATEPROJECT_NAME | Provide the name of the Azure Migrate project in that yo
 SOURCE_MACHINE_NAME | Provide the friendly name (display name) for the discovered VM in the Azure Migrate project.
 AZMIGRATEASSESSMENT_NAME | Provide the name of assessment that needs to be leveraged for migration.
 AZMIGRATEGROUP_NAME | Provide the name of the group that was used for the Azure Migrate assessment.
+TARGET_SUBSCRIPTION_ID | Provide the ID of the Subscription where VM needs to be migrated to.
 TARGET_RESOURCE_GROUP_NAME | Provide the name of the Azure resource group to that the VM needs to be migrated to.
 TARGET_VNET_NAME| Provide the name of the Azure Virtual Network that the migrated VM should use.
 TARGET_SUBNET_NAME | Provide the name of the subnet in the target virtual network that the migrated VM should use. If left blank, then “default” subnet will be used.
