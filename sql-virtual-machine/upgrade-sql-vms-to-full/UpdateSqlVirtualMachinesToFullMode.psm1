@@ -16,18 +16,16 @@
     Failed VMs may correspond to authorization issues, SQL Server not running on the VM, VM not running or Guest Agent on the VM not running.
 
     Prerequisites:
-    - The script needs to be run on Powershell 5.1 (Windows Only) and is incompatible with Powershell 6.x
     - Run 'Connect-AzAccount' to first connect the powershell session to the azure account.
+    - If your tenant has MFA enabled, you will have to re-login per subscription, TenantId may also be required.
     - Strongly adviced to have SQL Server running on the machine.
-    - If your tenant has MFA enabled, you will have to login every time for any new subscription in the list. 
-    - TenantId may be required as well to login to your subscription, please add it if necessary.
     - The Client credentials must have one of the following RBAC levels of access over the virtual machine being registered: Virtual Machine Contributor,
       Contributor or Owner
     - The script requires Az powershell module (>=2.8.0) to be installed. Details on how to install Az module can be found 
-      here : https://docs.microsoft.com/powershell/azure/install-az-ps?view=azps-2.8.0
+      here : https://docs.microsoft.com/powershell/azure/install-az-ps
       It specifically requires Az.Compute, Az.Accounts and Az.Resources module which comes as part of Az module (>=2.8.0) installation.
     - The script also requires Az.SqlVirtualMachine module. Details on how to install Az.SqlVirtualMachine can be
-      found here: https://www.powershellgallery.com/packages/Az.SqlVirtualMachine/0.1.0
+      found here: https://www.powershellgallery.com/packages/Az.SqlVirtualMachine
 
     .PARAMETER SubscriptionList
     List of Subscriptions whose SQL VMs need to be updated
@@ -50,8 +48,8 @@
     Please find the error details in file VMsNotUpdatedDueToError1571314821.log
     -----------------------------------------------------------------------------------------------------------------------------------------------
 
-    .LINK
-    https://www.powershellgallery.com/packages/Az.SqlVirtualMachine/0.1.0
+    .NOTES
+    https://www.powershellgallery.com/packages/Az.SqlVirtualMachine
 #>
 function Update-SqlVMsToFullMode {
     [CmdletBinding(DefaultParameterSetName = 'SubscriptionList')]
@@ -388,7 +386,7 @@ function Update-SqlVmFromList(
         # assert that in fact we can update
         if (Assert-CanUpdateToFull -VmName $name -ResourceGroup $resourceGroupName){
             $tmp = $Global:Error.Clear()
-            $tmp = Update-AzSqlVM -Name $name -ResourceGroupName $resourceGroupName -SqlManagementType $SqlManagementType -ErrorAction SilentlyContinue
+            #$tmp = Update-AzSqlVM -Name $name -ResourceGroupName $resourceGroupName -SqlManagementType $SqlManagementType -ErrorAction SilentlyContinue
 
             if ($Global:Error) {
                 $LastError = $Global:Error[0]
@@ -597,3 +595,5 @@ function new-ReportHelper(
 
     $outputObjectList | Format-Table -AutoSize
 }
+
+Export-ModuleMember -Function Update-SqlVMsToFullMode
