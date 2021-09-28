@@ -386,7 +386,7 @@ function Update-SqlVmFromList(
         # assert that in fact we can update
         if (Assert-CanUpdateToFull -VmName $name -ResourceGroup $resourceGroupName){
             $tmp = $Global:Error.Clear()
-            #$tmp = Update-AzSqlVM -Name $name -ResourceGroupName $resourceGroupName -SqlManagementType $SqlManagementType -ErrorAction SilentlyContinue
+            $tmp = Update-AzSqlVM -Name $name -ResourceGroupName $resourceGroupName -SqlManagementType $SqlManagementType -ErrorAction SilentlyContinue
 
             if ($Global:Error) {
                 $LastError = $Global:Error[0]
