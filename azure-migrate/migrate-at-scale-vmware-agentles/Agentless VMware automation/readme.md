@@ -25,7 +25,7 @@ The implementation logic for these scripts is dervived from our [automation scri
 
 1. [Complete the discovery tutorial](tutorial-discover-vmware.md) to prepare Azure and VMware for migration.
 2. We recommend that you complete the second tutorial to [assess VMware VMs](tutorial-assess-vmware.md) before migrating them to Azure.
-3. You have the Azure PowerShell `Az` module. If you need to install or upgrade Azure PowerShell, follow this [guide to install and configure Azure PowerShell](https://github.com/azure/azure-powershell#installation)
+3. You have the Azure PowerShell `Az` module. If you need to install or upgrade Azure PowerShell, follow this [guide to install and configure Azure PowerShell](https://docs.microsoft.com/powershell/azure/install-az-ps)
 
 ## Install Azure Migrate PowerShell module
 
