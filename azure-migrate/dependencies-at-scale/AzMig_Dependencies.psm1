@@ -386,12 +386,14 @@ function Get-AzMigDependenciesAgentless {
 			throw "Could not retrieve the site for appliance $appliancename"
     }
 	
-	$sites = ConvertFrom-Json $siteresponse.properties.details.extendedDetails.applianceNameToSiteIdMapV2
+	$sites = ConvertFrom-Json $siteresponse.properties.details.extendedDetails.applianceNameToSiteIdMapV3
 	
 	$VMwareSiteID = ""
 	
 	foreach ($site in $sites) {
 	
+		$site = $site | Select-Object -ExpandProperty *
+		
 		$appliancename = $site.ApplianceName;
 		
 		if ($Appliance -ne $appliancename) {continue}
