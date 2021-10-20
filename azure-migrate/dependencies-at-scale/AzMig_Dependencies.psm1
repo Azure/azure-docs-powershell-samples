@@ -386,22 +386,33 @@ function Get-AzMigDependenciesAgentless {
 			throw "Could not retrieve the site for appliance $appliancename"
     }
 	
-	$sites = ConvertFrom-Json $siteresponse.properties.details.extendedDetails.applianceNameToSiteIdMapV3
-	
 	$VMwareSiteID = ""
-	
-	foreach ($site in $sites) {
-	
-		$site = $site | Select-Object -ExpandProperty *
-		
-		$appliancename = $site.ApplianceName;
-		
-		if ($Appliance -ne $appliancename) {continue}
-	
-		$VMwareSiteID =  $site.SiteId
 
-	}
-	
+    if ($null -ne $siteresponse.properties.details.extendedDetails.applianceNameToSiteIdMapV2) {
+        $appMapV2 = $siteresponse.properties.details.extendedDetails.applianceNameToSiteIdMapV2 | ConvertFrom-Json
+        # Fetch all appliance from V2 map first. Then these can be updated if found again in V3 map.
+        foreach ($site in $appMapV2) {
+            $appliancename = $site.ApplianceName;
+            if ($Appliance -ne $appliancename) {continue}
+            $VMwareSiteID =  $site.SiteId
+        }
+    }
+
+    if ($null -ne $siteresponse.properties.details.extendedDetails.applianceNameToSiteIdMapV3) {
+        $appMapV3 = $siteresponse.properties.details.extendedDetails.applianceNameToSiteIdMapV3 | ConvertFrom-Json
+        foreach ($site in $appMapV3) {
+            $siteProps = $site.psobject.properties
+            $appliancename = $siteProps.Value.ApplianceName;
+            if ($Appliance -ne $appliancename) {continue}
+            $VMwareSiteID =  $siteProps.Value.SiteId
+        }
+    }
+
+    if ($null -eq $siteresponse.properties.details.extendedDetails.applianceNameToSiteIdMapV2 -And
+         $null -eq $siteresponse.properties.details.extendedDetails.applianceNameToSiteIdMapV3 ) {
+        throw "Server Discovery Solution missing Appliance Details. Invalid Solution."           
+    }
+			
 	if($VMwareSiteID -eq "") {
 		Write-Host "Appliance name is not valid."
 		return;
