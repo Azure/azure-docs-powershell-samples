@@ -211,7 +211,7 @@ function SetAclOnRegistry([string] $path)
 
 #Script starts here
 #Check if the specified port is already Listening
-$getPortInfo = netstat -ao | Select-String "LISTENING" | Select-String $portNumber
+$getPortInfo = netstat -aon | Select-String "LISTENING" | Select-String $portNumber
 if(!($DisableRule) -and ($getPortInfo))
 {
     $isPortInUse = $true
