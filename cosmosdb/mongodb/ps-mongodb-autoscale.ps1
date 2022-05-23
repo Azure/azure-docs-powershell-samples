@@ -16,11 +16,11 @@ $locations += New-AzCosmosDBLocationObject -LocationName "West Us" -FailoverPrio
 
 $resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "cosmos-$uniqueId" # Must be all lower case
-$serverVersion = "3.6" #3.2 or 3.6
+$serverVersion = "4.2" #3.2, 3.6, 4.0 or 4.2
 $consistencyLevel = "Session"
 $databaseName = "myDatabase"
 $collectionName = "myCollection"
-$autoscaleMaxThroughput = 4000 #minimum = 4000
+$autoscaleMaxThroughput = 1000 #minimum = 1000
 $shardKey = "user_id"
 $partitionKeys = @("user_id", "user_address")
 $ttlKeys = @("_ts")
