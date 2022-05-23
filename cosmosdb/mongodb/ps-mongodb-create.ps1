@@ -31,7 +31,7 @@ Write-Host "Creating account $accountName"
 $account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
     -LocationObject $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
     -DefaultConsistencyLevel $consistencyLevel `
-    -EnableAutomaticFailover:$true -MongoDBServerVersion $serverVersion
+    -EnableAutomaticFailover:$true -ServerVersion $serverVersion
 
 Write-Host "Creating database $databaseName"
 $database = New-AzCosmosDBMongoDBDatabase -ParentObject $account `
