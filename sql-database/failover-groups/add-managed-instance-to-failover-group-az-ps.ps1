@@ -529,7 +529,7 @@ $primaryVirtualNetwork  = Get-AzVirtualNetwork `
                   -Name $primaryVNet `
                   -ResourceGroupName $resourceGroupName
 
-$secondaryVirtualNetwork = Get-AzVirtualNetwork 
+$secondaryVirtualNetwork = Get-AzVirtualNetwork `
                   -Name $secondaryVNet `
                   -ResourceGroupName $resourceGroupName
                   
