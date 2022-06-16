@@ -6,7 +6,7 @@
 # Variables - ***** SUBSTITUTE YOUR VALUES *****
 $resourceGroupName = "myResourceGroup" # Resource Group must already exist
 $accountName = "myaccount" # Must be all lower case
-$keyKind = "primary" # Other key kinds: secondary, primaryReadOnly, secondaryReadOnly
+$keyKind = "primary" # Other key kinds: secondary, primaryReadonly, secondaryReadonly
 # --------------------------------------------------
 
 Write-Host "List connection strings"
