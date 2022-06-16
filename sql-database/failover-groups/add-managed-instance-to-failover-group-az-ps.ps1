@@ -524,86 +524,38 @@ New-AzSqlInstance -Name $secondaryInstance `
                   -DnsZonePartner $primaryManagedInstanceId.Id
 Write-host "Secondary managed instance created successfully."
 
-
-# Create primary gateway
-Write-host "Adding GatewaySubnet to primary VNet..."
-Get-AzVirtualNetwork `
-                  -Name $primaryVNet `
-                  -ResourceGroupName $resourceGroupName `
-                | Add-AzVirtualNetworkSubnetConfig `
-                  -Name "GatewaySubnet" `
-                  -AddressPrefix $primaryMiGwSubnetAddress `
-                | Set-AzVirtualNetwork
-
+# Create global virtual network peering
 $primaryVirtualNetwork  = Get-AzVirtualNetwork `
                   -Name $primaryVNet `
                   -ResourceGroupName $resourceGroupName
-$primaryGatewaySubnet = Get-AzVirtualNetworkSubnetConfig `
-                  -Name "GatewaySubnet" `
-                  -VirtualNetwork $primaryVirtualNetwork
 
-Write-host "Creating primary gateway..."
-Write-host "This will take some time."
-$primaryGWPublicIP = New-AzPublicIpAddress -Name $primaryGWPublicIPAddress -ResourceGroupName $resourceGroupName `
-         -Location $location -AllocationMethod Dynamic
-$primaryGatewayIPConfig = New-AzVirtualNetworkGatewayIpConfig -Name $primaryGWIPConfig `
-         -Subnet $primaryGatewaySubnet -PublicIpAddress $primaryGWPublicIP
-
-$primaryGateway = New-AzVirtualNetworkGateway -Name $primaryGWName -ResourceGroupName $resourceGroupName `
-    -Location $location -IpConfigurations $primaryGatewayIPConfig -GatewayType Vpn `
-    -VpnType RouteBased -GatewaySku VpnGw1 -EnableBgp $true -Asn $primaryGWAsn
-$primaryGateway
-
-
-
-# Create the secondary gateway
-Write-host "Creating secondary gateway..."
-
-Write-host "Adding GatewaySubnet to secondary VNet..."
-Get-AzVirtualNetwork `
-                  -Name $secondaryVNet `
-                  -ResourceGroupName $resourceGroupName `
-                | Add-AzVirtualNetworkSubnetConfig `
-                  -Name "GatewaySubnet" `
-                  -AddressPrefix $secondaryMiGwSubnetAddress `
-                | Set-AzVirtualNetwork
-
-$secondaryVirtualNetwork  = Get-AzVirtualNetwork `
+$secondaryVirtualNetwork = Get-AzVirtualNetwork `
                   -Name $secondaryVNet `
                   -ResourceGroupName $resourceGroupName
-$secondaryGatewaySubnet = Get-AzVirtualNetworkSubnetConfig `
-                  -Name "GatewaySubnet" `
-                  -VirtualNetwork $secondaryVirtualNetwork
-$drLocation = $secondaryVirtualNetwork.Location
+                  
+Write-host "Peering primary VNet to secondary VNet..."
+Add-AzVirtualNetworkPeering `
+ -Name primaryVnet-secondaryVNet `
+ -VirtualNetwork $primaryVirtualNetwork `
+ -RemoteVirtualNetworkId $secondaryVirtualNetwork.Id
 
-Write-host "Creating secondary gateway..."
-Write-host "This will take some time."
-$secondaryGWPublicIP = New-AzPublicIpAddress -Name $secondaryGWPublicIPAddress -ResourceGroupName $resourceGroupName `
-         -Location $drLocation -AllocationMethod Dynamic
-$secondaryGatewayIPConfig = New-AzVirtualNetworkGatewayIpConfig -Name $secondaryGWIPConfig `
-         -Subnet $secondaryGatewaySubnet -PublicIpAddress $secondaryGWPublicIP
+Write-host "Peering secondary VNet to primary VNet..."
+Add-AzVirtualNetworkPeering `
+ -Name secondaryVNet-primaryVNet`
+ -VirtualNetwork $secondaryVirtualNetwork `
+ -RemoteVirtualNetworkId $primaryVirtualNetwork.Id
 
-$secondaryGateway = New-AzVirtualNetworkGateway -Name $secondaryGWName -ResourceGroupName $resourceGroupName `
-    -Location $drLocation -IpConfigurations $secondaryGatewayIPConfig -GatewayType Vpn `
-    -VpnType RouteBased -GatewaySku VpnGw1 -EnableBgp $true -Asn $secondaryGWAsn
-$secondaryGateway
+Write-host "Checking peering state on the primary virtual network..."
+Get-AzVirtualNetworkPeering `
+-ResourceGroupName $resourceGroupName `
+-VirtualNetworkName $primaryVNet `
+| Select PeeringState
 
-
-# Connect the primary to secondary gateway
-Write-host "Connecting the primary gateway to secondary gateway..."
-New-AzVirtualNetworkGatewayConnection -Name $primaryGWConnection -ResourceGroupName $resourceGroupName `
-    -VirtualNetworkGateway1 $primaryGateway -VirtualNetworkGateway2 $secondaryGateway -Location $location `
-    -ConnectionType Vnet2Vnet -SharedKey $vpnSharedKey -EnableBgp $true
-$primaryGWConnection
-
-# Connect the secondary to primary gateway
-Write-host "Connecting the secondary gateway to primary gateway..."
-
-New-AzVirtualNetworkGatewayConnection -Name $secondaryGWConnection -ResourceGroupName $resourceGroupName `
-    -VirtualNetworkGateway1 $secondaryGateway -VirtualNetworkGateway2 $primaryGateway -Location $drLocation `
-    -ConnectionType Vnet2Vnet -SharedKey $vpnSharedKey -EnableBgp $true
-$secondaryGWConnection
-
+Write-host "Checking peering state on the secondary virtual network..."
+Get-AzVirtualNetworkPeering `
+-ResourceGroupName $resourceGroupName `
+-VirtualNetworkName $secondaryVNet `
+| Select PeeringState
 
 # Create failover group
 Write-host "Creating the failover group..."
