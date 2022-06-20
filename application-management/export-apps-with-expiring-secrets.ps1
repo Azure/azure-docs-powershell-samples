@@ -113,6 +113,8 @@ foreach ($app in $Applications) {
 
                 $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
                 $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
+                $Log | Add-Member -MemberType NoteProperty -Name "Secret Start Date" -Value $null
+                $Log | Add-Member -MemberType NoteProperty -Name "Secret End Date" -value $null
                 $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $CStartDate
                 $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $CEndDate
                 $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
@@ -138,6 +140,8 @@ foreach ($app in $Applications) {
 
                 $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
                 $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
+                $Log | Add-Member -MemberType NoteProperty -Name "Secret Start Date" -Value $null
+                $Log | Add-Member -MemberType NoteProperty -Name "Secret End Date" -value $null
                 $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $CStartDate
                 $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $CEndDate
                 $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
