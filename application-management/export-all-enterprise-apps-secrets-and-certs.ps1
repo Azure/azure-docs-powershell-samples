@@ -18,7 +18,7 @@ $Logs = @()
 
 foreach ($Eapp in $EnterpriseApps) {
     $AppName = $Eapp.DisplayName
-    $AppID = $Eapp.objectid
+    $AppID = $Eapp.ObjectId
     $ApplID = $Eapp.AppId
 
     #$AppCreds = Get-AzureADApplication -ObjectId $AppID | select PasswordCredentials, KeyCredentials
