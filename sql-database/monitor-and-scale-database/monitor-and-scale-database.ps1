@@ -1,3 +1,9 @@
+# This script requires the following
+# - Az.Resources
+# - Az.Accounts
+# - Az.Monitor
+# - Az.Sql
+
 # First, run Connect-AzAccount
 
 # Set the subscription in which to create these objects. This is displayed on objects in the Azure portal.
@@ -7,7 +13,7 @@ $resourceGroupName = "myResourceGroup-$(Get-Random)"
 $location = "westus2"
 # Set an admin login and password for your server
 $adminSqlLogin = "SqlAdmin"
-$password = "ChangeYourAdminPassword1"
+$password = (New-Guid).Guid # Generates a randomized GUID password. 
 # Set server name - the logical server name has to be unique in the system
 $serverName = "server-$(Get-Random)"
 # The sample database name
