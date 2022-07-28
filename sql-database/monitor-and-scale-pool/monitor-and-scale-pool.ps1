@@ -1,4 +1,6 @@
-# Connect-AzAccount
+# First, run Connect-AzAccount
+
+# Set the subscription in which to create these objects. This is displayed on objects in the Azure portal.
 $SubscriptionId = ''
 # Set the resource group name and location for your server
 $resourceGroupName = "myResourceGroup-$(Get-Random)"
@@ -8,12 +10,12 @@ $poolName = "MySamplePool"
 # Set an admin login and password for your database
 $adminSqlLogin = "SqlAdmin"
 $password = "ChangeYourAdminPassword1"
-# The logical server name has to be unique in the system
+# Set server name - the logical server name has to be unique in the system
 $serverName = "server-$(Get-Random)"
 # The sample database names
 $firstDatabaseName = "myFirstSampleDatabase"
 $secondDatabaseName = "mySecondSampleDatabase"
-# The ip address range that you want to allow to access your server
+# The ip address range that you want to allow to access your server via the firewall rule
 $startIp = "0.0.0.0"
 $endIp = "0.0.0.0"
 
@@ -53,13 +55,14 @@ $secondDatabase = New-AzSqlDatabase  -ResourceGroupName $resourceGroupName `
     -DatabaseName $secondDatabaseName `
     -ElasticPoolName $poolName
 
-# Monitor the pool
+# Monitor the DTU consumption of the pool in 5 minute intervals
 $monitorparameters = @{
   ResourceId = "/subscriptions/$($(Get-AzContext).Subscription.Id)/resourceGroups/$resourceGroupName/providers/Microsoft.Sql/servers/$serverName/elasticPools/$poolName"
   TimeGrain = [TimeSpan]::Parse("00:05:00")
   MetricNames = "dtu_consumption_percent"
 }
-(Get-AzMetric @monitorparameters -DetailedOutput).MetricValues
+$metric = Get-AzMetric @monitorparameters
+$metric.Data
 
 # Scale the pool
 $elasticPool = Set-AzSqlElasticPool -ResourceGroupName $resourceGroupName `
@@ -70,7 +73,47 @@ $elasticPool = Set-AzSqlElasticPool -ResourceGroupName $resourceGroupName `
     -DatabaseDtuMin 20 `
     -DatabaseDtuMax 100
 
-# Add an alert that fires when the pool utilization reaches 90%
+# Set up an Alert rule using Azure Monitor for the database
+# Add an Alert that fires when the pool utilization reaches 90%
+# Objects needed: an Action Group Receiver, an Action Group, Alert Criteria, and finally an Alert Rule.
+
+# Creates an new action group receiver object with a target email address.
+$receiver = New-AzActionGroupReceiver `
+    -Name "my Sample Azure Admins" `
+    -EmailAddress "azure-admins-group@contoso.com"
+
+# Creates a new or updates an existing action group.
+$actionGroup = Set-AzActionGroup `
+    -Name "mysample-email-the-azure-admins" `
+    -ShortName "AzAdminsGrp" `
+    -ResourceGroupName $resourceGroupName `
+    -Receiver $receiver
+
+# Fetch the created AzActionGroup into an object of type Microsoft.Azure.Management.Monitor.Models.ActivityLogAlertActionGroup
+$actionGroupObject = New-AzActionGroup -ActionGroupId $actionGroup.Id
+
+# Create a criteria for the Alert to monitor.
+$criteria = New-AzMetricAlertRuleV2Criteria `
+    -MetricName "dtu_consumption_percent" `
+    -TimeAggregation Average `
+    -Operator GreaterThan `
+    -Threshold 90
+
+# Create the Alert rule.
+# Add-AzMetricAlertRuleV2 adds or updates a V2 (non-classic) metric-based alert rule.
+Add-AzMetricAlertRuleV2 -Name "mySample_Alert_DTU_consumption_pct" `
+        -ResourceGroupName $resourceGroupName `
+        -WindowSize (New-TimeSpan -Minutes 1) `
+        -Frequency (New-TimeSpan -Minutes 1) `
+        -TargetResourceId "/subscriptions/$($(Get-AzContext).Subscription.Id)/resourceGroups/$resourceGroupName/providers/Microsoft.Sql/servers/$serverName/elasticPools/$poolName"  `
+        -Condition $criteria `
+        -ActionGroup $actionGroupObject `
+        -Severity 3 #Informational
+
+<#
+# Set up an alert rule using Azure Monitor for the database
+# Add a classic alert that fires when the pool utilization reaches 90%
+# Note that Add-AzMetricAlertRule is deprecated. Use Add-AzMetricAlertRuleV2 instead.
 Add-AzMetricAlertRule -ResourceGroup $resourceGroupName `
     -Name "mySampleAlertRule" `
     -Location $location `
@@ -81,6 +124,7 @@ Add-AzMetricAlertRule -ResourceGroup $resourceGroupName `
     -WindowSize $([TimeSpan]::Parse("00:05:00")) `
     -TimeAggregationOperator "Average" `
     -Action $(New-AzAlertRuleEmail -SendToServiceOwner)
+#>
 
 # Clean up deployment 
 # Remove-AzResourceGroup -ResourceGroupName $resourceGroupName
