@@ -26,6 +26,7 @@ New-AzWebAppSlot -Name $webappname -ResourceGroupName myResourceGroup `
 $PropertiesObject = @{
     repoUrl = "$gitrepo";
     branch = "master";
+    isManualIntegration = "true"; #remove isManualIntegration for continuous deployment from a GitHub repo you own
 }
 Set-AzResource -PropertyObject $PropertiesObject -ResourceGroupName myResourceGroup `
 -ResourceType Microsoft.Web/sites/slots/sourcecontrols `
