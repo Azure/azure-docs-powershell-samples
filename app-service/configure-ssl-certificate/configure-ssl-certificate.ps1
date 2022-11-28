@@ -12,10 +12,12 @@ New-AzAppServicePlan -Name $webappname -Location $location `
 -ResourceGroupName $webappname -Tier Free
 
 # Create a web app.
-New-AzWebApp -Name $webappname -Location $location -AppServicePlan $webappname `
+$webapp = New-AzWebApp -Name $webappname -Location $location -AppServicePlan $webappname `
 -ResourceGroupName $webappname
 
-Write-Host "Configure a CNAME record that maps $fqdn to $webappname.azurewebsites.net"
+Write-Host "Sign in to your domain provider's website and configure the following records:"
+Write-Host "A CNAME record that maps $fqdn to $webappname.azurewebsites.net"
+Write-Host "A TXT record that maps asuid.$fqdn to the domain verification ID $($webapp.CustomDomainVerificationId)"
 Read-Host "Press [Enter] key when ready ..."
 
 # Before continuing, go to your DNS configuration UI for your custom domain and follow the 
