@@ -597,7 +597,7 @@ Get-AzSqlDatabaseInstanceFailoverGroup -ResourceGroupName $resourceGroupName `
 # Remove-AzResourceGroup -ResourceGroupName $resourceGroupName
 # Write-host "Removing managed instance and virtual cluster..."
 # Remove-AzResourceGroup -ResourceGroupName $resourceGroupName
-# Write-host "Removing residual resources and resouce group..."
+# Write-host "Removing residual resources and resource group..."
 
 
 # Show randomized variables
