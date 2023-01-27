@@ -4,10 +4,9 @@
 1. A **PowerShell module**(AzureMigrateAssessmentCreationUtility.psm1) used to automate the creation of multiple assessments for migration to Azure in Azure Migrate.
 2. A **PowerBI template** to visualize and compare cost estimates of migrating to Azure VMs.
 
-> <span style="color:red">**Important:**</span>
 > The **Azure Migrate Export (AME) Utility** has replaced the **Azure Migrate Assessment Comparison
 > PowerBI Template**. For more information, see the
-> [**Azure Migrate Export Utility documentation**](https://aka.ms/azuremigrateexportdocumentation)
+> [**Azure Migrate Export Utility documentation**](https://aka.ms/azuremigrateexportdocumentation).
 
 ## Overview
 
