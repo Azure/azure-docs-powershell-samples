@@ -2,7 +2,11 @@
 # assessment-utility
 
 1. A **PowerShell module**(AzureMigrateAssessmentCreationUtility.psm1) used to automate the creation of multiple assessments for migration to Azure in Azure Migrate.
-2. A **PowerBI template**(Azure Migrate Assessment Comparison PowerBI Template.pbit) to visualize and compare cost estimates of migrating to Azure VMs.
+2. A **PowerBI template** to visualize and compare cost estimates of migrating to Azure VMs.
+
+> The **Azure Migrate Export (AME) Utility** has replaced the **Azure Migrate Assessment Comparison
+> PowerBI Template**. For more information, see the
+> [**Azure Migrate Export Utility documentation**](https://aka.ms/azuremigrateexportdocumentation).
 
 ## Overview
 
@@ -25,7 +29,7 @@ To use this utility the following are required:
 3. **PowerShell Version:** It's strongly recommended you install the [latest version of PowerShell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell) available for your operating system.
 4. **Azure PowerShell Module:** The script relies on basic [Azure PowerShell](https://docs.microsoft.com/powershell/azure/install-az-ps) functionality to connect to your subscription. It checks for the presence of an up-to-date install of the standard Azure PowerShell module to do this.
 > Azure [Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview) is a convenient alternative to installing and maintaining the required software on a local machine.
-5. **Power BI Desktop:** To use the Power BI template to visualize and compare assessments, you need to download [Power BI Desktop](https://powerbi.microsoft.com/desktop/). To publish the dashboard online, you need an active Power BI subscription and a workspace(destination) to publish. 
+5. **Power BI Desktop:** To use the Power BI template to visualize and compare assessments, you need to download [Power BI Desktop](https://powerbi.microsoft.com/desktop/). To publish the dashboard online, you need an active Power BI subscription and a workspace(destination) to publish.
 
 ### Download the utility
 
@@ -43,12 +47,12 @@ Connect-AzAccount
 ```
 
 2. Navigate to the folder where you extracted the ZIP file and access the module in the assessment-utility folder:
-> Please note this module is dependent upon AssessmentCombinations.json and CommonAssessmentProperties.json, so please ensure they are stored in the same folder as the PowerShell script. 
+> Please note this module is dependent upon AssessmentCombinations.json and CommonAssessmentProperties.json, so please ensure they are stored in the same folder as the PowerShell script.
 ```powershell
 Import-Module .\AzureMigrateAssessmentCreationUtility.psm1
 ```
 
-3. You are all ready to get started.  You might find it easier to start can declare some variables instead of typing the same information, with each step.  The first step is to find the name of your Azure Migrate assessment project name. 
+3. You are all ready to get started.  You might find it easier to start can declare some variables instead of typing the same information, with each step.  The first step is to find the name of your Azure Migrate assessment project name.
 
 ```powershell
 # Declare variables
@@ -58,7 +62,7 @@ $resourceGroupName = "<The name of the resource group where your Azure Migrate p
 #Query the name of your Azure Migrate project
 Get-AzureMigrateAssessmentProject -subscriptionId $subscriptionId -resourceGroupName $resourceGroupName
 ```
-The information returned will look as below, take note of what is returned in the *name* field. 
+The information returned will look as below, take note of what is returned in the *name* field.
 ![PowerShell Output](images/migrateoutput.jpg)
 
 4. Once you have discovered servers in your Azure Migrate project, type the following cmdlet to create multiple assessments:
@@ -108,7 +112,7 @@ Before you can use the PowerBI template, please ensure that the assessment repor
 1. Launch the Power BI template and [import the excel workbooks](https://docs.microsoft.com/power-bi/connect-data/desktop-import-excel-workbooks) created as a result of executing the PowerShell utility script.
 **Note**: You must import all the excel files corresponding to all the assessments you would like to compare, one at a time. Additionally, if you would like to see information around the discovered database estate please follow the steps provided [here](https://docs.microsoft.com/azure/migrate/how-to-discover-applications), and download and import the application inventory information as well.
 
-2. Only after all the desired Excel workbooks files have been imported, click on the refresh button to render the charts. This may take upto 30-45 minutes depending upon the size of the data 
+2. Only after all the desired Excel workbooks files have been imported, click on the refresh button to render the charts. This may take upto 30-45 minutes depending upon the size of the data
 **Note**: Power BI may throw an error if you refresh after importing a subset of Excel workbooks. You may have to reopen the template and import all the workbooks again.
 3. Select "Save as" option from the File menu and save the file after .pbix format
 4. Publish the dashboard following the steps [here](https://docs.microsoft.com/power-bi/create-reports/desktop-upload-desktop-files)
@@ -119,7 +123,7 @@ Before you can use the PowerBI template, please ensure that the assessment repor
 
 ### Modify the PowerBI template
 
-We would recommend not making any changes to the existing PowerBI template. 
+We would recommend not making any changes to the existing PowerBI template.
 
 
 ## Known Issues / Troubleshooting
