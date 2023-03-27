@@ -82,7 +82,7 @@ $nicVMsql = New-AzNetworkInterface -ResourceGroupName $rgName -Location $locatio
 # Create a SQL VM in the back-end subnet.
 $vmConfig = New-AzVMConfig -VMName 'MyVm-Sql' -VMSize 'Standard_DS2' | `
   Set-AzVMOperatingSystem -Windows -ComputerName 'MyVm-Sql' -Credential $cred | `
-  Set-AzVMSourceImage -PublisherName 'MicrosoftSQLServer' -Offer 'SQL2016-WS2016' `
+  Set-AzVMSourceImage -PublisherName 'MicrosoftSQLServer' -Offer 'SQL2022-WS2022' `
   -Skus 'Web' -Version latest | Add-AzVMNetworkInterface -Id $nicVMsql.Id
 
 $vmsql = New-AzVM -ResourceGroupName $rgName -Location $location -VM $vmConfig
