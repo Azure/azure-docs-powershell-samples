@@ -53,7 +53,7 @@ Set-AzContext -Subscription $subscriptionId
 #$HyperVGeneration = 'yourHyperVGen'
 
 #If you're creating an OS disk, add -HyperVGeneration and -OSType parameters
-$diskConfig = New-AzDiskConfig -SkuName $sku -Location $location -DiskSizeGB $diskSize -SourceUri $vhdUri -CreateOption 'FromImage'
+$diskConfig = New-AzDiskConfig -SkuName $sku -Location $location -DiskSizeGB $diskSize -SourceUri $vhdUri -CreateOption Import
 
 #Create Managed disk
 New-AzDisk -DiskName $diskName -Disk $diskConfig -ResourceGroupName $resourceGroupName
