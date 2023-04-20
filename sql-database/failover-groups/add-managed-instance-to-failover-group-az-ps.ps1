@@ -1,24 +1,30 @@
 ﻿<#
-Due to deployment times, you should plan for a full day to complete the entire script. 
+Due to SQL Managed Instance deployment times, plan for a full day to complete the entire script. 
 You can monitor deployment progress in the activity log within the Azure portal.  
 
-For more information on deployment times, see https://docs.microsoft.com/azure/sql-database/sql-database-managed-instance#managed-instance-management-operations. 
+For more information on deployment times, see https://learn.microsoft.com/azure/azure-sql/managed-instance/management-operations-overview. 
 
 Closing the session will result in an incomplete deployment. To continue progress, you will
 need to determine what the random modifier is and manually replace the random variable with 
 the previously-assigned value. 
 #>
 
+<#
+=============================================================================================
+The following sets all the parameters for the two SQL managed instances, and failover group. 
+============================================================================================
+#>
+
 
 # Connect-AzAccount
 # The SubscriptionId in which to create these objects
-$SubscriptionId = '<Subscription-ID>'
+$SubscriptionId = ''
 # Create a random identifier to use as subscript for the different resource names
 $randomIdentifier = $(Get-Random)
-# Set the resource group name and location for your managed instance
+# Set the resource group name and location for SQL Managed Instance
 $resourceGroupName = "myResourceGroup-$randomIdentifier"
 $location = "eastus"
-$drLocation = "eastus2"
+$drLocation = "southcentralus"
 
 # Set the networking values for your primary managed instance
 $primaryVNet = "primaryVNet-$randomIdentifier"
@@ -51,21 +57,21 @@ $secondaryGWConnection = $secondaryGWName + "-connection"
 
 
 
-# Set the managed instance name for the new managed instances
+# Set the SQL Managed Instance name for the new managed instances
 $primaryInstance = "primary-mi-$randomIdentifier"
 $secondaryInstance = "secondary-mi-$randomIdentifier"
 
-# Set the admin login and password for your managed instance
+# Set the admin login and password for SQL Managed Instance
 $secpasswd = "PWD27!"+(New-Guid).Guid | ConvertTo-SecureString -AsPlainText -Force
 $mycreds = New-Object System.Management.Automation.PSCredential ("azureuser", $secpasswd)
 
 
-# Set the managed instance service tier, compute level, and license mode
+# Set the SQL Managed Instance service tier, compute level, and license mode
 $edition = "General Purpose"
 $vCores = 8
 $maxStorage = 256
 $computeGeneration = "Gen5"
-$license = "LicenseIncluded" #"BasePrice" or LicenseIncluded if you have don't have SQL Server licence that can be used for AHB discount
+$license = "LicenseIncluded" #"BasePrice" or LicenseIncluded if you have don't have SQL Server license that can be used for AHB discount
 
 # Set failover group details
 $vpnSharedKey = "mi1mi2psk"
@@ -76,42 +82,54 @@ Write-host "Resource group name is" $resourceGroupName
 Write-host "Password is" $secpasswd
 Write-host "Primary Virtual Network name is" $primaryVNet
 Write-host "Primary default subnet name is" $primaryDefaultSubnet
-Write-host "Primary managed instance subnet name is" $primaryMiSubnetName
+Write-host "Primary SQL Managed Instance subnet name is" $primaryMiSubnetName
 Write-host "Secondary Virtual Network name is" $secondaryVNet
 Write-host "Secondary default subnet name is" $secondaryDefaultSubnet
-Write-host "Secondary managed instance subnet name is" $secondaryMiSubnetName
-Write-host "Primary managed instance name is" $primaryInstance
-Write-host "Secondary managed instance name is" $secondaryInstance
+Write-host "Secondary SQL Managed Instance subnet name is" $secondaryMiSubnetName
+Write-host "Primary SQL Managed Instance name is" $primaryInstance
+Write-host "Secondary SQL Managed Instance name is" $secondaryInstance
 Write-host "Failover group name is" $failoverGroupName
+
+<#===========================================================================
+The following sets your subscription context and creates the resource group
+==========================================================================#>
+
 
 # Suppress networking breaking changes warning (https://aka.ms/azps-changewarnings
 Set-Item Env:\SuppressAzurePowerShellBreakingChangeWarnings "true"
 
-# Set subscription context
-Set-AzContext -SubscriptionId $subscriptionId 
+# Set the subscription context
+Set-AzContext -SubscriptionId $subscriptionId 
 
-# Create a resource group
+# Create the resource group
 Write-host "Creating resource group..."
 $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $location -Tag @{Owner="SQLDB-Samples"}
 $resourceGroup
 
-# Configure primary virtual network
+<#===========================================================================
+The following configures resources for the primary SQL Managed Instance
+===========================================================================#>
+
+
+# Configure the primary virtual network
 Write-host "Creating primary virtual network..."
+$primarySubnetDelegation = New-AzDelegation -Name "ManagedInstance" -ServiceName "Microsoft.Sql/managedInstances"
 $primaryVirtualNetwork = New-AzVirtualNetwork `
                       -ResourceGroupName $resourceGroupName `
                       -Location $location `
                       -Name $primaryVNet `
                       -AddressPrefix $primaryAddressPrefix
-
-                  Add-AzVirtualNetworkSubnetConfig `
+Add-AzVirtualNetworkSubnetConfig `
                       -Name $primaryMiSubnetName `
                       -VirtualNetwork $primaryVirtualNetwork `
                       -AddressPrefix $PrimaryMiSubnetAddress `
-                  | Set-AzVirtualNetwork
+                      -Delegation $primarySubnetDelegation `
+                    | Set-AzVirtualNetwork
 $primaryVirtualNetwork
+Write-host "Primary virtual network created successfully."
 
 
-# Configure primary MI subnet
+# Configure the primary managed instance subnet
 Write-host "Configuring primary MI subnet..."
 $primaryVirtualNetwork = Get-AzVirtualNetwork -Name $primaryVNet -ResourceGroupName $resourceGroupName
 
@@ -120,9 +138,11 @@ $primaryMiSubnetConfig = Get-AzVirtualNetworkSubnetConfig `
                         -Name $primaryMiSubnetName `
                         -VirtualNetwork $primaryVirtualNetwork
 $primaryMiSubnetConfig
+Write-host "Primary MI subnet configured successfully."
 
-# Configure network security group management service
-Write-host "Configuring primary MI subnet..."
+
+# Configure the network security group management service
+Write-host "Configuring primary MI network security group..."
 
 $primaryMiSubnetConfigId = $primaryMiSubnetConfig.Id
 
@@ -131,8 +151,10 @@ $primaryNSGMiManagementService = New-AzNetworkSecurityGroup `
                       -ResourceGroupName $resourceGroupName `
                       -location $location
 $primaryNSGMiManagementService
+Write-host "Primary MI network security group configured successfully."
 
-# Configure route table management service
+
+# Configure the route table management service
 Write-host "Configuring primary MI route table management service..."
 
 $primaryRouteTableMiManagementService = New-AzRouteTable `
@@ -140,6 +162,8 @@ $primaryRouteTableMiManagementService = New-AzRouteTable `
                       -ResourceGroupName $resourceGroupName `
                       -location $location
 $primaryRouteTableMiManagementService
+Write-host "Primary MI route table management service configured successfully."
+
 
 # Configure the primary network security group
 Write-host "Configuring primary network security group..."
@@ -148,8 +172,9 @@ Set-AzVirtualNetworkSubnetConfig `
                       -Name $primaryMiSubnetName `
                       -AddressPrefix $PrimaryMiSubnetAddress `
                       -NetworkSecurityGroup $primaryNSGMiManagementService `
-                      -RouteTable $primaryRouteTableMiManagementService | `
-                    Set-AzVirtualNetwork
+                      -RouteTable $primaryRouteTableMiManagementService `
+                      -Delegation $primarySubnetDelegation `
+                    | Set-AzVirtualNetwork
 
 Get-AzNetworkSecurityGroup `
                       -ResourceGroupName $resourceGroupName `
@@ -277,7 +302,8 @@ Get-AzNetworkSecurityGroup `
                     | Set-AzNetworkSecurityGroup
 Write-host "Primary network security group configured successfully."
 
-
+#  Configure the primary network route table
+Write-host "Configuring primary network route table..."
 Get-AzRouteTable `
                       -ResourceGroupName $resourceGroupName `
                       -Name "primaryRouteTableMiManagementService" `
@@ -293,9 +319,9 @@ Get-AzRouteTable `
 Write-host "Primary network route table configured successfully."
 
 
-# Create primary managed instance
-Write-host "Creating primary managed instance..."
-Write-host "This will take some time, see https://docs.microsoft.com/azure/sql-database/sql-database-managed-instance#managed-instance-management-operations for more information."
+# Create the primary managed instance
+Write-host "Creating primary SQL Managed Instance..."
+Write-host "This will take some time, see https://learn.microsoft.com/azure/azure-sql/managed-instance/management-operations-overview for more information."
 New-AzSqlInstance -Name $primaryInstance `
                       -ResourceGroupName $resourceGroupName `
                       -Location $location `
@@ -306,35 +332,45 @@ New-AzSqlInstance -Name $primaryInstance `
                       -Edition $edition `
                       -ComputeGeneration $computeGeneration `
                       -LicenseType $license
-Write-host "Primary managed instance created successfully."
+$primaryInstance
+Write-host "Primary SQL Managed Instance created successfully."
 
-# Configure secondary virtual network
+<#===========================================================================
+The following configures resources for the secondary SQL Managed Instance
+===========================================================================#>
+
+# Configure the secondary virtual network 
 Write-host "Configuring secondary virtual network..."
-
+$secondarySubnetDelegation = New-AzDelegation -Name "ManagedInstance" -ServiceName "Microsoft.Sql/managedInstances"
 $SecondaryVirtualNetwork = New-AzVirtualNetwork `
                       -ResourceGroupName $resourceGroupName `
                       -Location $drlocation `
                       -Name $secondaryVNet `
                       -AddressPrefix $secondaryAddressPrefix
-
 Add-AzVirtualNetworkSubnetConfig `
                       -Name $secondaryMiSubnetName `
                       -VirtualNetwork $SecondaryVirtualNetwork `
                       -AddressPrefix $secondaryMiSubnetAddress `
+                      -Delegation $secondarySubnetDelegation `
                     | Set-AzVirtualNetwork
 $SecondaryVirtualNetwork
+Write-host "Secondary virtual network configured successfully."
 
-# Configure secondary managed instance subnet
+
+# Configure the secondary managed instance subnet
 Write-host "Configuring secondary MI subnet..."
 
-$SecondaryVirtualNetwork = Get-AzVirtualNetwork -Name $secondaryVNet -ResourceGroupName $resourceGroupName
+$SecondaryVirtualNetwork = Get-AzVirtualNetwork -Name $secondaryVNet `
+                                -ResourceGroupName $resourceGroupName
 
 $secondaryMiSubnetConfig = Get-AzVirtualNetworkSubnetConfig `
                         -Name $secondaryMiSubnetName `
                         -VirtualNetwork $SecondaryVirtualNetwork
 $secondaryMiSubnetConfig
+Write-host "Secondary MI subnet configured successfully."
 
-# Configure secondary network security group management service
+
+# Configure the secondary network security group management service
 Write-host "Configuring secondary network security group management service..."
 
 $secondaryMiSubnetConfigId = $secondaryMiSubnetConfig.Id
@@ -344,8 +380,10 @@ $secondaryNSGMiManagementService = New-AzNetworkSecurityGroup `
                       -ResourceGroupName $resourceGroupName `
                       -location $drlocation
 $secondaryNSGMiManagementService
+Write-host "Secondary network security group management service configured successfully."
 
-# Configure secondary route table MI management service
+
+# Configure the secondary route table MI management service
 Write-host "Configuring secondary route table MI management service..."
 
 $secondaryRouteTableMiManagementService = New-AzRouteTable `
@@ -353,6 +391,8 @@ $secondaryRouteTableMiManagementService = New-AzRouteTable `
                       -ResourceGroupName $resourceGroupName `
                       -location $drlocation
 $secondaryRouteTableMiManagementService
+Write-host "Secondary route table MI management service configured successfully."
+
 
 # Configure the secondary network security group
 Write-host "Configuring secondary network security group..."
@@ -363,6 +403,7 @@ Set-AzVirtualNetworkSubnetConfig `
                       -AddressPrefix $secondaryMiSubnetAddress `
                       -NetworkSecurityGroup $secondaryNSGMiManagementService `
                       -RouteTable $secondaryRouteTableMiManagementService `
+                      -Delegation $secondarySubnetDelegation `
                     | Set-AzVirtualNetwork
 
 Get-AzNetworkSecurityGroup `
@@ -489,8 +530,10 @@ Get-AzNetworkSecurityGroup `
                       -DestinationPortRange * `
                       -DestinationAddressPrefix * `
                     | Set-AzNetworkSecurityGroup
+Write-host "Secondary network security group configured successfully."
 
-
+#  Configure the secondarynetwork route table
+Write-host "Configuring secondary network route table..."
 Get-AzRouteTable `
                       -ResourceGroupName $resourceGroupName `
                       -Name "secondaryRouteTableMiManagementService" `
@@ -503,14 +546,15 @@ Get-AzRouteTable `
                       -AddressPrefix $secondaryMiSubnetAddress `
                       -NextHopType VnetLocal `
                     | Set-AzRouteTable
-Write-host "Secondary network security group configured successfully."
+Write-host "Secondary network route table configured successfully."
 
-# Create secondary managed instance
+
+# Create the secondary managed instance
 $primaryManagedInstanceId = Get-AzSqlInstance -Name $primaryInstance -ResourceGroupName $resourceGroupName | Select-Object Id
 
 
-Write-host "Creating secondary managed instance..."
-Write-host "This will take some time, see https://docs.microsoft.com/azure/sql-database/sql-database-managed-instance#managed-instance-management-operations for more information."
+Write-host "Creating secondary SQL Managed Instance..."
+Write-host "This will take some time, see https://learn.microsoft.com/azure/azure-sql/managed-instance/management-operations-overview for more information."
 New-AzSqlInstance -Name $secondaryInstance `
                   -ResourceGroupName $resourceGroupName `
                   -Location $drLocation `
@@ -522,7 +566,13 @@ New-AzSqlInstance -Name $secondaryInstance `
                   -ComputeGeneration $computeGeneration `
                   -LicenseType $license `
                   -DnsZonePartner $primaryManagedInstanceId.Id
-Write-host "Secondary managed instance created successfully."
+Write-host "Secondary SQL Managed Instance created successfully."
+
+
+<#===========================================================================
+The following configures the failover group
+===========================================================================#>
+
 
 # Create global virtual network peering
 $primaryVirtualNetwork  = Get-AzVirtualNetwork `
@@ -535,15 +585,17 @@ $secondaryVirtualNetwork = Get-AzVirtualNetwork `
                   
 Write-host "Peering primary VNet to secondary VNet..."
 Add-AzVirtualNetworkPeering `
- -Name primaryVnet-secondaryVNet `
+ -Name primaryVnet-secondaryVNet1 `
  -VirtualNetwork $primaryVirtualNetwork `
  -RemoteVirtualNetworkId $secondaryVirtualNetwork.Id
+ Write-host "Primary VNet peered to secondary VNet successfully."
 
 Write-host "Peering secondary VNet to primary VNet..."
 Add-AzVirtualNetworkPeering `
- -Name secondaryVNet-primaryVNet`
+ -Name secondaryVNet-primaryVNet `
  -VirtualNetwork $secondaryVirtualNetwork `
  -RemoteVirtualNetworkId $primaryVirtualNetwork.Id
+Write-host "Secondary VNet peered to primary VNet successfully."
 
 Write-host "Checking peering state on the primary virtual network..."
 Get-AzVirtualNetworkPeering `
@@ -612,3 +664,4 @@ Write-host "Secondary managed instance subnet name is" $secondaryMiSubnetName
 Write-host "Primary managed instance name is" $primaryInstance
 Write-host "Secondary managed instance name is" $secondaryInstance
 Write-host "Failover group name is" $failoverGroupName
+
