@@ -1,30 +1,37 @@
-# Update RU for an Azure Cosmos MongoDB API database or collection
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$databaseName = "database1"
-$databaseThroughputResourceName = $accountName + "/mongodb/" + $databaseName + "/throughput"
-$databaseThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/settings"
-$collectionName = "collection1"
-$collectionThroughputResourceName = $accountName + "/mongodb/" + $databaseName + "/" + $collectionName + "/throughput"
-$collectionThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers/settings"
-$throughput = 500
-$updateResource = "database" # or "collection"
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Update collection throughput
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$databaseName = "myDatabase"
+$collectionName = "myCollection"
+$newRUs = 500
+# --------------------------------------------------
 
-$properties = @{
-    "resource"=@{"throughput"=$throughput}
+$throughput = Get-AzCosmosDBMongoDBCollectionThroughput -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseName -Name $collectionName
+
+$currentRUs = $throughput.Throughput
+$minimumRUs = $throughput.MinimumThroughput
+
+Write-Host "Current throughput is $currentRUs. Minimum allowed throughput is $minimumRUs."
+
+if ([int]$newRUs -lt [int]$minimumRUs) {
+    Write-Host "Requested new throughput of $newRUs is less than minimum allowed throughput of $minimumRUs."
+    Write-Host "Using minimum allowed throughput of $minimumRUs instead."
+    $newRUs = $minimumRUs
 }
 
-if($updateResource -eq "database"){
-    Set-AzResource -ResourceType $databaseThroughputResourceType `
-        -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-        -Name $databaseThroughputResourceName -PropertyObject $properties
-}
-elseif($updateResource -eq "collection"){
-    Set-AzResource -ResourceType $collectionThroughputResourceType `
-        -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-        -Name $collectionThroughputResourceName -PropertyObject $properties
+if ([int]$newRUs -eq [int]$currentRUs) {
+    Write-Host "New throughput is the same as current throughput. No change needed."
 }
 else {
-    Write-Host("Must select database or collection")    
+    Write-Host "Updating throughput to $newRUs."
+
+    Update-AzCosmosDBMongoDBCollectionThroughput -ResourceGroupName $resourceGroupName `
+        -AccountName $accountName -DatabaseName $databaseName `
+        -Name $collectionName -Throughput $newRUs
 }

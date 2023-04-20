@@ -11,7 +11,6 @@ $serverName = "server-$(Get-Random)"
 # The sample database name
 $databaseName = "mySampleDatabase"
 # The restored database names
-$restoreDatabaseName = "MySampleDatabase_GeoRestore"
 $pointInTimeRestoreDatabaseName = "MySampleDatabase_10MinutesAgo"
 # The ip address range that you want to allow to access your server
 $startIp = "0.0.0.0"
@@ -46,13 +45,17 @@ Start-Sleep -second 600
 # Note: Point-in-time restore requires database to be at least 5 minutes old
 Restore-AzSqlDatabase `
       -FromPointInTimeBackup `
-      -PointInTime (Get-Date).AddMinutes(-2) `
+      -PointInTime (Get-Date).AddMinutes(-7) `
       -ResourceGroupName $resourceGroupName `
       -ServerName $serverName `
       -TargetDatabaseName $pointInTimeRestoreDatabaseName `
       -ResourceId $database.ResourceID `
       -Edition "Standard" `
       -ServiceObjectiveName "S0"
+
+# Note: For performing geo-restore for a managed instance database, use -FromGeoBackup parameter with restore. 
+# Sample script: Restore-AzSqlDatabase -FromGeoBackup -ResourceGroupName "TargetResourceGroup" -ServerName "TargetServer" -TargetDatabaseName "RestoredDatabase" -ResourceId $GeoBackup.ResourceID -Edition "Standard" -RequestedServiceObjectiveName "S2"
+
 
 # Clean up deployment 
 # Remove-AzResourceGroup -ResourceGroupName $resourcegroupname

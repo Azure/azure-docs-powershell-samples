@@ -1,22 +1,25 @@
-# List and Get operations for Azure Cosmos Table API
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Show list and get operations for Azure Cosmos DB Table API
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$tableName = "myTable"
+# --------------------------------------------------
 
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount" # must be lower case.
-$tableName = "table1"
-$accountResourceName = $accountName + "/table/"
-$tableResourceName = $accountName + "/table/" + $tableName
-$tableResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/tables"
+Write-Host "List all accounts in a resource group"
+Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName
 
+Write-Host "Get an account in a resource group"
+Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
+    -Name $accountName
 
-Read-Host -Prompt "List all tables in an account. Press Enter to continue"
+Write-Host "List all tables in an account"
+Get-AzCosmosDBTable -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName
 
-Get-AzResource -ResourceType $tableResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $accountResourceName  | Select-Object Properties
-
-Read-Host -Prompt "Get a table in an account. Press Enter to continue"
-
-Get-AzResource -ResourceType $tableResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $tableResourceName | Select-Object Properties
+Write-Host "Get a table in an account including throughput"
+Get-AzCosmosDBTable -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $tableName

@@ -1,20 +1,20 @@
-# Get RU for an Azure Cosmos MongoDB API database or collection
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$databaseName = "database1"
-$collectionName = "collection1"
-$databaseThroughputResourceName = $accountName + "/mongodb/" + $databaseName + "/throughput"
-$databaseThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/settings"
-$collectionThroughputResourceName = $accountName + "/mongodb/" + $databaseName + "/" + $collectionName + "/throughput"
-$collectionThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/collections/settings"
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Get database or collection throughput
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$databaseName = "myDatabase" # Keyspace with shared throughput
+$collectionName = "myCollection" # Table with dedicated throughput
+# --------------------------------------------------
 
-# Get the throughput for a database (returns RU/s or 404 "Not found" error if not set)
-Get-AzResource -ResourceType $databaseThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseThroughputResourceName  | Select-Object Properties
+Write-Host "Get database shared throughput"
+Get-AzCosmosDBMongoDBDatabaseThroughput -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $databaseName
 
-# Get the throughput for a collection (returns RU/s or 404 "Not found" error if not set)
-Get-AzResource -ResourceType $collectionThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $collectionThroughputResourceName  | Select-Object Properties
+Write-Host "Get collection dedicated throughput"
+Get-AzCosmosDBMongoDBCollectionThroughput -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseName `
+    -Name $collectionName

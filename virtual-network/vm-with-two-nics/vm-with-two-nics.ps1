@@ -32,7 +32,7 @@ $rule2 = New-AzNetworkSecurityRuleConfig -Name 'Allow-RDP-All' -Description "All
   -DestinationAddressPrefix * -DestinationPortRange 3389
 
 # Create a network security group (NSG) for the front-end subnet.
-$nsg = New-AzNetworkSecurityGroup -ResourceGroupName $RgName -Location $location `
+$nsgfe = New-AzNetworkSecurityGroup -ResourceGroupName $RgName -Location $location `
   -Name "MyNsg-FrontEnd" -SecurityRules $rule1,$rule2,$rule3
 
 # Associate the front-end NSG to the front-end subnet.
@@ -77,4 +77,3 @@ $vmconfig = Add-AzVMNetworkInterface -VM $vmConfig -id $nicVMbe.Id
 
 # Create a virtual machine
 $vm = New-AzVM -ResourceGroupName $rgName -Location $location -VM $vmConfig
-

@@ -50,9 +50,9 @@ Set-AzRecoveryServicesProtectionPolicy `
     
 # Trigger a backup and monitor backup job
 $namedContainer = Get-AzRecoveryServicesContainer -ContainerType "AzureVM" -Status "Registered" -FriendlyName "myVM"
-$item = Get-AzRecoveryServicesItem -Container $namedContainer -WorkloadType "AzureVM"
-$job = Backup-AzRecoveryServicesItem -Item $item
-$joblist = Get-AzRecoveryServicesJob â€“Status "InProgress"
+$item = Get-AzRecoveryServicesBackupItem -Container $namedContainer -WorkloadType "AzureVM"
+$job = Backup-AzRecoveryServicesBackupItem -Item $item
+$joblist = Get-AzRecoveryServicesJob -Status "InProgress"
 Wait-AzRecoveryServicesJob `
         -Job $joblist[0] `
         -Timeout 43200

@@ -55,6 +55,6 @@ New-AzVM -ResourceGroupName $resourceGroup -Location $location -VM $vmConfig
 # Install Docker and run container
 $PublicSettings = '{"docker": {"port": "2375"},"compose": {"web": {"image": "nginx","ports": ["80:80"]}}}'
 
-Set-AzVMExtension -ExtensionName "Docker" -ResourceGroupName $resourceGroup -VMName $vmName `
+Set-AzVMExtension -Name "Docker" -ResourceGroupName $resourceGroup -VMName $vmName `
   -Publisher "Microsoft.Azure.Extensions" -ExtensionType "DockerExtension" -TypeHandlerVersion 1.0 `
   -SettingString $PublicSettings -Location $location

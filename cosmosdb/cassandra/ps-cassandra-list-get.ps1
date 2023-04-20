@@ -1,38 +1,35 @@
-# List and get operations for Azure Cosmos account Cassandra API
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Show list and get operations for accounts, keyspaces, and tables
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$keyspaceName = "mykeyspace"
+$tableName = "mytable"
+# --------------------------------------------------
 
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$keyspaceName = "keyspace1"
-$tableName = "table1"
-$accountResourceName = $accountName + "/cassandra/"
-$keyspaceResourceName = $accountName + "/cassandra/" + $keyspaceName
-$keyspaceResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/keyspaces"
-$tableResourceName = $accountName + "/cassandra/" + $keyspaceName + "/" + $tableName
-$tableResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables"
+Write-Host "List all accounts in a resource group"
+Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName
 
+Write-Host "Get an account in a resource group"
+Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
+    -Name $accountName
 
-Read-Host -Prompt "List all Keyspaces in an account. Press Enter to continue"
+Write-Host "List all keyspaces in an account"
+Get-AzCosmosDBCassandraKeyspace -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName
 
-# List all keyspaces in an account
-Get-AzResource -ResourceType $keyspaceResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $accountResourceName  | Select-Object Properties
+Write-Host "Get a keyspace in an account"
+Get-AzCosmosDBCassandraKeyspace -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $keyspaceName
 
-Read-Host -Prompt "Get a single Keyspace in an account. Press Enter to continue"
+Write-Host "List all tables in a keyspace"
+Get-AzCosmosDBCassandraTable -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -KeyspaceName $keyspaceName
 
-Get-AzResource -ResourceType $keyspaceResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $keyspaceResourceName | Select-Object Properties
-
-Read-Host -Prompt "List all tables in an keyspace. Press Enter to continue"
-
-Get-AzResource -ResourceType $tableResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $keyspaceResourceName | Select-Object Properties
-
-Read-Host -Prompt "Get a single table in an keyspace. Press Enter to continue"
-
-Get-AzResource -ResourceType $tableResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $tableResourceName | Select-Object Properties
+Write-Host "Get a table in a keyspace"
+Get-AzCosmosDBCassandraTable -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -KeyspaceName $keyspaceName `
+    -Name $tableName

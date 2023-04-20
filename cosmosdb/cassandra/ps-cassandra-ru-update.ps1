@@ -1,31 +1,36 @@
-# Update RU for an Azure Cosmos Cassandra API keyspace or table
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Update table throughput
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$keyspaceName = "mykeyspace"
+$tableName = "mytable"
+$newRUs = 500
+# --------------------------------------------------
+$throughput = Get-AzCosmosDBCassandraTableThroughput -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -KeyspaceName $keyspaceName -Name $tableName
 
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$keyspaceName = "keyspace1"
-$tableName = "table1"
-$keyspaceThroughputResourceName = $accountName + "/cassandra/" + $keyspaceName + "/throughput"
-$keyspaceThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/settings"
-$tableThroughputResourceName = $accountName + "/cassandra/" + $keyspaceName + "/" + $tableName + "/throughput"
-$tableThroughputResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables/settings"
-$throughput = 500
-$updateResource = "keyspace" # or "table"
+$currentRUs = $throughput.Throughput
+$minimumRUs = $throughput.MinimumThroughput
 
-$properties = @{
-    "resource"=@{"throughput"=$throughput}
+Write-Host "Current throughput is $currentRUs. Minimum allowed throughput is $minimumRUs."
+
+if ([int]$newRUs -lt [int]$minimumRUs) {
+    Write-Host "Requested new throughput of $newRUs is less than minimum allowed throughput of $minimumRUs."
+    Write-Host "Using minimum allowed throughput of $minimumRUs instead."
+    $newRUs = $minimumRUs
 }
 
-if($updateResource -eq "keyspace"){
-    Set-AzResource -ResourceType $keyspaceThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $keyspaceThroughputResourceName -PropertyObject $properties
-}
-elseif($updateResource -eq "table"){
-Set-AzResource -ResourceType $tableThroughputResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $tableThroughputResourceName -PropertyObject $tableProperties
+if ([int]$newRUs -eq [int]$currentRUs) {
+    Write-Host "New throughput is the same as current throughput. No change needed."
 }
 else {
-    Write-Host("Must select keyspace or table")    
+    Write-Host "Updating throughput to $newRUs."
+
+    Update-AzCosmosDBCassandraTableThroughput -ResourceGroupName $resourceGroupName `
+        -AccountName $accountName -KeyspaceName $keyspaceName `
+        -Name $tableName -Throughput $newRUs
 }

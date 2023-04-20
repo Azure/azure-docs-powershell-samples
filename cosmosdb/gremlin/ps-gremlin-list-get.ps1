@@ -1,38 +1,35 @@
-# List and Get operations for Azure Cosmos Gremlin API
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# List and get operations for accounts, databases, and graphs
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$databaseName = "myDatabase"
+$graphName = "myGraph"
+# --------------------------------------------------
 
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$databaseName = "database1"
-$graphName = "graph1"
-$accountResourceName = $accountName + "/gremlin/"
-$databaseResourceName = $accountName + "/gremlin/" + $databaseName
-$databaseResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases"
-$graphResourceName = $accountName + "/gremlin/" + $databaseName + "/" + $graphName
-$graphResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs"
+Write-Host "List all accounts in a resource group"
+Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName
 
-Read-Host -Prompt "List all databases in an account. Press Enter to continue"
+Write-Host "Get an account in a resource group"
+Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
+    -Name $accountName
 
-Get-AzResource -ResourceType $databaseResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $accountResourceName  | Select-Object Properties
+Write-Host "List all databases in an account"
+Get-AzCosmosDBGremlinDatabase -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName
 
-Read-Host -Prompt "Get a database in an account. Press Enter to continue"
+Write-Host "Get a database in an account"
+Get-AzCosmosDBGremlinDatabase -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $databaseName
 
-Get-AzResource -ResourceType $databaseResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseResourceName | Select-Object Properties
+Write-Host "List all graphs in a database"
+Get-AzCosmosDBGremlinGraph -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseName 
 
-Read-Host -Prompt "List all graphs in a database. Press Enter to continue"
-
-Get-AzResource -ResourceType $graphResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseResourceName | Select-Object Properties
-
-Read-Host -Prompt "Get a graph in a database. Press Enter to continue"
-
-Get-AzResource -ResourceType $graphResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $graphResourceName | Select-Object Properties
-
-
+Write-Host "Get a graph in a database"
+Get-AzCosmosDBGremlinGraph -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseName `
+    -Name $graphName

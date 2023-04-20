@@ -10,7 +10,7 @@ param
 
 function Get-Lab
 {
-    $lab = Find-AzResource -ResourceType 'Microsoft.DevTestLab/labs' -ResourceNameEquals $DevTestLabName
+    $lab = Get-AzResource -ResourceType 'Microsoft.DevTestLab/labs' -ResourceNameEquals $DevTestLabName
 
     if(!$lab)
     {
@@ -24,7 +24,7 @@ function Get-PolicyChanges ($lab)
 {
     #start by finding the existing policy
     $script:labResourceName = $lab.Name + '/default'
-    $existingPolicy = (Get-AzResource -ResourceType 'Microsoft.DevTestLab/labs/policySets/policies' -ResourceName $labResourceName -ResourceGroupName $lab.ResourceGroupName -ApiVersion 2016-05-15) | Where-Object {$_.Name -eq 'GalleryImage'}
+    $existingPolicy = (Get-AzResource -ResourceType 'Microsoft.DevTestLab/labs/policySets/policies' -Name $labResourceName -ResourceGroupName $lab.ResourceGroupName -ApiVersion 2016-05-15) | Where-Object {$_.Name -eq 'GalleryImage'}
     if($existingPolicy)
     {
         $existingImages = [Array] (ConvertFrom-Json $existingPolicy.Properties.threshold)
@@ -42,7 +42,7 @@ function Get-PolicyChanges ($lab)
         return
     }
 
-    $allAvailableImages = Get-AzResource -ResourceType Microsoft.DevTestLab/labs/galleryImages -ResourceName $lab.Name -ResourceGroupName $lab.ResourceGroupName -ApiVersion 2017-04-26-preview
+    $allAvailableImages = Get-AzResource -ResourceType Microsoft.DevTestLab/labs/galleryImages -Name $lab.Name -ResourceGroupName $lab.ResourceGroupName -ApiVersion 2017-04-26-preview
     $finalImages = $existingImages
 
     # loop through the requested images and add them to the finalImages list if they arent already there

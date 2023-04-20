@@ -1,63 +1,40 @@
-# Create a SQL API account with a database and a container with dedicated through put and no indexing policy
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Create Cosmos SQL API account, database, and container with dedicated throughput and no indexing policy
+# --------------------------------------------------
+Function New-RandomString{Param ([Int]$Length = 10) return $(-join ((97..122) + (48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_}))}
+# --------------------------------------------------
+$uniqueId = New-RandomString -Length 7 # Random alphanumeric string for unique resource names
+$apiKind = "Sql"
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$locations = @()
+$locations += New-AzCosmosDBLocationObject -LocationName "East Us" -FailoverPriority 0 -IsZoneRedundant 0
+$locations += New-AzCosmosDBLocationObject -LocationName "West Us" -FailoverPriority 1 -IsZoneRedundant 0
 
-#generate a random 10 character alphanumeric string to ensure unique resource names
-$uniqueId=$(-join ((97..122) + (48..57) | Get-Random -Count 10 | % {[char]$_}))
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "cosmos-$uniqueId" # Must be all lower case
+$consistencyLevel = "Session"
+$tags = @{Tag1 = "MyTag1"; Tag2 = "MyTag2"; Tag3 = "MyTag3"}
+$databaseName = "myDatabase"
+$containerName = "myContainer"
+$containerRUs = 400
+$partitionKeyPath = "/myPartitionKey"
+# --------------------------------------------------
+Write-Host "Creating account $accountName"
+$account = New-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
+	-LocationObject $locations -Name $accountName -ApiKind $apiKind -Tag $tags `
+	-DefaultConsistencyLevel $consistencyLevel `
+	-EnableAutomaticFailover:$true
 
-$apiVersion = "2015-04-08"
-$location = "West US 2"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount-$uniqueId" # must be lower case.
-$accountResourceType = "Microsoft.DocumentDb/databaseAccounts"
-$databaseResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases"
-$containerResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers"
-$databaseName = "database1"
-$containerName = "container1"
-$databaseResourceName = $accountName + "/sql/" + $databaseName
-$containerResourceName = $accountName + "/sql/" + $databaseName + "/" + $containerName
+Write-Host "Creating database $databaseName"
+$database = New-AzCosmosDBSqlDatabase -ParentObject $account -Name $databaseName
 
-$locations = @(
-    @{ "locationName"="West US 2"; "failoverPriority"=0 },
-    @{ "locationName"="East US 2"; "failoverPriority"=1 }
-)
+$indexingPolicy = New-AzCosmosDBSqlIndexingPolicy -IndexingMode None
 
-$consistencyPolicy = @{
-    "defaultConsistencyLevel"="Session";
-}
-
-$accountProperties = @{
-    "databaseAccountOfferType"="Standard";
-    "locations"=$locations;
-    "consistencyPolicy"=$consistencyPolicy;
-    "enableMultipleWriteLocations"="false"
-}
-
-New-AzResource -ResourceType $accountResourceType -ApiVersion $apiVersion `
-    -ResourceGroupName $resourceGroupName -Location $location `
-    -Name $accountName -PropertyObject $accountProperties
-
-
-#Database
-$databaseProperties = @{
-    "resource"=@{ "id"=$databaseName }
-} 
-New-AzResource -ResourceType $databaseResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseResourceName -PropertyObject $databaseProperties
-
-$containerProperties = @{
-    "resource"=@{
-        "id"=$containerName; 
-        "partitionKey"=@{
-            "paths"=@("/myPartitionKey"); 
-            "kind"="Hash"
-        }; 
-        "indexingPolicy"=@{
-            "indexingMode"="none"
-        }
-    };
-    "options"=@{ "Throughput"= 400 }
-} 
-
-New-AzResource -ResourceType $containerResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $containerResourceName -PropertyObject $containerProperties
+Write-Host "Creating container $containerName"
+$container = New-AzCosmosDBSqlContainer `
+	-ParentObject $database -Name $containerName `
+	-Throughput $containerRUs -IndexingPolicy $indexingPolicy `
+	-PartitionKeyKind Hash -PartitionKeyPath $partitionKeyPath

@@ -29,12 +29,13 @@ if ([string]::IsNullOrEmpty($SubscriptionID)) {
 
     # Get a reference to the current subscription
     $Subscription = Get-AzSubscription -SubscriptionId $SubscriptionID
+
     # Get the tenant id for this subscription
     $TenantID = $Subscription.TenantId
 }
 
 # Set the active subscription
-$null = Set-AzContext -SubscriptionID $SubscriptionID
+$null = Set-AzContext -SubscriptionID $SubscriptionID -Tenant $TenantID
 
 # Check that the resource group is valid
 $null = Get-AzResourceGroup -Name $ResourceGroupName
@@ -42,7 +43,7 @@ $null = Get-AzResourceGroup -Name $ResourceGroupName
 try {
 
     $Workspace = Get-AzOperationalInsightsWorkspace -Name $WorkspaceName -ResourceGroupName $ResourceGroupName  -ErrorAction Stop
-    $ExistingtLocation = $Workspace.Location
+    $ExistingLocation = $Workspace.Location
     Write-Output "Workspace named $WorkspaceName in region $ExistingLocation already exists."
 	Write-Output "No further action required, script quitting."
 

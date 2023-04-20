@@ -1,36 +1,35 @@
-# List and Get operations for Cosmos SQL API
-$apiVersion = "2015-04-08"
-$resourceGroupName = "myResourceGroup"
-$accountName = "mycosmosaccount"
-$accountResourceName = $accountName + "/sql/"
-$databaseName = "database1"
-$databaseResourceName = $accountName + "/sql/" + $databaseName
-$databaseResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases"
-$containerName = "container1"
-$containerResourceName = $accountName + "/sql/" + $databaseName + "/" + $containerName
-$containerResourceType = "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers"
+# Reference: Az.CosmosDB | https://docs.microsoft.com/powershell/module/az.cosmosdb
+# --------------------------------------------------
+# Purpose
+# Show list and get operations for accounts, databases, and containers
+# --------------------------------------------------
+# Variables - ***** SUBSTITUTE YOUR VALUES *****
+$resourceGroupName = "myResourceGroup" # Resource Group must already exist
+$accountName = "myaccount" # Must be all lower case
+$databaseName = "myDatabase"
+$containerName = "myContainer"
+# --------------------------------------------------
 
+Write-Host "List all accounts in a resource group"
+Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName
 
-Read-Host -Prompt "List all databases in an account. Press Enter to continue"
+Write-Host "Get an account in a resource group"
+Get-AzCosmosDBAccount -ResourceGroupName $resourceGroupName `
+    -Name $accountName
 
-Get-AzResource -ResourceType $databaseResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $accountResourceName  | Select-Object Properties
+Write-Host "List all databases in an account"
+Get-AzCosmosDBSqlDatabase -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName
 
-Read-Host -Prompt "Get a database in an account. Press Enter to continue"
+Write-Host "Get a database in an account"
+Get-AzCosmosDBSqlDatabase -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -Name $databaseName
 
-Get-AzResource -ResourceType $databaseResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseResourceName | Select-Object Properties
+Write-Host "List all containers in an database"
+Get-AzCosmosDBSqlContainer -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseName 
 
-Read-Host -Prompt "List all containers in a database. Press Enter to continue"
-
-Get-AzResource -ResourceType $containerResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $databaseResourceName | Select-Object Properties
-
-Read-Host -Prompt "Get a container in a database. Press Enter to continue"
-
-Get-AzResource -ResourceType $containerResourceType `
-    -ApiVersion $apiVersion -ResourceGroupName $resourceGroupName `
-    -Name $containerResourceName | Select-Object Properties
+Write-Host "Get a container in a database"
+Get-AzCosmosDBSqlContainer -ResourceGroupName $resourceGroupName `
+    -AccountName $accountName -DatabaseName $databaseName `
+    -Name $containerName

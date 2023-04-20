@@ -30,6 +30,6 @@ $storageAccountId = '/subscriptions/yourSubscriptionId/resourceGroups/yourResour
 Select-AzSubscription -SubscriptionId $SubscriptionId
 
 $snapshotConfig = New-AzSnapshotConfig -AccountType $storageType -Location $location -CreateOption Import -StorageAccountId $storageAccountId -SourceUri $sourceVHDURI 
-Â 
+
 New-AzSnapshot -Snapshot $snapshotConfig -ResourceGroupName $resourceGroupName -SnapshotName $snapshotName
-Â 
+
