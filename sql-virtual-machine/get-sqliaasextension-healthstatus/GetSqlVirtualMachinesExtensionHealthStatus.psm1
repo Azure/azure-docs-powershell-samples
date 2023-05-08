@@ -35,7 +35,7 @@
     
     .EXAMPLE
     #To get Extension status of all SQL VMs in a single subscription
-    Report-SqlVMsExtensionHealthStatus -SubscriptionList SubscriptionId1
+    Get-SqlVMsExtensionHealthStatus -SubscriptionList SubscriptionId1
     -----------------------------------------------------------------------------------------------------------------------------------------------
     Summary
     -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@
     .NOTES
     https://www.powershellgallery.com/packages/Az.SqlVirtualMachine
 #>
-function Report-SqlVMsExtensionHealthStatus {
+function Get-SqlVMsExtensionHealthStatus {
     [CmdletBinding(DefaultParameterSetName = 'SubscriptionList')]
     Param
     (
@@ -473,7 +473,7 @@ function Get-ExtensionHealthStatusOfSingleVM(
                 return "Failed to retrieve health status"
             }            
 
-            if (-not (Validate-ExtensionVersion -extVersion $extVersion)) {
+            if (-not (Assert-ExtensionVersion -extVersion $extVersion)) {
                 return "Not supported Extension version"
             }
             
@@ -487,11 +487,11 @@ function Get-ExtensionHealthStatusOfSingleVM(
             $utcTime = [System.DateTime]::UtcNow
             $utcTimeMinus1Hour = $utcTime.AddHours(-1)           
             
-            if ($PSVersionTable.PSVersion.Major -eq 5 -or $PSVersionTable.PSVersion.Major -eq 6) {
-                $lastReportedTime = [DateTime]::Parse($MainServiceLastReportedTime).ToUniversalTime()
-            } elseif ($PSVersionTable.PSVersion.Major -eq 7) {
+            if ($PSVersionTable.PSVersion.Major -eq 7) {
                 $formatString = "MM/dd/yyyy HH:mm:ss"
                 $lastReportedTime = [datetime]::ParseExact($MainServiceLastReportedTime, $formatString, [System.Globalization.CultureInfo]::InvariantCulture)
+            } else {
+                $lastReportedTime = [DateTime]::Parse($MainServiceLastReportedTime).ToUniversalTime()
             }
 
             # Extension is Healthy if last reported within 1 hr and QueryServiceHealthStatus =1
@@ -513,18 +513,22 @@ function Get-ExtensionHealthStatusOfSingleVM(
     Current version of Extension
 
     .OUTPUTS
-    bool if the extension version is > 2.0.129.0
+    bool if the extension version is >= 2.0.129.0
 
 #>
-function Validate-ExtensionVersion(
+function Assert-ExtensionVersion(
     [string]
     $extVersion
 ) {
     $versionArray = $extVersion.Split('.')
-    if (($versionArray[0] -eq 2) -and ([int]$versionArray[2] -gt 129)) {
+
+    # Extension health status is available starting version 2.0.129.0
+    if (($versionArray[0] -eq 2) -and ([int]$versionArray[2] -ge 129)) {
         return $true
     }
     else {
         return $false
     }
 }
+
+Export-ModuleMember -Function Get-SqlVMsExtensionHealthStatus
