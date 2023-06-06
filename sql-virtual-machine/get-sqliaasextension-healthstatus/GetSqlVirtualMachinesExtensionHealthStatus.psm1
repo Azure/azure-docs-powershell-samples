@@ -131,12 +131,28 @@ function Get-SqlVmList() {
     $vmList = [System.Collections.ArrayList]@()
 
     $vmsInSub = Get-AzSqlVM
-    # We will get all VMs that are Windows and having SqlManagementType as Full
+    # We will get all VMs that are Windows
+    if ($PSVersionTable.PSVersion.Major -eq 7)
+    {
+
     foreach ($vm in $vmsInSub) {
-        if (($vm.Sku -ne 'Unknown') -and ($vm.Offer -like '*WS*') -and ($vm.SqlManagementType -eq 'Full')) {
+    $vmObject = $vm | ConvertFrom-Json    
+    $sqlImageOffer = $vmObject.properties.sqlImageOffer
+    $sqlImageSku = $vmObject.properties.sqlImageSku
+        if (($sqlImageSku -ne 'Unknown') -and ($sqlImageOffer -like '*WS*')) {
             $tmp = $vmList.Add($vm)
         }
     }
+    }
+    elseif ($PSVersionTable.PSVersion.Major -eq 5)
+    {
+        foreach ($vm in $vmsInSub) {
+           if (($vm.Sku -ne 'Unknown') -and ($vm.Offer -like '*WS*')) {
+            $tmp = $vmList.Add($vm)
+           }
+        }
+    }
+
     return , $vmList
 }
 
@@ -435,7 +451,14 @@ function new-ReportHelper(
 
     foreach ($vm in $VmArray) {
         $outputObject = $outputObjectTemplate | Select-Object *
+        if ($PSVersionTable.PSVersion.Major -eq 7)
+        {
+        $outputObject.Subscription = $vm.id.Split("/")[2]
+        }
+        elseif ($PSVersionTable.PSVersion.Major -eq 5)
+        {
         $outputObject.Subscription = $vm.ResourceId.Split("/")[2]
+        }
         $outputObject.ResourceGroup = $vm.ResourceGroupName
         $outputObject.VmName = $vm.Name
         $tmp = $outputObjectList.Add($outputObject)
@@ -468,7 +491,7 @@ function Get-ExtensionHealthStatusOfSingleVM(
             $tmp = $Global:Error.Clear()
             $tmp = (Get-AzVM -ResourceGroupName $ResourceGroup -Name $VmName -Status -ErrorAction SilentlyContinue).Extensions | Where-Object { $_.Name -eq 'SqlIaasExtension' }
 
-            $extVersion = $tmp.TypeHandlerVersion            
+            $extVersion = $tmp.TypeHandlerVersion
             if ($tmp -eq $null -or $tmp -eq "" -or $extVersion -eq $null) {
                 return "Failed to retrieve health status"
             }            
