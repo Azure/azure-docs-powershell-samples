@@ -131,12 +131,28 @@ function Get-SqlVmList() {
     $vmList = [System.Collections.ArrayList]@()
 
     $vmsInSub = Get-AzSqlVM
-    # We will get all VMs that are Windows and having SqlManagementType as Full
+    # We will get all VMs that are Windows
+    if ($PSVersionTable.PSVersion.Major -eq 7)
+    {
+
     foreach ($vm in $vmsInSub) {
-        if (($vm.Sku -ne 'Unknown') -and ($vm.Offer -like '*WS*') -and ($vm.SqlManagementType -eq 'Full')) {
+    $vmObject = $vm | ConvertFrom-Json    
+    $sqlImageOffer = $vmObject.properties.sqlImageOffer
+    $sqlImageSku = $vmObject.properties.sqlImageSku
+        if (($sqlImageSku -ne 'Unknown') -and ($sqlImageOffer -like '*WS*')) {
             $tmp = $vmList.Add($vm)
         }
     }
+    }
+    elseif ($PSVersionTable.PSVersion.Major -eq 5)
+    {
+        foreach ($vm in $vmsInSub) {
+           if (($vm.Sku -ne 'Unknown') -and ($vm.Offer -like '*WS*')) {
+            $tmp = $vmList.Add($vm)
+           }
+        }
+    }
+
     return , $vmList
 }
 
@@ -186,6 +202,9 @@ function Get-SqlVmExtensionStatusFromList(
         }
         'Not supported Extension version' {
             $tmp = $Global:NotSupportedVMs.Add($vm)
+        }
+		'Lightweight VM' {
+            $tmp = $Global:LightweightVMs.Add($vm)
         }
         Default {
             $tmp = $Global:FailedVMs.Add($vm)
@@ -286,6 +305,7 @@ $Global:SubscriptionsFailedToConnect = [System.Collections.ArrayList]@()
 $Global:HealthyVMs = [System.Collections.ArrayList]@()
 $Global:UnHealthyVMs = [System.Collections.ArrayList]@()
 $Global:NotSupportedVMs = [System.Collections.ArrayList]@()
+$Global:LightweightVMs = [System.Collections.ArrayList]@()
 $Global:FailedVMs = [System.Collections.ArrayList]@()
 $Global:LogFile = $null
 $Global:ReportFile = $null
@@ -301,6 +321,7 @@ function Update-Globals() {
     $Global:HealthyVMs = [System.Collections.ArrayList]@()
     $Global:UnHealthyVMs = [System.Collections.ArrayList]@()
     $Global:NotSupportedVMs = [System.Collections.ArrayList]@()
+	$Global:LightweightVMs = [System.Collections.ArrayList]@()
     $Global:FailedVMs = [System.Collections.ArrayList]@()
     $Global:LogFile = "SqlVMsFailedToGetExtensionHealthDueToError" + $timestamp + ".log"
     $Global:ReportFile = "SqlVirtualMachinesExtensionHealthReport" + $timestamp + ".txt"
@@ -353,6 +374,12 @@ function new-Report() {
     if ($Global:NotSupportedVMs.Count -gt 0) {
         $txtNotSupported = "Number of VMs having older extension version (extension health check not supported) : $($Global:NotSupportedVMs.Count)"
         show-VMDetailsInReport -Message $txtNotSupported -VMList $Global:NotSupportedVMs
+    }
+	
+	#display Lightweight VMs for which Extension is not deployed
+    if ($Global:LightweightVMs.Count -gt 0) {
+        $txtLightweightVMs = "Number of VMs Extension is not in operation (Lightweight VMs) : $($Global:LightweightVMs.Count)"
+        show-VMDetailsInReport -Message $txtLightweightVMs -VMList $Global:LightweightVMs
     }
 
     #display VMs for which failed to get Extension status
@@ -435,7 +462,14 @@ function new-ReportHelper(
 
     foreach ($vm in $VmArray) {
         $outputObject = $outputObjectTemplate | Select-Object *
+        if ($PSVersionTable.PSVersion.Major -eq 7)
+        {
+        $outputObject.Subscription = $vm.id.Split("/")[2]
+        }
+        elseif ($PSVersionTable.PSVersion.Major -eq 5)
+        {
         $outputObject.Subscription = $vm.ResourceId.Split("/")[2]
+        }
         $outputObject.ResourceGroup = $vm.ResourceGroupName
         $outputObject.VmName = $vm.Name
         $tmp = $outputObjectList.Add($outputObject)
@@ -468,10 +502,10 @@ function Get-ExtensionHealthStatusOfSingleVM(
             $tmp = $Global:Error.Clear()
             $tmp = (Get-AzVM -ResourceGroupName $ResourceGroup -Name $VmName -Status -ErrorAction SilentlyContinue).Extensions | Where-Object { $_.Name -eq 'SqlIaasExtension' }
 
-            $extVersion = $tmp.TypeHandlerVersion            
+            $extVersion = $tmp.TypeHandlerVersion
             if ($tmp -eq $null -or $tmp -eq "" -or $extVersion -eq $null) {
                 return "Failed to retrieve health status"
-            }            
+            }
 
             if (-not (Assert-ExtensionVersion -extVersion $extVersion)) {
                 return "Not supported Extension version"
@@ -480,9 +514,14 @@ function Get-ExtensionHealthStatusOfSingleVM(
             # Read ExtensionServiceHealthReport from SqlIaasExtension status
             $RPPluginReport = $tmp.SubStatuses | Where-Object { $_.Code -like '*Resource Provider Plugin*' } | Select-Object -ExpandProperty Message | ConvertFrom-Json
             
-            $MainServiceLastReportedTime = $RPPluginReport.ExtensionServiceHealthReport.MainServiceLastReportedTime
+            $IsSqlManagement = $RPPluginReport.IsSqlManagement
+			$MainServiceLastReportedTime = $RPPluginReport.ExtensionServiceHealthReport.MainServiceLastReportedTime
             $QueryServiceHealthStatus = $RPPluginReport.ExtensionServiceHealthReport.QueryServiceHealthStatus
 
+            if ($IsSqlManagement -eq $false) {
+                return "Lightweight VM"
+            }
+			
             # Get the current UTC time for comparison
             $utcTime = [System.DateTime]::UtcNow
             $utcTimeMinus1Hour = $utcTime.AddHours(-1)           
