@@ -9,8 +9,8 @@ products:
 
 # Sample code for Azure PowerShell documentation
 
-This repository contains Azure PowerShell code featured in Microsoft's official Azure PowerShell
-documentation.
+All code in this repository is non-production samples used in Microsoft's official Azure PowerShell
+documentation and is designed to be used by our customers for learning and experimentation purposes.
 
 ## Samples
 
@@ -53,7 +53,7 @@ Azure PowerShell samples for the following services and/or technologies are avai
 ## Contributing
 
 > Note: this repository is only for Azure PowerShell code samples that reside in Microsoft's
-> official Azure PowerShell documentation on [docs.microsoft.com](https://docs.microsoft.com/).
+> official Azure PowerShell documentation on [learn.microsoft.com](https://learn.microsoft.com/).
 
 We welcome public contributions into this repository via pull requests. Please note that before we
 can accept your pull request you must sign our
