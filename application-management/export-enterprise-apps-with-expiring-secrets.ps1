@@ -1,168 +1,187 @@
-#################################################################################
-#DISCLAIMER: This is not an official PowerShell Script. We designed it specifically for the situation you have encountered right now.
-#Please do not modify or change any preset parameters.
-#Please note that we will not be able to support the script if it is changed or altered in any way or used in a different situation for other means.
+<#################################################################################
+DISCLAIMER:
 
-#This code-sample is provided "AS IT IS" without warranty of any kind, either expressed or implied, including but not limited to the implied warranties of merchantability and/or fitness for a particular purpose.
-#This sample is not supported under any Microsoft standard support program or service..
-#Microsoft further disclaims all implied warranties including, without limitation, any implied warranties of merchantability or of fitness for a particular purpose.
-#The entire risk arising out of the use or performance of the sample and documentation remains with you.
-#In no event shall Microsoft, its authors, or anyone else involved in the creation, production, or delivery of the script be liable for any damages whatsoever (including, without limitation, damages for loss of business profits, business interruption, loss of business information, or other pecuniary loss) arising out of  the use of or inability to use the sample or documentation, even if Microsoft has been advised of the possibility of such damages.
-#################################################################################
+This is not an official PowerShell Script. We designed it specifically for the situation you have
+encountered right now.
 
-Connect-MgGraph -Scopes "Application.ReadWrite.All"
+Please do not modify or change any preset parameters.
+
+Please note that we will not be able to support the script if it's changed or altered in any way
+or used in a different situation for other means.
+
+This code-sample is provided "AS IS" without warranty of any kind, either expressed or implied,
+including but not limited to the implied warranties of merchantability and/or fitness for a
+particular purpose.
+
+This sample is not supported under any Microsoft standard support program or service.
+
+Microsoft further disclaims all implied warranties including, without limitation, any implied
+warranties of merchantability or of fitness for a particular purpose.
+
+The entire risk arising out of the use or performance of the sample and documentation remains with
+you.
+
+In no event shall Microsoft, its authors, or anyone else involved in the creation, production, or
+delivery of the script be liable for any damages whatsoever (including, without limitation, damages
+for loss of business profits, business interruption, loss of business information, or other
+pecuniary loss) arising out of the use of or inability to use the sample or documentation, even if
+Microsoft has been advised of the possibility of such damages.
+#################################################################################>
+
+Connect-MgGraph -Scopes 'Application.ReadWrite.All'
 
 $Applications = Get-MgServicePrincipal -all
 $Logs = @()
-Write-host "I would like to see the Applications with the Secrets that expire in the next X amount of Days? <<Replace X with the number of days. The answer should be ONLY in Numbers>>" -ForegroundColor Green
-$Days = Read-Host
 
-Write-host "Would you like to see Applications with already expired secrets as well? <<Answer with [Yes] [No]>>" -ForegroundColor Green
-$AlreadyExpired = Read-Host
+$Messages = @{
+    ExpirationDays = @{
+        Info   = 'Filter the applications to log by the number of days until their secrets expire.'
+        Prompt = 'Enter the number of days until the secrets expire as an integer.'
+    }
+    AlreadyExpired = @{
+        Info   = 'Would you like to see Applications with already expired secrets as well?'
+        Prompt = 'Enter Yes or No'
+    }
+    DurationNotice = @{
+        Info = @(
+            'The operation is running and will take longer the more applications the tenant has...'
+            'Please wait...'
+        ) -join ' '
+    }
+    Export = @{
+        Info = 'Where should the CSV file export to?'
+        Prompt = 'Enter the full path in the format of <C:\Users\<USER>\Desktop\Users.csv>'
+    }
+}
 
-$now = get-date
+Write-Host $Messages.ExpirationDays.Info -ForegroundColor Green
+$DaysUntilExpiration = Read-Host -Prompt $Messages.ExpirationDays.Prompt
 
-Write-Host "The operation is running and will take longer the more applications the tenant has...Please wait..."  -ForegroundColor yellow
+Write-Host $Messages.AlreadyExpired.Info -ForegroundColor Green
+$IncludeAlreadyExpired = Read-Host -Prompt $Messages.AlreadyExpired.Prompt
 
-foreach ($app in $Applications) {
-    $AppName = $app.DisplayName
-    $AppID = $app.Id
-    $ApplID = $app.AppId
+$Now = Get-Date
+
+Write-Host $Messages.DurationNotice.Info -ForegroundColor yellow
+
+foreach ($App in $Applications) {
+    $AppName = $App.DisplayName
+    $AppID   = $App.Id
+    $ApplID  = $App.AppId
+
     $AppCreds = Get-MgServicePrincipal -ServicePrincipalId $AppID |
         Select-Object PasswordCredentials, KeyCredentials
-    $secret = $AppCreds.PasswordCredentials
-    $cert = $AppCreds.KeyCredentials
 
-    foreach ($s in $secret) {
-        $StartDate = $s.StartDateTime
-        $EndDate = $s.EndDateTime
-        $SecretName = $s.DisplayName
+    $Secrets = $AppCreds.PasswordCredentials
+    $Certs   = $AppCreds.KeyCredentials
 
-        $operation = $EndDate - $now
-        $ODays = $operation.Days
+    foreach ($Secret in $Secrets) {
+        $StartDate  = $Secret.StartDateTime
+        $EndDate    = $Secret.EndDateTime
+        $SecretName = $Secret.DisplayName
 
-        if ($AlreadyExpired -eq "No") {
-            if ($ODays -le $Days -and $ODays -ge 0) {
-                $Owner = Get-MgServicePrincipalOwner -ServicePrincipalId $app.Id
-                $Username = $Owner.AdditionalProperties.userPrincipalName -join ";"
-                $OwnerID = $Owner.Id -join ";"
+        $Owner    = Get-MgServicePrincipalOwner -ServicePrincipalId $App.Id
+        $Username = $Owner.AdditionalProperties.userPrincipalName -join ';'
+        $OwnerID  = $Owner.Id -join ';'
 
-                if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
-                    $Username = $Owner.AdditionalProperties.displayName + " **<This is an Application>**"
-                }
-
-                if ($null -eq $Owner.AdditionalProperties.displayName) {
-                    $Username = "<<No Owner>>"
-                }
-
-                $Log = New-Object System.Object
-
-                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
-                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-                $Log | Add-Member -MemberType NoteProperty -Name "Secret Name" -Value $SecretName
-                $Log | Add-Member -MemberType NoteProperty -Name "Secret Start Date" -Value $StartDate
-                $Log | Add-Member -MemberType NoteProperty -Name "Secret End Date" -value $EndDate
-                $Log | Add-Member -MemberType NoteProperty -Name "Certificate Name" -Value $Null
-                $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $Null
-                $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $Null
-                $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
-                $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
-                $Logs += $Log
-            }
+        if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
+            $Username = @(
+                $Owner.AdditionalProperties.displayName
+                '**<This is an Application>**'
+            ) -join ' '
         }
 
-        elseif ($AlreadyExpired -eq "Yes") {
-            if ($ODays -le $Days) {
-                $Owner = Get-MgServicePrincipalOwner -ServicePrincipalId $app.Id
-                $Username = $Owner.AdditionalProperties.userPrincipalName -join ";"
-                $OwnerID = $Owner.Id -join ";"
+        if ($null -eq $Owner.AdditionalProperties.displayName) {
+            $Username = '<<No Owner>>'
+        }
 
-                if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
-                    $Username = $Owner.AdditionalProperties.displayName + " **<This is an Application>**"
+        $RemainingDaysCount = $EndDate - $Now |
+            Select-Object -ExpandProperty Days
+
+        if ($IncludeAlreadyExpired -eq 'No') {
+            if ($RemainingDaysCount -le $DaysUntilExpiration -and $RemainingDaysCount -ge 0) {
+                $Logs += [PSCustomObject]@{
+                    'ApplicationName'        = $AppName
+                    'ApplicationID'          = $ApplID
+                    'Secret Name'            = $SecretName
+                    'Secret Start Date'      = $StartDate
+                    'Secret End Date'        = $EndDate
+                    'Certificate Name'       = $Null
+                    'Certificate Start Date' = $Null
+                    'Certificate End Date'   = $Null
+                    'Owner'                  = $Username
+                    'Owner_ObjectID'         = $OwnerID
                 }
-
-                if ($null -eq $Owner.AdditionalProperties.displayName) {
-                    $Username = "<<No Owner>>"
+            }
+        } elseif ($IncludeAlreadyExpired -eq 'Yes') {
+            if ($RemainingDaysCount -le $DaysUntilExpiration) {
+                $Logs += [pscustomobject]@{
+                    'ApplicationName'        = $AppName
+                    'ApplicationID'          = $ApplID
+                    'Secret Name'            = $SecretName
+                    'Secret Start Date'      = $StartDate
+                    'Secret End Date'        = $EndDate
+                    'Certificate Name'       = $Null
+                    'Certificate Start Date' = $Null
+                    'Certificate End Date'   = $Null
+                    'Owner'                  = $Username
+                    'Owner_ObjectID'         = $OwnerID
                 }
-
-                $Log = New-Object System.Object
-
-                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
-                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-                $Log | Add-Member -MemberType NoteProperty -Name "Secret Name" -Value $SecretName
-                $Log | Add-Member -MemberType NoteProperty -Name "Secret Start Date" -Value $StartDate
-                $Log | Add-Member -MemberType NoteProperty -Name "Secret End Date" -value $EndDate
-                $Log | Add-Member -MemberType NoteProperty -Name "Certificate Name" -Value $Null
-                $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $Null
-                $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $Null
-                $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
-                $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
-                $Logs += $Log
             }
         }
     }
 
 
-    foreach ($c in $cert) {
-        $CStartDate = $c.StartDateTime
-        $CEndDate = $c.EndDateTime
-        $CertName = $c.DisplayName
+    foreach ($Cert in $Certs) {
+        $StartDate = $Cert.StartDateTime
+        $EndDate   = $Cert.EndDateTime
+        $CertName  = $Cert.DisplayName
 
-        $operation = $EndDate - $now
-        $ODays = $operation.Days
+        $RemainingDaysCount = $EndDate - $Now |
+            Select-Object -ExpandProperty Days
 
-        if ($AlreadyExpired -eq "No") {
-            if ($ODays -le $Days -and $ODays -ge 0) {
-                $Owner = Get-MgServicePrincipalOwner -ServicePrincipalId $app.Id
-                $Username = $Owner.AdditionalProperties.userPrincipalName -join ";"
-                $OwnerID = $Owner.Id -join ";"
+        $Owner    = Get-MgServicePrincipalOwner -ServicePrincipalId $App.Id
+        $Username = $Owner.AdditionalProperties.userPrincipalName -join ';'
+        $OwnerID  = $Owner.Id -join ';'
 
-                if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
-                    $Username = $Owner.AdditionalProperties.displayName + " **<This is an Application>**"
+        if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
+            $Username = @(
+                $Owner.AdditionalProperties.displayName
+                '**<This is an Application>**'
+            ) -join ' '
+        }
+        if ($null -eq $Owner.AdditionalProperties.displayName) {
+            $Username = '<<No Owner>>'
+        }
+
+        if ($IncludeAlreadyExpired -eq 'No') {
+            if ($RemainingDaysCount -le $DaysUntilExpiration -and $RemainingDaysCount -ge 0) {
+                $Logs += [pscustomobject]@{
+                    'ApplicationName'        = $AppName
+                    'ApplicationID'          = $ApplID
+                    'Certificate Name'       = $CertName
+                    'Certificate Start Date' = $StartDate
+                    'Certificate End Date'   = $EndDate
+                    'Owner'                  = $Username
+                    'Owner_ObjectID'         = $OwnerID
                 }
-                if ($null -eq $Owner.AdditionalProperties.displayName) {
-                    $Username = "<<No Owner>>"
-                }
-
-                $Log = New-Object System.Object
-
-                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
-                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-                $Log | Add-Member -MemberType NoteProperty -Name "Certificate Name" -Value $CertName
-                $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $CStartDate
-                $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $CEndDate
-                $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
-                $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
-                $Logs += $Log
             }
-        } elseif ($AlreadyExpired -eq "Yes") {
-            if ($ODays -le $Days) {
-                $Owner = Get-MgServicePrincipalOwner -ServicePrincipalId $app.Id
-                $Username = $Owner.AdditionalProperties.userPrincipalName -join ";"
-                $OwnerID = $Owner.Id -join ";"
-
-                if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
-                    $Username = $Owner.AdditionalProperties.displayName + " **<This is an Application>**"
+        } elseif ($IncludeAlreadyExpired -eq 'Yes') {
+            if ($RemainingDaysCount -le $DaysUntilExpiration) {
+                $Logs += [pscustomobject]@{
+                    'ApplicationName'        = $AppName
+                    'ApplicationID'          = $ApplID
+                    'Certificate Name'       = $CertName
+                    'Certificate Start Date' = $StartDate
+                    'Certificate End Date'   = $EndDate
+                    'Owner'                  = $Username
+                    'Owner_ObjectID'         = $OwnerID
                 }
-                if ($null -eq $Owner.AdditionalProperties.displayName) {
-                    $Username = "<<No Owner>>"
-                }
-
-                $Log = New-Object System.Object
-
-                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
-                $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-                $Log | Add-Member -MemberType NoteProperty -Name "Certificate Name" -Value $CertName
-                $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $CStartDate
-                $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $CEndDate
-                $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
-                $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
-                $Logs += $Log
             }
         }
     }
 }
 
-Write-host "Add the Path you'd like us to export the CSV file to, in the format of <C:\Users\<USER>\Desktop\Users.csv>" -ForegroundColor Green
-$Path = Read-Host
-$Logs | Export-CSV $Path -NoTypeInformation -Encoding UTF8
+Write-Host $Messages.Export.Info -ForegroundColor Green
+$Path = Read-Host -Prompt $Messages.Export.Prompt
+$Logs | Export-Csv $Path -NoTypeInformation -Encoding UTF8
