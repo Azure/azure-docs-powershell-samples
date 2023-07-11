@@ -30,6 +30,9 @@ Microsoft has been advised of the possibility of such damages.
 
 Connect-MgGraph -Scopes 'Application.ReadWrite.All'
 
+$Applications = Get-MgServicePrincipal -all
+$Logs = @()
+
 $Messages = @{
     ExpirationDays = @{
         Info   = 'Filter the applications to log by the number of days until their secrets expire.'
@@ -61,16 +64,12 @@ $Now = Get-Date
 
 Write-Host $Messages.DurationNotice.Info -ForegroundColor yellow
 
-$Applications = Get-MgApplication -all
-
-$Logs = @()
-
 foreach ($App in $Applications) {
     $AppName = $App.DisplayName
     $AppID   = $App.Id
     $ApplID  = $App.AppId
 
-    $AppCreds = Get-MgApplication -ApplicationId $AppID |
+    $AppCreds = Get-MgServicePrincipal -ServicePrincipalId $AppID |
         Select-Object PasswordCredentials, KeyCredentials
 
     $Secrets = $AppCreds.PasswordCredentials
@@ -81,7 +80,7 @@ foreach ($App in $Applications) {
         $EndDate    = $Secret.EndDateTime
         $SecretName = $Secret.DisplayName
 
-        $Owner    = Get-MgApplicationOwner -ApplicationId $App.Id
+        $Owner    = Get-MgServicePrincipalOwner -ServicePrincipalId $App.Id
         $Username = $Owner.AdditionalProperties.userPrincipalName -join ';'
         $OwnerID  = $Owner.Id -join ';'
 
@@ -91,6 +90,7 @@ foreach ($App in $Applications) {
                 '**<This is an Application>**'
             ) -join ' '
         }
+
         if ($null -eq $Owner.AdditionalProperties.displayName) {
             $Username = '<<No Owner>>'
         }
@@ -115,7 +115,7 @@ foreach ($App in $Applications) {
             }
         } elseif ($IncludeAlreadyExpired -eq 'Yes') {
             if ($RemainingDaysCount -le $DaysUntilExpiration) {
-                $Logs += [PSCustomObject]@{
+                $Logs += [pscustomobject]@{
                     'ApplicationName'        = $AppName
                     'ApplicationID'          = $ApplID
                     'Secret Name'            = $SecretName
@@ -131,12 +131,16 @@ foreach ($App in $Applications) {
         }
     }
 
+
     foreach ($Cert in $Certs) {
         $StartDate = $Cert.StartDateTime
         $EndDate   = $Cert.EndDateTime
         $CertName  = $Cert.DisplayName
 
-        $Owner    = Get-MgApplicationOwner -ApplicationId $App.Id
+        $RemainingDaysCount = $EndDate - $Now |
+            Select-Object -ExpandProperty Days
+
+        $Owner    = Get-MgServicePrincipalOwner -ServicePrincipalId $App.Id
         $Username = $Owner.AdditionalProperties.userPrincipalName -join ';'
         $OwnerID  = $Owner.Id -join ';'
 
@@ -150,15 +154,11 @@ foreach ($App in $Applications) {
             $Username = '<<No Owner>>'
         }
 
-        $RemainingDaysCount = $EndDate - $Now |
-            Select-Object -ExpandProperty Days
-
         if ($IncludeAlreadyExpired -eq 'No') {
             if ($RemainingDaysCount -le $DaysUntilExpiration -and $RemainingDaysCount -ge 0) {
-                $Logs += [PSCustomObject]@{
+                $Logs += [pscustomobject]@{
                     'ApplicationName'        = $AppName
                     'ApplicationID'          = $ApplID
-                    'Secret Name'            = $Null
                     'Certificate Name'       = $CertName
                     'Certificate Start Date' = $StartDate
                     'Certificate End Date'   = $EndDate
@@ -168,10 +168,9 @@ foreach ($App in $Applications) {
             }
         } elseif ($IncludeAlreadyExpired -eq 'Yes') {
             if ($RemainingDaysCount -le $DaysUntilExpiration) {
-                $Logs += [PSCustomObject]@{
+                $Logs += [pscustomobject]@{
                     'ApplicationName'        = $AppName
                     'ApplicationID'          = $ApplID
-                    'Secret Name'            = $Null
                     'Certificate Name'       = $CertName
                     'Certificate Start Date' = $StartDate
                     'Certificate End Date'   = $EndDate
@@ -182,7 +181,6 @@ foreach ($App in $Applications) {
         }
     }
 }
-
 
 Write-Host $Messages.Export.Info -ForegroundColor Green
 $Path = Read-Host -Prompt $Messages.Export.Prompt

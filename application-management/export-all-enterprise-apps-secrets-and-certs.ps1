@@ -1,106 +1,143 @@
-#################################################################################
-#DISCLAIMER: This is not an official PowerShell Script. We designed it specifically for the situation you have encountered right now.
-#Please do not modify or change any preset parameters. 
-#Please note that we will not be able to support the script if it is changed or altered in any way or used in a different situation for other means.
+<#################################################################################
+DISCLAIMER:
 
-#This code-sample is provided "AS IT IS" without warranty of any kind, either expressed or implied, including but not limited to the implied warranties of merchantability and/or fitness for a particular purpose.
-#This sample is not supported under any Microsoft standard support program or service.. 
-#Microsoft further disclaims all implied warranties including, without limitation, any implied warranties of merchantability or of fitness for a particular purpose. 
-#The entire risk arising out of the use or performance of the sample and documentation remains with you. 
-#In no event shall Microsoft, its authors, or anyone else involved in the creation, production, or delivery of the script be liable for any damages whatsoever (including, without limitation, damages for loss of business profits, business interruption, loss of business information, or other pecuniary loss) arising out of  the use of or inability to use the sample or documentation, even if Microsoft has been advised of the possibility of such damages.
-#################################################################################
+This is not an official PowerShell Script. We designed it specifically for the situation you have
+encountered right now.
 
-Connect-AzureAD
+Please do not modify or change any preset parameters.
 
-#$Applications = Get-AzureADApplication -all $true
-$EnterpriseApps = Get-AzureADServicePrincipal -all $true
-$Logs = @()
+Please note that we will not be able to support the script if it's changed or altered in any way
+or used in a different situation for other means.
 
-foreach ($Eapp in $EnterpriseApps) {
-    $AppName = $Eapp.DisplayName
-    $AppID = $Eapp.ObjectId
-    $ApplID = $Eapp.AppId
+This code-sample is provided "AS IS" without warranty of any kind, either expressed or implied,
+including but not limited to the implied warranties of merchantability and/or fitness for a
+particular purpose.
 
-    #$AppCreds = Get-AzureADApplication -ObjectId $AppID | select PasswordCredentials, KeyCredentials
-    $AppCreds = Get-AzureADServicePrincipal -ObjectId $AppID | select PasswordCredentials, KeyCredentials
+This sample is not supported under any Microsoft standard support program or service.
 
-    $secret = $AppCreds.PasswordCredentials
-    $cert = $AppCreds.KeyCredentials
+Microsoft further disclaims all implied warranties including, without limitation, any implied
+warranties of merchantability or of fitness for a particular purpose.
 
-    ############################################
-    $Log = New-Object System.Object
+The entire risk arising out of the use or performance of the sample and documentation remains with
+you.
 
-    $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
-    $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-    $Log | Add-Member -MemberType NoteProperty -Name "Secret Start Date" -Value $Null
-    $Log | Add-Member -MemberType NoteProperty -Name "Secret End Date" -value $Null
-    $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $Null
-    $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $Null
-    $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Null
-    $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $Null
+In no event shall Microsoft, its authors, or anyone else involved in the creation, production, or
+delivery of the script be liable for any damages whatsoever (including, without limitation, damages
+for loss of business profits, business interruption, loss of business information, or other
+pecuniary loss) arising out of the use of or inability to use the sample or documentation, even if
+Microsoft has been advised of the possibility of such damages.
+#################################################################################>
 
-    $Logs += $Log
-    ############################################
-    foreach ($s in $secret) {
-        $StartDate = $s.StartDate
-        $EndDate = $s.EndDate
+Connect-MgGraph -Scopes 'Application.ReadWrite.All'
 
-        #$operation = $EndDate - $now
-        #$ODays = $operation.Days
-
-        $Owner = Get-AzureADServicePrincipalOwner -ObjectId $Eapp.ObjectId
-        $Username = $Owner.UserPrincipalName -join ";"
-        $OwnerID = $Owner.ObjectID -join ";"
-        if ($owner.UserPrincipalName -eq $Null) {
-            $Username = $Owner.DisplayName + " **<This is an Application>**"
-        }
-        if ($Owner.DisplayName -eq $null) {
-            $Username = "<<No Owner>>"
-        }
-
-        $Log = New-Object System.Object
-
-        $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
-        $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-        $Log | Add-Member -MemberType NoteProperty -Name "Secret Start Date" -Value $StartDate
-        $Log | Add-Member -MemberType NoteProperty -Name "Secret End Date" -value $EndDate
-        $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $Null
-        $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $Null
-        $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
-        $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
-
-        $Logs += $Log
+$Messages = @{
+    DurationNotice = @{
+        Info = @(
+            'The operation is running and will take longer the more applications the tenant has...'
+            'Please wait...'
+        ) -join ' '
     }
-        
-    foreach ($c in $cert) {
-        $CStartDate = $c.StartDate
-        $CEndDate = $c.EndDate
-        #$COperation = $CEndDate - $now
-        #$CODays = $COperation.Days
-
-        $Owner = Get-AzureADServicePrincipalOwner -ObjectId $Eapp.ObjectId
-        $Username = $Owner.UserPrincipalName -join ";"
-        $OwnerID = $Owner.ObjectID -join ";"
-        if ($owner.UserPrincipalName -eq $Null) {
-            $Username = $Owner.DisplayName + " **<This is an Application>**"
-        }
-        if ($Owner.DisplayName -eq $null) {
-            $Username = "<<No Owner>>"
-        }
-
-        $Log = New-Object System.Object
-
-        $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
-        $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-        $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $CStartDate
-        $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $CEndDate
-        $Log | Add-Member -MemberType NoteProperty -Name "Owner" -Value $Username
-        $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
-
-        $Logs += $Log
+    Export         = @{
+        Info   = 'Where should the CSV file export to?'
+        Prompt = 'Enter the full path in the format of <C:\Users\<USER>\Desktop\Users.csv>'
     }
 }
 
-Write-host "Add the Path you'd like us to export the CSV file to, in the format of <C:\Users\<USER>\Desktop\Users.csv>" -ForegroundColor Green
-$Path = Read-Host
-$Logs | Export-CSV $Path -NoTypeInformation -Encoding UTF8   
+Write-Host $Messages.DurationNotice.Info -ForegroundColor Yellow
+
+$EnterpriseApps = Get-MgServicePrincipal -all
+
+$Logs = @()
+
+foreach ($EnterpriseApp in $EnterpriseApps) {
+    $AppName = $EnterpriseApp.DisplayName
+    $AppID   = $EnterpriseApp.Id
+    $ApplID  = $EnterpriseApp.AppId
+
+    $AppCreds = Get-MgServicePrincipal -ServicePrincipalId $AppID |
+        Select-Object PasswordCredentials, KeyCredentials
+
+    $Secrets = $AppCreds.PasswordCredentials
+    $Certs   = $AppCreds.KeyCredentials
+
+    ############################################
+    $Logs += [PSCustomObject]@{
+        'ApplicationName'        = $AppName
+        'ApplicationID'          = $ApplID
+        'Secret Name'            = $Null
+        'Secret Start Date'      = $Null
+        'Secret End Date'        = $Null
+        'Certificate Name'       = $Null
+        'Certificate Start Date' = $Null
+        'Certificate End Date'   = $Null
+        'Owner'                  = $Null
+        'Owner_ObjectID'         = $Null
+    }
+    ############################################
+    foreach ($Secret in $Secrets) {
+        $StartDate = $Secret.StartDateTime
+        $EndDate   = $Secret.EndDateTime
+
+        $Owner    = Get-MgServicePrincipalOwner -ServicePrincipalId $EnterpriseApp.Id
+        $Username = $Owner.AdditionalProperties.userPrincipalName -join ';'
+        $OwnerID  = $Owner.Id -join ';'
+
+        if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
+            $Username = @(
+                $Owner.AdditionalProperties.displayName
+                '**<This is an Application>**'
+            ) -join ' '
+        }
+        if ($null -eq $Owner.AdditionalProperties.displayName) {
+            $Username = '<<No Owner>>'
+        }
+
+        $Logs += [PSCustomObject]@{
+            'ApplicationName'        = $AppName
+            'ApplicationID'          = $ApplID
+            'Secret Name'            = $SecretName
+            'Secret Start Date'      = $StartDate
+            'Secret End Date'        = $EndDate
+            'Certificate Name'       = $Null
+            'Certificate Start Date' = $Null
+            'Certificate End Date'   = $Null
+            'Owner'                  = $Username
+            'Owner_ObjectID'         = $OwnerID
+        }
+    }
+
+    foreach ($Cert in $Certs) {
+        $StartDate = $Cert.StartDateTime
+        $EndDate   = $Cert.EndDateTime
+        $CertName  = $Cert.DisplayName
+
+        $Owner    = Get-MgServicePrincipalOwner -ServicePrincipalId $EnterpriseApp.Id
+        $Username = $Owner.AdditionalProperties.userPrincipalName -join ';'
+        $OwnerID  = $Owner.Id -join ';'
+
+        if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
+            $Username = @(
+                $Owner.AdditionalProperties.displayName
+                '**<This is an Application>**'
+            ) -join ' '
+        }
+        if ($null -eq $Owner.AdditionalProperties.displayName) {
+            $Username = '<<No Owner>>'
+        }
+
+        $Logs += [PSCustomObject]@{
+            'ApplicationName'        = $AppName
+            'ApplicationID'          = $ApplID
+            'Secret Name'            = $Null
+            'Certificate Name'       = $CertName
+            'Certificate Start Date' = $StartDate
+            'Certificate End Date'   = $EndDate
+            'Owner'                  = $Username
+            'Owner_ObjectID'         = $OwnerID
+        }
+    }
+}
+
+Write-Host $Messages.Export.Info -ForegroundColor Green
+$Path = Read-Host -Prompt $Messages.Export.Prompt
+$Logs | Export-Csv $Path -NoTypeInformation -Encoding UTF8
