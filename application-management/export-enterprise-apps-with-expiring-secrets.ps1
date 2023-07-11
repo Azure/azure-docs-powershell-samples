@@ -12,7 +12,7 @@
 
 Connect-MgGraph -Scopes "Application.ReadWrite.All"
 
-$Applications = Get-MgApplication -all
+$Applications = Get-MgServicePrincipal -all
 $Logs = @()
 Write-host "I would like to see the Applications with the Secrets that expire in the next X amount of Days? <<Replace X with the number of days. The answer should be ONLY in Numbers>>" -ForegroundColor Green
 $Days = Read-Host
@@ -28,7 +28,8 @@ foreach ($app in $Applications) {
     $AppName = $app.DisplayName
     $AppID = $app.Id
     $ApplID = $app.AppId
-    $AppCreds = Get-MgApplication -ApplicationId $AppID | select PasswordCredentials, KeyCredentials
+    $AppCreds = Get-MgServicePrincipal -ServicePrincipalId $AppID |
+        Select-Object PasswordCredentials, KeyCredentials
     $secret = $AppCreds.PasswordCredentials
     $cert = $AppCreds.KeyCredentials
 
@@ -37,20 +38,19 @@ foreach ($app in $Applications) {
         $EndDate = $s.EndDateTime
         $SecretName = $s.DisplayName
 
-        $now = get-date
-
         $operation = $EndDate - $now
         $ODays = $operation.Days
 
         if ($AlreadyExpired -eq "No") {
             if ($ODays -le $Days -and $ODays -ge 0) {
-                $Owner = Get-MgApplicationOwner -ApplicationId $app.Id
+                $Owner = Get-MgServicePrincipalOwner -ServicePrincipalId $app.Id
                 $Username = $Owner.AdditionalProperties.userPrincipalName -join ";"
                 $OwnerID = $Owner.Id -join ";"
 
                 if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
                     $Username = $Owner.AdditionalProperties.displayName + " **<This is an Application>**"
                 }
+
                 if ($null -eq $Owner.AdditionalProperties.displayName) {
                     $Username = "<<No Owner>>"
                 }
@@ -69,15 +69,18 @@ foreach ($app in $Applications) {
                 $Log | Add-Member -MemberType NoteProperty -Name "Owner_ObjectID" -value $OwnerID
                 $Logs += $Log
             }
-        } elseif ($AlreadyExpired -eq "Yes") {
+        }
+
+        elseif ($AlreadyExpired -eq "Yes") {
             if ($ODays -le $Days) {
-                $Owner = Get-MgApplicationOwner -ApplicationId $app.Id
+                $Owner = Get-MgServicePrincipalOwner -ServicePrincipalId $app.Id
                 $Username = $Owner.AdditionalProperties.userPrincipalName -join ";"
                 $OwnerID = $Owner.Id -join ";"
 
                 if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
                     $Username = $Owner.AdditionalProperties.displayName + " **<This is an Application>**"
                 }
+
                 if ($null -eq $Owner.AdditionalProperties.displayName) {
                     $Username = "<<No Owner>>"
                 }
@@ -101,18 +104,16 @@ foreach ($app in $Applications) {
 
 
     foreach ($c in $cert) {
-        $StartDate = $c.StartDateTime
-        $EndDate = $c.EndDateTime
-        $SecretName = $c.DisplayName
-
-        $now = get-date
+        $CStartDate = $c.StartDateTime
+        $CEndDate = $c.EndDateTime
+        $CertName = $c.DisplayName
 
         $operation = $EndDate - $now
         $ODays = $operation.Days
 
         if ($AlreadyExpired -eq "No") {
             if ($ODays -le $Days -and $ODays -ge 0) {
-                $Owner = Get-MgApplicationOwner -ApplicationId $app.Id
+                $Owner = Get-MgServicePrincipalOwner -ServicePrincipalId $app.Id
                 $Username = $Owner.AdditionalProperties.userPrincipalName -join ";"
                 $OwnerID = $Owner.Id -join ";"
 
@@ -127,7 +128,6 @@ foreach ($app in $Applications) {
 
                 $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
                 $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-                $Log | Add-Member -MemberType NoteProperty -Name "Secret Name" -Value $Null
                 $Log | Add-Member -MemberType NoteProperty -Name "Certificate Name" -Value $CertName
                 $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $CStartDate
                 $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $CEndDate
@@ -137,7 +137,7 @@ foreach ($app in $Applications) {
             }
         } elseif ($AlreadyExpired -eq "Yes") {
             if ($ODays -le $Days) {
-                $Owner = Get-MgApplicationOwner -ApplicationId $app.Id
+                $Owner = Get-MgServicePrincipalOwner -ServicePrincipalId $app.Id
                 $Username = $Owner.AdditionalProperties.userPrincipalName -join ";"
                 $OwnerID = $Owner.Id -join ";"
 
@@ -152,7 +152,6 @@ foreach ($app in $Applications) {
 
                 $Log | Add-Member -MemberType NoteProperty -Name "ApplicationName" -Value $AppName
                 $Log | Add-Member -MemberType NoteProperty -Name "ApplicationID" -Value $ApplID
-                $Log | Add-Member -MemberType NoteProperty -Name "Secret Name" -Value $Null
                 $Log | Add-Member -MemberType NoteProperty -Name "Certificate Name" -Value $CertName
                 $Log | Add-Member -MemberType NoteProperty -Name "Certificate Start Date" -Value $CStartDate
                 $Log | Add-Member -MemberType NoteProperty -Name "Certificate End Date" -value $CEndDate
@@ -163,7 +162,6 @@ foreach ($app in $Applications) {
         }
     }
 }
-
 
 Write-host "Add the Path you'd like us to export the CSV file to, in the format of <C:\Users\<USER>\Desktop\Users.csv>" -ForegroundColor Green
 $Path = Read-Host
