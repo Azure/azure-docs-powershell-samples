@@ -7,6 +7,10 @@ products:
 - azure
 ---
 
+# IMPORTANT!
+
+This repository is a fork. Changes concerned mainly azure-migrate/automation-script
+
 # Sample code for Azure PowerShell documentation
 
 All code in this repository is non-production samples used in Microsoft's official Azure PowerShell
