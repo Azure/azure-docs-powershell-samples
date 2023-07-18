@@ -23,6 +23,7 @@ $vms = Import-Csv -Path $CsvFilePath
 foreach ($csvvm in $vms){
     # Stop Azure Virtual Machine
     $vm = Get-AzVM -ResourceGroupName $csvvm.TARGET_RESOURCE_GROUP -Name $csvvm.TARGET_MACHINE_NAME
+    Write-Output "Stopping Virtual Machine"
     Stop-AzVM -ResourceGroupName $vm.ResourceGroupName -Name $vm.name -Force
     # Enable Host Encryption
     Write-Output "Enabling Host Encryption"
@@ -30,20 +31,19 @@ foreach ($csvvm in $vms){
     # Get Disk Encryption Set Object
     $diskEncryptionSet = Get-AzDiskEncryptionSet -ResourceGroupName $vm.ResourceGroupName -Name $csvvm.ENCRYPTION_SET_NAME
     foreach ($disk in $vm.storageProfile.OSDisk) {
-        Write-Host "Get OS Disks"
         $osdisk = Get-AzDisk -ResourceGroupName $vm.ResourceGroupName -DiskName $disk.name
-        Write-Host $osdisk.Name -ForegroundColor Green
         # Update disk with the new configuration: enable CMK encryption and disable public network access
-        Write-Output "$(osdisk.Name): Enabling Encryption at rest and disable public network access"
+        Write-Output "$($osdisk.Name): Enabling Encryption at rest and disable public network access"
         New-AzDiskUpdateConfig -EncryptionType "EncryptionAtRestWithCustomerKey" -DiskEncryptionSetId $diskEncryptionSet.Id -PublicNetworkAccess Disabled -NetworkAccessPolicy DenyAll | Update-AzDisk -ResourceGroupName $vm.ResourceGroupName -DiskName $osdisk.name     
     }
     foreach ($disk in $vm.storageProfile.DataDisks) {        
         $datadisk = Get-AzDisk -ResourceGroupName $vm.ResourceGroupName -DiskName $disk.name
-        Write-Output "$(datadisk.Name): Enabling Encryption at rest and disable public network access"
+        Write-Output "$($datadisk.Name): Enabling Encryption at rest and disable public network access"
         # Write-Host $datadisk.Name -ForegroundColor Green
         New-AzDiskUpdateConfig -EncryptionType "EncryptionAtRestWithCustomerKey" -DiskEncryptionSetId $diskEncryptionSet.Id -PublicNetworkAccess Disabled -NetworkAccessPolicy DenyAll | Update-AzDisk -ResourceGroupName $vm.ResourceGroupName -DiskName $datadisk.name     
     }
     # Start Azure Virtual Machine
+    Write-Output "Starting Virtual Machine"
     Start-AzVM -ResourceGroupName $vm.ResourceGroupName -Name $vm.name
 }
 
