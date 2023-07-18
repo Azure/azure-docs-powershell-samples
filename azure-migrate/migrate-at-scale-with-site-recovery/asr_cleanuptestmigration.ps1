@@ -13,6 +13,7 @@ if ($PSScriptRoot -eq "") {
 . "$scriptsPath\asr_logger.ps1"
 . "$scriptsPath\asr_common.ps1"
 . "$scriptsPath\asr_csv_processor.ps1"
+. "$scriptsPath\asr_copylogsta.ps1"
 
 Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $reportItem | Add-Member NoteProperty "TestFailoverCleanUpJobId" $null
@@ -54,4 +55,8 @@ $logger = New-AsrLoggerInstance -CommandPath $PSCommandPath
 $asrCommon = New-AsrCommonInstance -Logger $logger
 $processor = New-CsvProcessorInstance -Logger $logger -ProcessItemFunction $function:ProcessItem
 $processor.ProcessFile($CsvFilePath)
+
+# Copy log to a storage account
+
+Copy-AsrLogSta -OutputFilePath $logger.OutputFilePath -LogFileName ("cleanuptestmigration\"+$logger.LogFileName)
 

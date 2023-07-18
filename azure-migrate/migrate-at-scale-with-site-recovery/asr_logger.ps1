@@ -3,15 +3,16 @@ class MigrationLogger {
     [string]$CurrentCommandPath
     [string]$OutputFilePath
     [string]$ScriptName
+    [string]$LogFileName
     [DateTime]$StartDate
 
     MigrationLogger([string] $CurrentCommandPath) {
         $this.StartDate = Get-Date
         $this.CurrentCommandPath = $CurrentCommandPath
         $this.ScriptName = Split-Path $CurrentCommandPath -Leaf
-        $fileName = [string]::Concat("log.", $this.ScriptName, ".", $this.FormatDate($this.StartDate), ".txt")
+        $this.LogFileName = [string]::Concat("log.", $this.ScriptName, ".", $this.FormatDate($this.StartDate), ".txt")
 
-        $this.OutputFilePath = $this.ReplaceLastSubstring($CurrentCommandPath, $this.ScriptName, $fileName)
+        $this.OutputFilePath = $this.ReplaceLastSubstring($CurrentCommandPath, $this.ScriptName, $this.LogFileName)
     }
     
     [string] FormatDate($date) {
