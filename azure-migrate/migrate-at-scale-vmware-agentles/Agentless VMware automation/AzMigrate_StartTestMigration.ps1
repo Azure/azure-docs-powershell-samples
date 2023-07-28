@@ -36,11 +36,15 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $reportItem.AdditionalInformation = "AZMIGRATEPROJECT_NAME is not mentioned for: '$($sourceMachineName)'"
         return
     }
-
-
-
+    $azMigrateApplianceName = $csvItem.AZMIGRATE_APPLIANCE_NAME
+    if ([string]::IsNullOrEmpty($azMigrateApplianceName)) {
+        $processor.Logger.LogError("AZMIGRATE_APPLIANCE_NAME is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "AZMIGRATE_APPLIANCE_NAME is not mentioned for: '$($sourceMachineName)'"
+        return
+    }
+    
     #lets validate if we can/should run TestMigrate at all for this machine
-    $ReplicatingServermachine = $AzMigrateShared.GetReplicationServer($azMigrateRG, $azMigrateProjName, $sourceMachineName)
+    $ReplicatingServermachine = $AzMigrateShared.GetReplicationServer($azMigrateRG, $azMigrateProjName, $sourceMachineName, $azMigrateApplianceName)
     if((-not $ReplicatingServermachine) -or ($csvItem.OK_TO_TESTMIGRATE -ne 'Y') `
         -or ($ReplicatingServermachine.TestMigrateState -ne "None") -or ($ReplicatingServermachine.TestMigrateStateDescription -ne "None") `
         -or (($ReplicatingServermachine.MigrationState -ne "Replicating") -and ($ReplicatingServermachine.MigrationStateDescription -ne "Ready to migrate")) `
@@ -102,6 +106,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     #End Code for Target Subscription
 
     $TestMigrationJob = Start-AzMigrateTestMigration -InputObject $ReplicatingServermachine -TestNetworkID $Target_VNet.Id
+    process.Logger.LogTrace("TestMigrationJob: '$($TestMigrationJob)', and Target_VNET: '$($Target_VNet.Id)'")
     if (-not $TestMigrationJob){
         $processor.Logger.LogError("Test Migration Job couldn't be initiated for the specified machine: '$($sourceMachineName)'")    
         $reportItem.AdditionalInformation = "Test Migration Job couldn't be initiated for the specified machine: '$($sourceMachineName)'"

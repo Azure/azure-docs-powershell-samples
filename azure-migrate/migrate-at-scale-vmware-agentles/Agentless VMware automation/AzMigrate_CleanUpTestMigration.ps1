@@ -37,11 +37,15 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $reportItem.AdditionalInformation = "AZMIGRATEPROJECT_NAME is not mentioned for: '$($sourceMachineName)'"
         return
     }
-
-
+    $azMigrateApplianceName = $csvItem.AZMIGRATE_APPLIANCE_NAME
+    if ([string]::IsNullOrEmpty($azMigrateApplianceName)) {
+        $processor.Logger.LogError("AZMIGRATE_APPLIANCE_NAME is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "AZMIGRATE_APPLIANCE_NAME is not mentioned for: '$($sourceMachineName)'"
+        return
+    }
 
     #lets validate if we can/should run TestMigrate at all for this machine
-    $ReplicatingServermachine = $AzMigrateShared.GetReplicationServer($azMigrateRG, $azMigrateProjName, $sourceMachineName)
+    $ReplicatingServermachine = $AzMigrateShared.GetReplicationServer($azMigrateRG, $azMigrateProjName, $sourceMachineName, $azMigrateApplianceName)
     if((-not $ReplicatingServermachine) -or (($csvItem.OK_TO_TESTMIGRATE -ne 'Y')  -and ($csvItem.OK_TO_TESTMIGRATE_CLEANUP -ne 'Y')) `
         -or (($ReplicatingServermachine.TestMigrateState -ne "TestMigrationSucceeded") -and ($ReplicatingServermachine.TestMigrateStateDescription -ne "Test clean up pending")) `
         -or (-not $ReplicatingServermachine.AllowedOperation -contains "TestMigrateCleanup")){

@@ -144,7 +144,8 @@ class AzMigrate_Shared
 
     [psobject] GetDiscoveredServer([string] $AzMigrateResourceGroupName,
                                         [string] $AzMigrateProjectName,
-                                        [string] $machineName)
+                                        [string] $machineName,
+                                        [string] $AzMigrateApplianceName)
     {
         #region Validation-Errorlogging
         if ([string]::IsNullOrEmpty($AzMigrateResourceGroupName)) {
@@ -164,7 +165,7 @@ class AzMigrate_Shared
         $DiscoveredServer = $null
         $DiscoveredServerList = $null
         # Get Discovered machines in an Azure Migrate project
-        $DiscoveredServerList = Get-AzMigrateDiscoveredServer -ProjectName $AzMigrateProjectName `
+        $DiscoveredServerList = Get-AzMigrateDiscoveredServer -ApplianceName $AzMigrateApplianceName -ProjectName $AzMigrateProjectName `
                                                         -ResourceGroupName $AzMigrateResourceGroupName `
                                                         -DisplayName $machineName
 
@@ -196,7 +197,8 @@ class AzMigrate_Shared
 
     [psobject] GetReplicationServer([string] $AzMigrateResourceGroupName,
                                         [string] $AzMigrateProjectName,
-                                        [string] $machineName)
+                                        [string] $machineName,
+                                        [string] $AzMigrateApplianceName)
     {
         
         #region Validation-Errorlogging
@@ -218,7 +220,7 @@ class AzMigrate_Shared
         $ReplicatingServer = $null
 
         # Get a specific Discovered VM in an Azure Migrate project
-        $DiscoveredServerMachine = $this.GetDiscoveredServer($AzMigrateResourceGroupName, $AzMigrateProjectName, $machineName)
+        $DiscoveredServerMachine = $this.GetDiscoveredServer($AzMigrateResourceGroupName, $AzMigrateProjectName, $machineName, $AzMigrateApplianceName)
         
         if($DiscoveredServerMachine)
         {
