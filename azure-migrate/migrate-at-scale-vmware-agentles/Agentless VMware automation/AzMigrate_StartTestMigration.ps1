@@ -106,7 +106,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     #End Code for Target Subscription
 
     $TestMigrationJob = Start-AzMigrateTestMigration -InputObject $ReplicatingServermachine -TestNetworkID $Target_VNet.Id
-    process.Logger.LogTrace("TestMigrationJob: '$($TestMigrationJob)', and Target_VNET: '$($Target_VNet.Id)'")
     if (-not $TestMigrationJob){
         $processor.Logger.LogError("Test Migration Job couldn't be initiated for the specified machine: '$($sourceMachineName)'")    
         $reportItem.AdditionalInformation = "Test Migration Job couldn't be initiated for the specified machine: '$($sourceMachineName)'"

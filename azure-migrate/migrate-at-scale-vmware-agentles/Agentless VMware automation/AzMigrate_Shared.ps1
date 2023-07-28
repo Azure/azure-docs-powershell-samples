@@ -165,7 +165,8 @@ class AzMigrate_Shared
         $DiscoveredServer = $null
         $DiscoveredServerList = $null
         # Get Discovered machines in an Azure Migrate project
-        $DiscoveredServerList = Get-AzMigrateDiscoveredServer -ApplianceName $AzMigrateApplianceName -ProjectName $AzMigrateProjectName `
+        $DiscoveredServerList = Get-AzMigrateDiscoveredServer -ApplianceName $AzMigrateApplianceName `
+                                                        -ProjectName $AzMigrateProjectName `
                                                         -ResourceGroupName $AzMigrateResourceGroupName `
                                                         -DisplayName $machineName
 
