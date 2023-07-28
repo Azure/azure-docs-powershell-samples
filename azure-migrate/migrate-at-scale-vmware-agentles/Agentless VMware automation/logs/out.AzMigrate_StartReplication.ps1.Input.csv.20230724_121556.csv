@@ -1,4 +1,0 @@
-"AZMIGRATEPROJECT_SUBSCRIPTION_ID","AZMIGRATEPROJECT_RESOURCE_GROUP_NAME","AZMIGRATEPROJECT_NAME","Machine","Exception","AdditionalInformation"
-"6b72781d-4550-419b-a56e-44055341a88e","shivam-rg","ECYPROJ","testvm-cvm3",,"TARGET_RESOURCE_GROUP_NAME is not mentioned for: 'testvm-cvm3'"
-"6b72781d-4550-419b-a56e-44055341a88e","shivam-rg","ECYPROJ","testvm-cvm8",,"TARGET_RESOURCE_GROUP_NAME is not mentioned for: 'testvm-cvm8'"
-"6b72781d-4550-419b-a56e-44055341a88e","shivam-rg","ECYPROJ","testvm-cvm1",,"TARGET_RESOURCE_GROUP_NAME is not mentioned for: 'testvm-cvm1'"
