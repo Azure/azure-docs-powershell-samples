@@ -417,8 +417,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         
         # Start replication for a discovered VM in an Azure Migrate project 
         $processor.Logger.LogTrace( "Starting replication Job for source '$($sourceMachineName)'")
-        # print contents of params in log trace
-        $processor.Logger.LogTrace( "Params: $($params | ConvertTo-Json -Depth 100)")
         $MigrateJob =  New-AzMigrateServerReplication @params
 
         if (-not $MigrateJob){
