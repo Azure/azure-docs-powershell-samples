@@ -19,7 +19,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $reportItem | Add-Member NoteProperty "AdditionalInformation" $null
     
     # parameters to pass to New-AzMigrateServerReplication
-    $params = New-Object -TypeName 'System.Collections.Specialized.OrderedDictionary'
+    $params = @{}
 
     $sourceMachineName = $csvItem.SOURCE_MACHINE_NAME
     if ([string]::IsNullOrEmpty($sourceMachineName)) {
@@ -54,51 +54,55 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         return
     }
 
-    $tag = $csvItem.TAG
+    $tagKey = $csvItem.TAG_KEY
+    $tagValue = $csvItem.TAG_VALUE
     $tagDict = @{}
-    if ([string]::IsNullOrEmpty($tag)) {
-        $processor.Logger.LogTrace("Tag is not mentioned for: '$($sourceMachineName)'")
-        $reportItem.AdditionalInformation = "Tag is not mentioned for: '$($sourceMachineName)'" 
+    if ([string]::IsNullOrEmpty($tagKey) -or [string]::IsNullOrEmpty($tagValue)) {
+        $processor.Logger.LogTrace("Tag Key/Value is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "Tag Key/Value is not mentioned for: '$($sourceMachineName)'" 
         return
     }
     else {
-        $tagDict.Add("Tag", $tag)
+        $tagDict.Add($tagKey, $tagValue)
         $params.Add("Tag", $tagDict)
     }
 
-    $vmTag = $csvItem.VM_TAG
+    $vmTagKey = $csvItem.VM_TAG_KEY
+    $vmTagValue = $csvItem.VM_TAG_VALUE
     $vmTagDict = @{}
-    if ([string]::IsNullOrEmpty($vmTag)) {
-        $processor.Logger.LogTrace("VM_TAG is not mentioned for: '$($sourceMachineName)'")
-        $reportItem.AdditionalInformation = "VM_TAG is not mentioned for: '$($sourceMachineName)'" 
+    if ([string]::IsNullOrEmpty($vmTagKey) -or [string]::IsNullOrEmpty($vmTagValue)) {
+        $processor.Logger.LogTrace("VM_TAG Key/Value is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "VM_TAG Key/Value is not mentioned for: '$($sourceMachineName)'" 
         return
     }
     else {
-        $vmTagDict.Add("VmTag", $vmTag)
+        $vmTagDict.Add($vmTagKey, $vmTagValue)
         $params.Add("VMTag", $vmTagDict)
     }
 
-    $diskTag = $csvItem.DISK_TAG
+    $diskTagKey = $csvItem.DISK_TAG_KEY
+    $diskTagValue = $csvItem.DISK_TAG_VALUE
     $diskTagDict = @{}
-    if ([string]::IsNullOrEmpty($diskTag)) {
-        $processor.Logger.LogTrace("DISK_TAG is not mentioned for: '$($sourceMachineName)'")
-        $reportItem.AdditionalInformation = "DISK_TAG is not mentioned for: '$($sourceMachineName)'" 
+    if ([string]::IsNullOrEmpty($diskTagKey) -or [string]::IsNullOrEmpty($diskTagValue)) {
+        $processor.Logger.LogTrace("DISK_TAG Key/Value is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "DISK_TAG Key/Value is not mentioned for: '$($sourceMachineName)'" 
         return
     }
     else {
-        $diskTagDict.Add("DiskTag", $diskTag)
+        $diskTagDict.Add($diskTagKey, $diskTagValue)
         $params.Add("DiskTag", $diskTagDict)
     }
 
-    $nicTag = $csvItem.NIC_TAG
+    $nicTagKey = $csvItem.NIC_TAG_KEY
+    $nicTagValue = $csvItem.NIC_TAG_VALUE
     $nicTagDict = @{}
-    if ([string]::IsNullOrEmpty($nicTag)) {
-        $processor.Logger.LogTrace("NIC_TAG is not mentioned for: '$($sourceMachineName)'")
-        $reportItem.AdditionalInformation = "NIC_TAG is not mentioned for: '$($sourceMachineName)'" 
+    if ([string]::IsNullOrEmpty($nicTagKey) -or [string]::IsNullOrEmpty($nicTagValue)) {
+        $processor.Logger.LogTrace("NIC_TAG Key/Value is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "NIC_TAG Key/Value is not mentioned for: '$($sourceMachineName)'" 
         return
     }
     else {
-        $nicTagDict.Add("NicTag", $nicTag)
+        $nicTagDict.Add($nicTagKey, $nicTagValue)
         $params.Add("NicTag", $nicTagDict)
     }
     
