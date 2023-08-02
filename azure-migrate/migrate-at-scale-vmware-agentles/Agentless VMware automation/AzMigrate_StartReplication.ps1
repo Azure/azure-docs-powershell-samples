@@ -19,7 +19,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $reportItem | Add-Member NoteProperty "AdditionalInformation" $null
     
     # parameters to pass to New-AzMigrateServerReplication
-    $params = @{}
+    $params = New-Object -TypeName 'System.Collections.Specialized.OrderedDictionary'
 
     $sourceMachineName = $csvItem.SOURCE_MACHINE_NAME
     if ([string]::IsNullOrEmpty($sourceMachineName)) {
@@ -54,6 +54,54 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         return
     }
 
+    $tag = $csvItem.TAG
+    $tagDict = @{}
+    if ([string]::IsNullOrEmpty($tag)) {
+        $processor.Logger.LogTrace("Tag is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "Tag is not mentioned for: '$($sourceMachineName)'" 
+        return
+    }
+    else {
+        $tagDict.Add("Tag", $tag)
+        $params.Add("Tag", $tagDict)
+    }
+
+    $vmTag = $csvItem.VM_TAG
+    $vmTagDict = @{}
+    if ([string]::IsNullOrEmpty($vmTag)) {
+        $processor.Logger.LogTrace("VM_TAG is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "VM_TAG is not mentioned for: '$($sourceMachineName)'" 
+        return
+    }
+    else {
+        $vmTagDict.Add("VmTag", $vmTag)
+        $params.Add("VMTag", $vmTagDict)
+    }
+
+    $diskTag = $csvItem.DISK_TAG
+    $diskTagDict = @{}
+    if ([string]::IsNullOrEmpty($diskTag)) {
+        $processor.Logger.LogTrace("DISK_TAG is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "DISK_TAG is not mentioned for: '$($sourceMachineName)'" 
+        return
+    }
+    else {
+        $diskTagDict.Add("DiskTag", $diskTag)
+        $params.Add("DiskTag", $diskTagDict)
+    }
+
+    $nicTag = $csvItem.NIC_TAG
+    $nicTagDict = @{}
+    if ([string]::IsNullOrEmpty($nicTag)) {
+        $processor.Logger.LogTrace("NIC_TAG is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "NIC_TAG is not mentioned for: '$($sourceMachineName)'" 
+        return
+    }
+    else {
+        $nicTagDict.Add("NicTag", $nicTag)
+        $params.Add("NicTag", $nicTagDict)
+    }
+    
     #Code added to accommodate for Target Subscription if the replicated machine is suppose to land in a different Target subscription
     $targetSubscriptionID = $csvItem.TARGET_SUBSCRIPTION_ID
     if ([string]::IsNullOrEmpty($targetSubscriptionID)) {
@@ -365,6 +413,8 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         
         # Start replication for a discovered VM in an Azure Migrate project 
         $processor.Logger.LogTrace( "Starting replication Job for source '$($sourceMachineName)'")
+        # print contents of params in log trace
+        $processor.Logger.LogTrace( "Params: $($params | ConvertTo-Json -Depth 100)")
         $MigrateJob =  New-AzMigrateServerReplication @params
 
         if (-not $MigrateJob){
