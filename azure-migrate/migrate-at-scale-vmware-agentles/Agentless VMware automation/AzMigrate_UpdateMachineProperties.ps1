@@ -36,10 +36,15 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $reportItem.AdditionalInformation = "AZMIGRATEPROJECT_NAME is not mentioned for: '$($sourceMachineName)'"
         return
     }
-
+    $azMigrateApplianceName = $csvItem.AZMIGRATE_APPLIANCE_NAME
+    if ([string]::IsNullOrEmpty($AzMigrateApplianceName)) {
+        $processor.Logger.LogTrace("AZMIGRATE_APPLIANCE_NAME is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "AZMIGRATE_APPLIANCE_NAME is not mentioned for: '$($sourceMachineName)'"
+        return
+    }
 
     #lets validate if we can/should Update properties at all for this machine
-    $ReplicatingServermachine = $AzMigrateShared.GetReplicationServer($azMigrateRG, $azMigrateProjName, $sourceMachineName)
+    $ReplicatingServermachine = $AzMigrateShared.GetReplicationServer($azMigrateRG, $azMigrateProjName, $sourceMachineName, $azMigrateApplianceName)
     if((-not $ReplicatingServermachine) -or ($csvItem.OK_TO_UPDATE -ne 'Y') `
         -or (($ReplicatingServermachine.MigrationState -ne "Replicating") -and ($ReplicatingServermachine.MigrationStateDescription -ne "Ready to migrate")))
     {

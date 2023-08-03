@@ -37,9 +37,15 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $reportItem.AdditionalInformation = "AZMIGRATEPROJECT_NAME is not mentioned for: '$($sourceMachineName)'"
         return
     }
+    $azMigrateApplianceName = $csvItem.AZMIGRATE_APPLIANCE_NAME
+    if ([string]::IsNullOrEmpty($azMigrateApplianceName)) {
+        $processor.Logger.LogError("AZMIGRATE_APPLIANCE_NAME is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "AZMIGRATE_APPLIANCE_NAME is not mentioned for: '$($sourceMachineName)'"
+        return
+    }
     
     #lets validate if we can/should run TestMigrate at all for this machine
-    $ReplicatingServermachine = $AzMigrateShared.GetReplicationServer($azMigrateRG, $azMigrateProjName, $sourceMachineName)
+    $ReplicatingServermachine = $AzMigrateShared.GetReplicationServer($azMigrateRG, $azMigrateProjName, $sourceMachineName, $azMigrateApplianceName)
     if((-not $ReplicatingServermachine) -or ($csvItem.OK_TO_MIGRATE -ne 'Y') -or ($csvItem.OK_TO_CLEANUP -ne 'Y')){ `
         
         $processor.Logger.LogError("We cannot initiate stop replication as either is it not configured in csv file OR the state of this machine replication is not suitable for initiating Stop Replication Now: '$($sourceMachineName)'")
