@@ -53,6 +53,21 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     # parameters to pass to New-AzMigrateServerReplication
     $params = @{}
     $params.Add("InputObject", $ReplicatingServermachine)
+
+    $sqlServerLicenseType = $csvItem.SQL_SERVER_LICENSE_TYPE
+    if ([string]::IsNullOrEmpty($sqlServerLicenseType) -or ($sqlServerLicenseType -eq "NoLicenseType")) {
+        $processor.Logger.LogTrace("SQL_SERVER_LICENSE_TYPE is not mentioned for: '$($sourceMachineName)', or it is set to 'NoLicenseType'")
+        $params.Add("SqlServerLicenseType", "NoLicenseType")
+    }
+    else {
+        $allowedLicenseTypes = @("PAYG", "AHUB")
+        if (-not $allowedLicenseTypes.Contains($sqlServerLicenseType)) {
+            $processor.Logger.LogError("SQL_SERVER_LICENSE_TYPE is not valid for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "SQL_SERVER_LICENSE_TYPE is not valid for: '$($sourceMachineName)'"
+            return
+        }
+        $params.Add("SqlServerLicenseType", $sqlServerLicenseType)
+    }
     
     #Code added to accommodate for Target Subscription if the replicated machine is suppose to land in a different Target subscription
     $targetSubscriptionID = $csvItem.TARGET_SUBSCRIPTION_ID
