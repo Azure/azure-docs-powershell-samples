@@ -39,6 +39,12 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $reportItem.AdditionalInformation = "AZMIGRATEPROJECT_NAME is not mentioned for: '$($sourceMachineName)'"         
         return
     }
+    $AzMigrateApplianceName = $csvItem.AZMIGRATE_APPLIANCE_NAME
+    if ([string]::IsNullOrEmpty($AzMigrateApplianceName)) {
+        $processor.Logger.LogTrace("AZMIGRATE_APPLIANCE_NAME is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "AZMIGRATE_APPLIANCE_NAME is not mentioned for: '$($sourceMachineName)'"
+        return
+    }
 
     #lets validate if we can/should initiate replication at all for this machine. Ptobably it never started replication and hence wont have any data under replicationserver
     if(($csvItem.OK_TO_MIGRATE -ne 'Y'))
@@ -123,7 +129,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     #End Code for Target Subscription
 
     #Get the Discovery Data for this machine
-    $DiscoveredServer = $AzMigrateShared.GetDiscoveredServer($azMigrateRG, $azMigrateProjName, $sourceMachineName)
+    $DiscoveredServer = $AzMigrateShared.GetDiscoveredServer($azMigrateRG, $azMigrateProjName, $sourceMachineName, $AzMigrateApplianceName)
 
     if ($DiscoveredServer) {
 
