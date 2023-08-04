@@ -86,6 +86,58 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
             $params.Add("TargetResourceGroupID", $Target_RG.ResourceId)
         }
     }
+
+    $updateTagKey = $csvItem.UPDATED_TAG_KEY
+    $updateTagValue = $csvItem.UPDATED_TAG_VALUE
+    $updateTagOperation = $csvItem.UPDATED_TAG_OPERATION
+    $updateTagDict = @{}
+    if ([string]::IsNullOrEmpty($updateTagKey) -or [string]::IsNullOrEmpty($updateTagValue) -or [string]::IsNullOrEmpty($updateTagOperation)) {
+        $processor.Logger.LogTrace("UPDATED_TAG_KEY or UPDATED_TAG_VALUE is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $updateTagDict.Add($updateTagKey, $updateTagValue)
+        $params.Add("UpdateTag", $updateTagDict)
+        $params.Add("UpdateTagOperation", $updateTagOperation)
+    }
+
+    $updateVmTagKey = $csvItem.UPDATED_VMTAG_KEY
+    $updateVmTagValue = $csvItem.UPDATED_VMTAG_VALUE
+    $updateVmTagOperation = $csvItem.UPDATED_VMTAG_OPERATION
+    $updateVmTagDict = @{}
+    if ([string]::IsNullOrEmpty($updateVmTagKey) -or [string]::IsNullOrEmpty($updateVmTagValue) -or [string]::IsNullOrEmpty($updateVmTagOperation)) {
+        $processor.Logger.LogTrace("UPDATED_VM_TAG_KEY or UPDATED_VM_TAG_VALUE is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $updateVmTagDict.Add($updateVmTagKey, $updateVmTagValue)
+        $params.Add("UpdateVMTag", $updateVmTagDict)
+        $params.Add("UpdateVMTagOperation", $updateVmTagOperation)
+    }
+
+    $updateDiskTagKey = $csvItem.UPDATED_DISKTAG_KEY
+    $updateDiskTagValue = $csvItem.UPDATED_DISKTAG_VALUE
+    $updateDiskTagOperation = $csvItem.UPDATED_DISKTAG_OPERATION
+    $updateDiskTagDict = @{}
+    if ([string]::IsNullOrEmpty($updateDiskTagKey) -or [string]::IsNullOrEmpty($updateDiskTagValue) -or [string]::IsNullOrEmpty($updateDiskTagOperation)) {
+        $processor.Logger.LogTrace("UPDATED_DISK_TAG_KEY or UPDATED_DISK_TAG_VALUE is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $updateDiskTagDict.Add($updateDiskTagKey, $updateDiskTagValue)
+        $params.Add("UpdateDiskTag", $updateDiskTagDict)
+        $params.Add("UpdateDiskTagOperation", $updateDiskTagOperation)
+    }
+
+    $updateNicTagKey = $csvItem.UPDATED_NICTAG_KEY
+    $updateNicTagValue = $csvItem.UPDATED_NICTAG_VALUE
+    $updateNicTagOperation = $csvItem.UPDATED_NICTAG_OPERATION
+    $updateNicTagDict = @{}
+    if ([string]::IsNullOrEmpty($updateNicTagKey) -or [string]::IsNullOrEmpty($updateNicTagValue) -or [string]::IsNullOrEmpty($updateNicTagOperation)) {
+        $processor.Logger.LogTrace("UPDATED_NIC_TAG_KEY or UPDATED_NIC_TAG_VALUE is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $updateNicTagDict.Add($updateNicTagKey, $updateNicTagValue)
+        $params.Add("UpdateNicTag", $updateNicTagDict)
+        $params.Add("UpdateNicTagOperation", $updateNicTagOperation)
+    }
     
 
     #Get the Target VirtualNetwork Name where we want to provision the VM in Azure
@@ -292,6 +344,8 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
 
     # Start replication for a discovered VM in an Azure Migrate project 
     $processor.Logger.LogTrace( "Starting Update Job for source '$($sourceMachineName)'")
+    #print params in json 
+    $processor.Logger.LogTrace( "Params for Update Job for source '$($sourceMachineName)': $($params | ConvertTo-Json -Depth 100)")
     $UpdateJob = Set-AzMigrateServerReplication @params
 
     if (-not $UpdateJob){
