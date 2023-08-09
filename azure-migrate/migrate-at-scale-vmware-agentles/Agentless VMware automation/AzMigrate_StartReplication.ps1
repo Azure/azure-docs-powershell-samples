@@ -54,52 +54,101 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         return
     }
 
-    $tagKey = $csvItem.TAG_KEY
-    $tagValue = $csvItem.TAG_VALUE
+    #seperate by comma
+    $tagKeys = $csvItem.TAG_KEY
+    $tagValues = $csvItem.TAG_VALUE
     $tagDict = @{}
-    if ([string]::IsNullOrEmpty($tagKey) -or [string]::IsNullOrEmpty($tagValue)) {
+    
+    if ([string]::IsNullOrEmpty($tagKeys) -or [string]::IsNullOrEmpty($tagValues)) {
         $processor.Logger.LogTrace("Tag Key/Value not mentioned for: '$($sourceMachineName)'")
         $reportItem.AdditionalInformation = "Tag Key/Value not mentioned for: '$($sourceMachineName)'" 
     }
     else{
-        $tagDict.Add($tagKey, $tagValue)
-        $params.Add("Tag", $tagDict)
+        $tagKeys = $tagKeys -split ","
+        $tagValues = $tagValues -split ","
+        # check if the count is equal for keys and values
+        if ($tagKeys.Count -ne $tagValues.Count) {
+            $processor.Logger.LogTrace("Tag Key/Value count mismatch for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "Tag Key/Value count mismatch for: '$($sourceMachineName)'" 
+        }
+        else{
+            for ($i = 0; $i -lt $tagKeys.Count; $i++) {
+                $tagDict.Add($tagKeys[$i], $tagValues[$i])
+            }
+            $params.Add("Tag", $tagDict)
+        }
     }
 
-    $vmTagKey = $csvItem.VM_TAG_KEY
-    $vmTagValue = $csvItem.VM_TAG_VALUE
+    $vmTagKeys = $csvItem.VM_TAG_KEY
+    $vmTagValues = $csvItem.VM_TAG_VALUE
     $vmTagDict = @{}
-    if ([string]::IsNullOrEmpty($vmTagKey) -or [string]::IsNullOrEmpty($vmTagValue)) {
+    
+    if ([string]::IsNullOrEmpty($vmTagKeys) -or [string]::IsNullOrEmpty($vmTagValues)) {
         $processor.Logger.LogTrace("VM Tag Key/Value not mentioned for: '$($sourceMachineName)'")
         $reportItem.AdditionalInformation = "VM Tag Key/Value not mentioned for: '$($sourceMachineName)'" 
     }
     else{
-        $vmTagDict.Add($vmTagKey, $vmTagValue)
-        $params.Add("VMTag", $vmTagDict)
+        $vmTagKeys = $vmTagKeys -split ","
+        $vmTagValues = $vmTagValues -split ","
+        # check if the count is equal for keys and values
+        if ($vmTagKeys.Count -ne $vmTagValues.Count) {
+            $processor.Logger.LogTrace("VM Tag Key/Value count mismatch for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "VM Tag Key/Value count mismatch for: '$($sourceMachineName)'" 
+        }
+        else{
+            for ($i = 0; $i -lt $vmTagKeys.Count; $i++) {
+                $vmTagDict.Add($vmTagKeys[$i], $vmTagValues[$i])
+            }
+            $params.Add("VmTag", $vmTagDict)
+        }
     }
 
-    $diskTagKey = $csvItem.DISK_TAG_KEY
-    $diskTagValue = $csvItem.DISK_TAG_VALUE
+    $diskTagKeys = $csvItem.DISK_TAG_KEY
+    $diskTagValues = $csvItem.DISK_TAG_VALUE
     $diskTagDict = @{}
-    if ([string]::IsNullOrEmpty($diskTagKey) -or [string]::IsNullOrEmpty($diskTagValue)) {
+    
+    if ([string]::IsNullOrEmpty($diskTagKeys) -or [string]::IsNullOrEmpty($diskTagValues)) {
         $processor.Logger.LogTrace("Disk Tag Key/Value not mentioned for: '$($sourceMachineName)'")
         $reportItem.AdditionalInformation = "Disk Tag Key/Value not mentioned for: '$($sourceMachineName)'" 
     }
     else{
-        $diskTagDict.Add($diskTagKey, $diskTagValue)
-        $params.Add("DiskTag", $diskTagDict)
+        $diskTagKeys = $diskTagKeys -split ","
+        $diskTagValues = $diskTagValues -split ","
+        # check if the count is equal for keys and values
+        if ($diskTagKeys.Count -ne $diskTagValues.Count) {
+            $processor.Logger.LogTrace("Disk Tag Key/Value count mismatch for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "Disk Tag Key/Value count mismatch for: '$($sourceMachineName)'" 
+        }
+        else{
+            for ($i = 0; $i -lt $diskTagKeys.Count; $i++) {
+                $diskTagDict.Add($diskTagKeys[$i], $diskTagValues[$i])
+            }
+            $params.Add("DiskTag", $diskTagDict)
+        }
     }
 
     $nicTagKey = $csvItem.NIC_TAG_KEY
     $nicTagValue = $csvItem.NIC_TAG_VALUE
     $nicTagDict = @{}
+
     if ([string]::IsNullOrEmpty($nicTagKey) -or [string]::IsNullOrEmpty($nicTagValue)) {
         $processor.Logger.LogTrace("NIC Tag Key/Value not mentioned for: '$($sourceMachineName)'")
         $reportItem.AdditionalInformation = "NIC Tag Key/Value not mentioned for: '$($sourceMachineName)'" 
     }
     else{
-        $nicTagDict.Add($nicTagKey, $nicTagValue)
-        $params.Add("NicTag", $nicTagDict)
+        $nicTagKey = $nicTagKey -split ","
+        $nicTagValue = $nicTagValue -split ","
+        # check if the count is equal for keys and values
+        if ($nicTagKey.Count -ne $nicTagValue.Count) {
+            $processor.Logger.LogTrace("NIC Tag Key/Value count mismatch for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "NIC Tag Key/Value count mismatch for: '$($sourceMachineName)'" 
+        }
+        else{
+            for ($i = 0; $i -lt $nicTagKey.Count; $i++) {
+                $nicTagDict.Add($nicTagKey[$i], $nicTagValue[$i])
+            }
+            $params.Add("NicTag", $nicTagDict)
+        }
     }
 
     #Code added to accommodate for Target Subscription if the replicated machine is suppose to land in a different Target subscription
