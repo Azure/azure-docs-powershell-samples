@@ -148,21 +148,20 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $osDiskId = $csvItem.OS_DISK_ID
     $osDiskName = $csvItem.UPDATED_TARGET_OS_DISK_NAME
 
-    if ([string]::IsNullOrEmpty($osDiskId)) {
-        $processor.Logger.LogTrace("OS_DISK_ID or UPDATED_TARGET_OS_DISK_NAME is not mentioned for: '$($sourceMachineName)'")
-        $reportItem.AdditionalInformation = "OS_DISK_ID or UPDATED_TARGET_OS_DISK_NAME is not mentioned for: '$($sourceMachineName)'"
+    if ([string]::IsNullOrEmpty($osDiskId) -or [string]::IsNullOrEmpty($osDiskName)) {
+        $processor.Logger.LogTrace("OS_DISK_ID is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "OS_DISK_ID is not mentioned for: '$($sourceMachineName)'"
     }
     else {
-        if ([string]::IsNullOrEmpty($osDiskName)){
+        $paramsDisk1.Add("DiskId", $osDiskId)
+        $paramsDisk1.Add("IsOSDisk", $true)
+        if ([string]::IsNullOrEmpty($osDiskName)) {
             $processor.Logger.LogTrace("UPDATED_TARGET_OS_DISK_NAME is not mentioned for: '$($sourceMachineName)'")
-            $reportItem.AdditionalInformation = "UPDATED_TARGET_OS_DISK_NAME is not mentioned for: '$($sourceMachineName)'"
         }
         else {
-            $paramsDisk1.Add("DiskId", $osDiskId)
-            $paramsDisk1.Add("IsOSDisk", $true)
             $paramsDisk1.Add("TargetDiskName", $osDiskName)
-            $diskMapping+= $paramsDisk1
         }
+        $diskMapping+= $paramsDisk1
     }
 
     $paramsDisk2 = @{}
@@ -173,16 +172,15 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $reportItem.AdditionalInformation = "DATA_DISK1_ID is not mentioned for: '$($sourceMachineName)'"
     }
     else {
-        if ([string]::IsNullOrEmpty($dataDisk1Name)){
+        $paramsDisk2.Add("DiskId", $dataDisk1Id)
+        $paramsDisk2.Add("IsOSDisk", $false)
+        if ([string]::IsNullOrEmpty($dataDisk1Name)) {
             $processor.Logger.LogTrace("UPDATED_TARGET_DATA_DISK1_NAME is not mentioned for: '$($sourceMachineName)'")
-            $reportItem.AdditionalInformation = "UPDATED_TARGET_DATA_DISK1_NAME is not mentioned for: '$($sourceMachineName)'"
         }
         else {
-            $paramsDisk2.Add("DiskId", $dataDisk1Id)
-            $paramsDisk2.Add("IsOSDisk", $false)
             $paramsDisk2.Add("TargetDiskName", $dataDisk1Name)
-            $diskMapping+= $paramsDisk2
         }
+        $diskMapping+= $paramsDisk2
     }
 
     $paramsDisk3 = @{}
@@ -193,16 +191,16 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $reportItem.AdditionalInformation = "DATA_DISK2_ID is not mentioned for: '$($sourceMachineName)'"
     }
     else {
-        if ([string]::IsNullOrEmpty($dataDisk2Name)){
+        
+        $paramsDisk3.Add("DiskId", $dataDisk2Id)
+        $paramsDisk3.Add("IsOSDisk", $false)
+        if ([string]::IsNullOrEmpty($dataDisk2Name)) {
             $processor.Logger.LogTrace("UPDATED_TARGET_DATA_DISK2_NAME is not mentioned for: '$($sourceMachineName)'")
-            $reportItem.AdditionalInformation = "UPDATED_TARGET_DATA_DISK2_NAME is not mentioned for: '$($sourceMachineName)'"
-        }
-        else {
-            $paramsDisk3.Add("DiskId", $dataDisk2Id)
-            $paramsDisk3.Add("IsOSDisk", $false)
+        }else {
             $paramsDisk3.Add("TargetDiskName", $dataDisk2Name)
-            $diskMapping+= $paramsDisk3
         }
+        $diskMapping+= $paramsDisk3
+    
     }
 
     $params.Add("DiskToUpdate", $diskMapping)
