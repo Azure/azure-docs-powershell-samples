@@ -135,6 +135,60 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     } 
     #End Code for Target Subscription
 
+    $targetDiskName = $csvItem.UPDATED_TARGET_DISK_NAME
+    if ([string]::IsNullOrEmpty($targetDiskName)) {
+        $processor.Logger.LogTrace("UPDATED_TARGET_DISK_NAME is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $params.Add("TargetDiskName", $targetDiskName)
+    }
+
+    $diskMapping = @()
+    $paramsDisk1 = @{}
+    $osDiskId = $csvItem.OS_DISK_ID
+    $osDiskName = $csvItem.UPDATED_TARGET_OS_DISK_NAME
+
+    if ([string]::IsNullOrEmpty($osDiskId) -or [string]::IsNullOrEmpty($osDiskName)) {
+        $processor.Logger.LogTrace("OS_DISK_ID or UPDATED_TARGET_OS_DISK_NAME is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "OS_DISK_ID or UPDATED_TARGET_OS_DISK_NAME is not mentioned for: '$($sourceMachineName)'"
+    }
+    else {
+        $paramsDisk1.Add("DiskId", $osDiskId)
+        $paramsDisk1.Add("IsOSDisk", $true)
+        $paramsDisk1.Add("TargetDiskName", $osDiskName)
+        $diskMapping+= $paramsDisk1
+    }
+
+    $paramsDisk2 = @{}
+    $dataDisk1Id = $csvItem.DATA_DISK1_ID
+    $dataDisk1Name = $csvItem.UPDATED_TARGET_DATA_DISK1_NAME
+    if ([string]::IsNullOrEmpty($dataDisk1Id) -or [string]::IsNullOrEmpty($dataDisk1Name)) {
+        $processor.Logger.LogTrace("DATA_DISK1_ID or UPDATED_TARGET_DATA_DISK1_NAME is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "DATA_DISK1_ID or UPDATED_TARGET_DATA_DISK1_NAME is not mentioned for: '$($sourceMachineName)'"
+    }
+    else {
+        $paramsDisk2.Add("DiskId", $dataDisk1Id)
+        $paramsDisk2.Add("IsOSDisk", $false)
+        $paramsDisk2.Add("TargetDiskName", $dataDisk1Name)
+        $diskMapping+= $paramsDisk2
+    }
+
+    $paramsDisk3 = @{}
+    $dataDisk2Id = $csvItem.DATA_DISK2_ID
+    $dataDisk2Name = $csvItem.UPDATED_TARGET_DATA_DISK2_NAME
+    if ([string]::IsNullOrEmpty($dataDisk2Id) -or [string]::IsNullOrEmpty($dataDisk2Name)) {
+        $processor.Logger.LogTrace("DATA_DISK2_ID or UPDATED_TARGET_DATA_DISK2_NAME is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "DATA_DISK2_ID or UPDATED_TARGET_DATA_DISK2_NAME is not mentioned for: '$($sourceMachineName)'"
+    }
+    else {
+        $paramsDisk3.Add("DiskId", $dataDisk2Id)
+        $paramsDisk3.Add("IsOSDisk", $false)
+        $paramsDisk3.Add("TargetDiskName", $dataDisk2Name)
+        $diskMapping+= $paramsDisk3
+    }
+
+    $params.Add("DiskToUpdate", $diskMapping)
+
     $targetMachineName = $csvItem.UPDATED_TARGET_MACHINE_NAME 
     if ([string]::IsNullOrEmpty($targetMachineName)) {
         $processor.Logger.LogTrace("UPDATED_TARGET_MACHINE_NAME is not mentioned for: '$($sourceMachineName)'")        
@@ -203,6 +257,15 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     else {
         $paramsNIC1.Add("NicId", $UpdatedNIC1ID)
     }
+
+    $nic1Name = $csvItem.UPDATED_TARGET_NIC1_NAME
+    if ([string]::IsNullOrEmpty($nic1Name)) {
+        $processor.Logger.LogTrace("UPDATED_TARGET_NIC1_NAME is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $paramsNIC1.Add("TargetNicName", $nic1Name)
+    }
+
     $NIC1_SelectionType = $csvItem.UPDATED_TARGET_NIC1_SELECTIONTYPE
     #Specifies whether the NIC to be updated will be the Primary, Secondary or not migrated ("DoNotCreate")
     if ([string]::IsNullOrEmpty($NIC1_SelectionType)) {
@@ -247,6 +310,15 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     else {
         $paramsNIC2.Add("NicId", $UpdatedNIC2ID)
     }
+
+    $nic2Name = $csvItem.UPDATED_TARGET_NIC2_NAME
+    if ([string]::IsNullOrEmpty($nic2Name)) {
+        $processor.Logger.LogTrace("UPDATED_TARGET_NIC2_NAME is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $paramsNIC2.Add("TargetNicName", $nic2Name)
+    }
+    
     $NIC2_SelectionType = $csvItem.UPDATED_TARGET_NIC2_SELECTIONTYPE
     #Specifies whether the NIC to be updated will be the Primary, Secondary or not migrated ("DoNotCreate")
     if ([string]::IsNullOrEmpty($NIC2_SelectionType)) {
