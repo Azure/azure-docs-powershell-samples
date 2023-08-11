@@ -191,7 +191,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $reportItem.AdditionalInformation = "DATA_DISK2_ID is not mentioned for: '$($sourceMachineName)'"
     }
     else {
-        
         $paramsDisk3.Add("DiskId", $dataDisk2Id)
         $paramsDisk3.Add("IsOSDisk", $false)
         if ([string]::IsNullOrEmpty($dataDisk2Name)) {
@@ -200,7 +199,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
             $paramsDisk3.Add("TargetDiskName", $dataDisk2Name)
         }
         $diskMapping+= $paramsDisk3
-    
     }
 
     $params.Add("DiskToUpdate", $diskMapping)
