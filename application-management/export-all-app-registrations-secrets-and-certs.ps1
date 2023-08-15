@@ -45,20 +45,32 @@ $Messages = @{
 
 Write-Host $Messages.DurationNotice.Info -ForegroundColor yellow
 
-$Applications = Get-MgApplication -All
+$Applications = Get-MgApplication -ExpandProperty Owners -All
 
 $Logs = @()
 
 foreach ($App in $Applications) {
     $AppName = $App.DisplayName
-    $AppID   = $App.Id
     $ApplID  = $App.AppId
 
-    $AppCreds = Get-MgApplication -ApplicationId $AppID |
-        Select-Object PasswordCredentials, KeyCredentials
+    $AppCreds = $App | Select-Object PasswordCredentials, KeyCredentials
 
     $Secrets = $AppCreds.PasswordCredentials
     $Certs   = $AppCreds.KeyCredentials
+
+    $Owner    = $App.Owners
+    $Username = $Owner.AdditionalProperties.userPrincipalName -join ';'
+    $OwnerID  = $Owner.Id -join ';'
+
+    if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
+        $Username = @(
+            $Owner.AdditionalProperties.displayName
+            '**<This is an Application>**'
+        ) -join ' '
+    }
+    if ($null -eq $Owner.AdditionalProperties.displayName) {
+        $Username = '<<No Owner>>'
+    }
 
     ############################################
     $Logs += [PSCustomObject]@{
@@ -79,20 +91,6 @@ foreach ($App in $Applications) {
         $EndDate    = $Secret.EndDateTime
         $SecretName = $Secret.DisplayName
 
-        $Owner    = Get-MgApplicationOwner -ApplicationId $App.Id
-        $Username = $Owner.AdditionalProperties.userPrincipalName -join ';'
-        $OwnerID  = $Owner.Id -join ';'
-
-        if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
-            $Username = @(
-                $Owner.AdditionalProperties.displayName
-                '**<This is an Application>**'
-            ) -join ' '
-        }
-        if ($null -eq $Owner.AdditionalProperties.displayName) {
-            $Username = '<<No Owner>>'
-        }
-
         $Logs += [PSCustomObject]@{
             'ApplicationName'        = $AppName
             'ApplicationID'          = $ApplID
@@ -111,20 +109,6 @@ foreach ($App in $Applications) {
         $StartDate = $Cert.StartDateTime
         $EndDate   = $Cert.EndDateTime
         $CertName  = $Cert.DisplayName
-
-        $Owner    = Get-MgApplicationOwner -ApplicationId $App.Id
-        $Username = $Owner.AdditionalProperties.userPrincipalName -join ';'
-        $OwnerID  = $Owner.Id -join ';'
-
-        if ($null -eq $Owner.AdditionalProperties.userPrincipalName) {
-            $Username = @(
-                $Owner.AdditionalProperties.displayName
-                '**<This is an Application>**'
-            ) -join ' '
-        }
-        if ($null -eq $Owner.AdditionalProperties.displayName) {
-            $Username = '<<No Owner>>'
-        }
 
         $Logs += [PSCustomObject]@{
             'ApplicationName'        = $AppName
