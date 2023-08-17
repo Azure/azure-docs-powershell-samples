@@ -95,9 +95,21 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $processor.Logger.LogTrace("UPDATED_TAG_KEY or UPDATED_TAG_VALUE is not mentioned for: '$($sourceMachineName)'")
     }
     else {
-        $updateTagDict.Add($updateTagKey, $updateTagValue)
-        $params.Add("UpdateTag", $updateTagDict)
-        $params.Add("UpdateTagOperation", $updateTagOperation)
+        $updateTagKeys = $updateTagKey.Split(",")
+        $updateTagValues = $updateTagValue.Split(",")
+        
+        if ($updateTagKeys.Count -ne $updateTagValues.Count) {
+            $processor.Logger.LogTrace("UPDATED_TAG_KEY and UPDATED_TAG_VALUE count is not same for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "UPDATED_TAG_KEY and UPDATED_TAG_VALUE count is not same for: '$($sourceMachineName)'"
+            return
+        }
+        else {
+            for ($i=0; $i -lt $updateTagKeys.Count; $i++) {
+                $updateTagDict.Add($updateTagKeys[$i], $updateTagValues[$i])
+            }
+            $params.Add("UpdateTag", $updateTagDict)
+            $params.Add("UpdateTagOperation", $updateTagOperation)
+        }
     }
 
     $updateVmTagKey = $csvItem.UPDATED_VMTAG_KEY
@@ -108,9 +120,21 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $processor.Logger.LogTrace("UPDATED_VM_TAG_KEY or UPDATED_VM_TAG_VALUE is not mentioned for: '$($sourceMachineName)'")
     }
     else {
-        $updateVmTagDict.Add($updateVmTagKey, $updateVmTagValue)
-        $params.Add("UpdateVMTag", $updateVmTagDict)
-        $params.Add("UpdateVMTagOperation", $updateVmTagOperation)
+        $updateVmTagKeys = $updateVmTagKey.Split(",")
+        $updateVmTagValues = $updateVmTagValue.Split(",")
+        
+        if ($updateVmTagKeys.Count -ne $updateVmTagValues.Count) {
+            $processor.Logger.LogTrace("UPDATED_VM_TAG_KEY and UPDATED_VM_TAG_VALUE count is not same for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "UPDATED_VM_TAG_KEY and UPDATED_VM_TAG_VALUE count is not same for: '$($sourceMachineName)'"
+            return
+        }
+        else {
+            for ($i=0; $i -lt $updateVmTagKeys.Count; $i++) {
+                $updateVmTagDict.Add($updateVmTagKeys[$i], $updateVmTagValues[$i])
+            }
+            $params.Add("UpdateVmTag", $updateVmTagDict)
+            $params.Add("UpdateVmTagOperation", $updateVmTagOperation)
+        }
     }
 
     $updateDiskTagKey = $csvItem.UPDATED_DISKTAG_KEY
@@ -121,9 +145,21 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $processor.Logger.LogTrace("UPDATED_DISK_TAG_KEY or UPDATED_DISK_TAG_VALUE is not mentioned for: '$($sourceMachineName)'")
     }
     else {
-        $updateDiskTagDict.Add($updateDiskTagKey, $updateDiskTagValue)
-        $params.Add("UpdateDiskTag", $updateDiskTagDict)
-        $params.Add("UpdateDiskTagOperation", $updateDiskTagOperation)
+        $updateDiskTagKeys = $updateDiskTagKey.Split(",")
+        $updateDiskTagValues = $updateDiskTagValue.Split(",")
+        
+        if ($updateDiskTagKeys.Count -ne $updateDiskTagValues.Count) {
+            $processor.Logger.LogTrace("UPDATED_DISK_TAG_KEY and UPDATED_DISK_TAG_VALUE count is not same for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "UPDATED_DISK_TAG_KEY and UPDATED_DISK_TAG_VALUE count is not same for: '$($sourceMachineName)'"
+            return
+        }
+        else {
+            for ($i=0; $i -lt $updateDiskTagKeys.Count; $i++) {
+                $updateDiskTagDict.Add($updateDiskTagKeys[$i], $updateDiskTagValues[$i])
+            }
+            $params.Add("UpdateDiskTag", $updateDiskTagDict)
+            $params.Add("UpdateDiskTagOperation", $updateDiskTagOperation)
+        }
     }
 
     $updateNicTagKey = $csvItem.UPDATED_NICTAG_KEY
@@ -134,9 +170,21 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $processor.Logger.LogTrace("UPDATED_NIC_TAG_KEY or UPDATED_NIC_TAG_VALUE is not mentioned for: '$($sourceMachineName)'")
     }
     else {
-        $updateNicTagDict.Add($updateNicTagKey, $updateNicTagValue)
-        $params.Add("UpdateNicTag", $updateNicTagDict)
-        $params.Add("UpdateNicTagOperation", $updateNicTagOperation)
+        $updateNicTagKeys = $updateNicTagKey.Split(",")
+        $updateNicTagValues = $updateNicTagValue.Split(",")
+        
+        if ($updateNicTagKeys.Count -ne $updateNicTagValues.Count) {
+            $processor.Logger.LogTrace("UPDATED_NIC_TAG_KEY and UPDATED_NIC_TAG_VALUE count is not same for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "UPDATED_NIC_TAG_KEY and UPDATED_NIC_TAG_VALUE count is not same for: '$($sourceMachineName)'"
+            return
+        }
+        else {
+            for ($i=0; $i -lt $updateNicTagKeys.Count; $i++) {
+                $updateNicTagDict.Add($updateNicTagKeys[$i], $updateNicTagValues[$i])
+            }
+            $params.Add("UpdateNicTag", $updateNicTagDict)
+            $params.Add("UpdateNicTagOperation", $updateNicTagOperation)
+        }
     }
     
 
@@ -339,13 +387,8 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     }
     #endregion
 
-    
-
-
     # Start replication for a discovered VM in an Azure Migrate project 
     $processor.Logger.LogTrace( "Starting Update Job for source '$($sourceMachineName)'")
-    #print params in json 
-    $processor.Logger.LogTrace( "Params for Update Job for source '$($sourceMachineName)': $($params | ConvertTo-Json -Depth 100)")
     $UpdateJob = Set-AzMigrateServerReplication @params
 
     if (-not $UpdateJob){

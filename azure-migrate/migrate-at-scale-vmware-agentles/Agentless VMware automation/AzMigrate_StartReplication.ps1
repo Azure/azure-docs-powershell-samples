@@ -54,7 +54,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         return
     }
 
-    #seperate by comma
     $tagKeys = $csvItem.TAG_KEY
     $tagValues = $csvItem.TAG_VALUE
     $tagDict = @{}
@@ -69,7 +68,8 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         # check if the count is equal for keys and values
         if ($tagKeys.Count -ne $tagValues.Count) {
             $processor.Logger.LogTrace("Tag Key/Value count mismatch for: '$($sourceMachineName)'")
-            $reportItem.AdditionalInformation = "Tag Key/Value count mismatch for: '$($sourceMachineName)'" 
+            $reportItem.AdditionalInformation = "Tag Key/Value count mismatch for: '$($sourceMachineName)'"
+            return 
         }
         else{
             for ($i = 0; $i -lt $tagKeys.Count; $i++) {
@@ -94,6 +94,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         if ($vmTagKeys.Count -ne $vmTagValues.Count) {
             $processor.Logger.LogTrace("VM Tag Key/Value count mismatch for: '$($sourceMachineName)'")
             $reportItem.AdditionalInformation = "VM Tag Key/Value count mismatch for: '$($sourceMachineName)'" 
+            return
         }
         else{
             for ($i = 0; $i -lt $vmTagKeys.Count; $i++) {
@@ -118,6 +119,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         if ($diskTagKeys.Count -ne $diskTagValues.Count) {
             $processor.Logger.LogTrace("Disk Tag Key/Value count mismatch for: '$($sourceMachineName)'")
             $reportItem.AdditionalInformation = "Disk Tag Key/Value count mismatch for: '$($sourceMachineName)'" 
+            return
         }
         else{
             for ($i = 0; $i -lt $diskTagKeys.Count; $i++) {
@@ -142,6 +144,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         if ($nicTagKey.Count -ne $nicTagValue.Count) {
             $processor.Logger.LogTrace("NIC Tag Key/Value count mismatch for: '$($sourceMachineName)'")
             $reportItem.AdditionalInformation = "NIC Tag Key/Value count mismatch for: '$($sourceMachineName)'" 
+            return
         }
         else{
             for ($i = 0; $i -lt $nicTagKey.Count; $i++) {
@@ -462,8 +465,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         
         # Start replication for a discovered VM in an Azure Migrate project 
         $processor.Logger.LogTrace( "Starting replication Job for source '$($sourceMachineName)'")
-        #print params in json
-        $processor.Logger.LogTrace( "Starting replication Job with following params: $($params | ConvertTo-Json -Depth 100)")
         $MigrateJob =  New-AzMigrateServerReplication @params
 
         if (-not $MigrateJob){
