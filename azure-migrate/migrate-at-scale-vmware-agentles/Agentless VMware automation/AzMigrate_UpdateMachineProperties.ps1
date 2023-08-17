@@ -148,7 +148,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $osDiskId = $csvItem.OS_DISK_ID
     $osDiskName = $csvItem.UPDATED_TARGET_OS_DISK_NAME
 
-    if ([string]::IsNullOrEmpty($osDiskId) -or [string]::IsNullOrEmpty($osDiskName)) {
+    if ([string]::IsNullOrEmpty($osDiskId)) {
         $processor.Logger.LogTrace("OS_DISK_ID is not mentioned for: '$($sourceMachineName)'")
         $reportItem.AdditionalInformation = "OS_DISK_ID is not mentioned for: '$($sourceMachineName)'"
     }
@@ -387,9 +387,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $params.Add("NicToUpdate", $NicMapping)
     }
     #endregion
-
-    
-
 
     # Start replication for a discovered VM in an Azure Migrate project 
     $processor.Logger.LogTrace( "Starting Update Job for source '$($sourceMachineName)'")
