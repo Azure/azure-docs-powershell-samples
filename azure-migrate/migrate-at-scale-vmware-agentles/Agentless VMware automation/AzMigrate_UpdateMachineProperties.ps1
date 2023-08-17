@@ -107,7 +107,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $updateTagOperation = $csvItem.UPDATED_TAG_OPERATION
     $updateTagDict = @{}
     if ([string]::IsNullOrEmpty($updateTagKey) -or [string]::IsNullOrEmpty($updateTagValue) -or [string]::IsNullOrEmpty($updateTagOperation)) {
-        $processor.Logger.LogTrace("UPDATED_TAG_KEY or UPDATED_TAG_VALUE is not mentioned for: '$($sourceMachineName)'")
+        $processor.Logger.LogTrace("UPDATED_TAG_KEY or UPDATED_TAG_VALUE or UPDATED_TAG_OPERATION is not mentioned for: '$($sourceMachineName)'")
     }
     else {
         $updateTagKeys = $updateTagKey.Split(",")
@@ -132,7 +132,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $updateVmTagOperation = $csvItem.UPDATED_VMTAG_OPERATION
     $updateVmTagDict = @{}
     if ([string]::IsNullOrEmpty($updateVmTagKey) -or [string]::IsNullOrEmpty($updateVmTagValue) -or [string]::IsNullOrEmpty($updateVmTagOperation)) {
-        $processor.Logger.LogTrace("UPDATED_VM_TAG_KEY or UPDATED_VM_TAG_VALUE is not mentioned for: '$($sourceMachineName)'")
+        $processor.Logger.LogTrace("UPDATED_VM_TAG_KEY or UPDATED_VM_TAG_VALUE or UPDATED_VMTAG_OPERATION is not mentioned for: '$($sourceMachineName)'")
     }
     else {
         $updateVmTagKeys = $updateVmTagKey.Split(",")
@@ -157,15 +157,15 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $updateDiskTagOperation = $csvItem.UPDATED_DISKTAG_OPERATION
     $updateDiskTagDict = @{}
     if ([string]::IsNullOrEmpty($updateDiskTagKey) -or [string]::IsNullOrEmpty($updateDiskTagValue) -or [string]::IsNullOrEmpty($updateDiskTagOperation)) {
-        $processor.Logger.LogTrace("UPDATED_DISK_TAG_KEY or UPDATED_DISK_TAG_VALUE is not mentioned for: '$($sourceMachineName)'")
+        $processor.Logger.LogTrace("UPDATED_DISKTAG_KEY or UPDATED_DISKTAG_VALUE or UPDATED_DISKTAG_OPERATION is not mentioned for: '$($sourceMachineName)'")
     }
     else {
         $updateDiskTagKeys = $updateDiskTagKey.Split(",")
         $updateDiskTagValues = $updateDiskTagValue.Split(",")
         
         if ($updateDiskTagKeys.Count -ne $updateDiskTagValues.Count) {
-            $processor.Logger.LogTrace("UPDATED_DISK_TAG_KEY and UPDATED_DISK_TAG_VALUE count is not same for: '$($sourceMachineName)'")
-            $reportItem.AdditionalInformation = "UPDATED_DISK_TAG_KEY and UPDATED_DISK_TAG_VALUE count is not same for: '$($sourceMachineName)'"
+            $processor.Logger.LogTrace("UPDATED_DISKTAG_KEY and UPDATED_DISKTAG_VALUE count is not same for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "UPDATED_DISKTAG_KEY and UPDATED_DISKTAG_VALUE count is not same for: '$($sourceMachineName)'"
             return
         }
         else {
@@ -182,15 +182,15 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     $updateNicTagOperation = $csvItem.UPDATED_NICTAG_OPERATION
     $updateNicTagDict = @{}
     if ([string]::IsNullOrEmpty($updateNicTagKey) -or [string]::IsNullOrEmpty($updateNicTagValue) -or [string]::IsNullOrEmpty($updateNicTagOperation)) {
-        $processor.Logger.LogTrace("UPDATED_NIC_TAG_KEY or UPDATED_NIC_TAG_VALUE is not mentioned for: '$($sourceMachineName)'")
+        $processor.Logger.LogTrace("UPDATED_NICTAG_KEY or UPDATED_NICTAG_VALUE or UPDATED_NICTAG_OPERATION is not mentioned for: '$($sourceMachineName)'")
     }
     else {
         $updateNicTagKeys = $updateNicTagKey.Split(",")
         $updateNicTagValues = $updateNicTagValue.Split(",")
         
         if ($updateNicTagKeys.Count -ne $updateNicTagValues.Count) {
-            $processor.Logger.LogTrace("UPDATED_NIC_TAG_KEY and UPDATED_NIC_TAG_VALUE count is not same for: '$($sourceMachineName)'")
-            $reportItem.AdditionalInformation = "UPDATED_NIC_TAG_KEY and UPDATED_NIC_TAG_VALUE count is not same for: '$($sourceMachineName)'"
+            $processor.Logger.LogTrace("UPDATED_NICTAG_KEY and UPDATED_NICTAG_VALUE count is not same for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "UPDATED_NICTAG_KEY and UPDATED_NICTAG_VALUE count is not same for: '$($sourceMachineName)'"
             return
         }
         else {
