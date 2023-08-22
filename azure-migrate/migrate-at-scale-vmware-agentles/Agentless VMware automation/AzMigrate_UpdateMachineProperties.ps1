@@ -302,9 +302,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     }
     #endregion
 
-    
-
-
     # Start replication for a discovered VM in an Azure Migrate project 
     $processor.Logger.LogTrace( "Starting Update Job for source '$($sourceMachineName)'")
     $UpdateJob = Set-AzMigrateServerReplication @params
