@@ -219,6 +219,31 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
             return
         }
     }    
+
+    $NIC1_TARGET_SUBNET_NAME = $csvItem.UPDATED_TARGET_NIC1_SUBNET_NAME
+    if ([string]::IsNullOrEmpty($NIC1_TARGET_SUBNET_NAME)) {
+        $processor.Logger.LogTrace("UPDATED_TARGET_NIC1_SUBNET_NAME is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $paramsNIC1.Add("TargetNicSubnet", $NIC1_TARGET_SUBNET_NAME)
+    }
+
+    $NIC1_TARGET_STATIC_IP = $csvItem.UPDATED_TARGET_NIC1_TARGET_STATIC_IP
+    if ([string]::IsNullOrEmpty($NIC1_TARGET_STATIC_IP)) {
+        $processor.Logger.LogTrace("UPDATED_TARGET_NIC1_TARGET_STATIC_IP is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $paramsNIC1.Add("TargetStaticIPAddress", $NIC1_TARGET_STATIC_IP)
+    }
+
+    $NIC1_TEST_STATIC_IP = $csvItem.UPDATED_TARGET_NIC1_TEST_STATIC_IP
+    if ([string]::IsNullOrEmpty($NIC1_TEST_STATIC_IP)) {
+        $processor.Logger.LogTrace("UPDATED_TARGET_NIC1_TEST_STATIC_IP is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $paramsNIC1.Add("TestStaticIPAddress", $NIC1_TEST_STATIC_IP)
+    }
+
     $NIC1_Subnet = $csvItem.UPDATED_TARGET_NIC1_SUBNET_NAME
     if ([string]::IsNullOrEmpty($NIC1_Subnet)) {$processor.Logger.LogTrace("UPDATED_TARGET_NIC1_SUBNET_NAME is not mentioned for: '$($sourceMachineName)'")}
     else {
@@ -263,6 +288,31 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
             return
         }
     }
+
+    $NIC2_TARGET_SUBNET_NAME = $csvItem.UPDATED_TARGET_NIC2_TEST_SUBNET_NAME
+    if ([string]::IsNullOrEmpty($NIC2_TARGET_SUBNET_NAME)) {
+        $processor.Logger.LogTrace("UPDATED_TARGET_NIC2_TEST_SUBNET_NAME is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $paramsNIC2.Add("TargetSubnetName", $NIC2_TARGET_SUBNET_NAME)
+    }
+
+    $NIC2_TARGET_STATIC_IP = $csvItem.UPDATED_TARGET_NIC2_TARGET_STATIC_IP
+    if ([string]::IsNullOrEmpty($NIC2_TARGET_STATIC_IP)) {
+        $processor.Logger.LogTrace("UPDATED_TARGET_NIC2_TARGET_STATIC_IP is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $paramsNIC2.Add("TargetStaticIPAddress", $NIC2_TARGET_STATIC_IP)
+    }
+
+    $NIC2_TEST_STATIC_IP = $csvItem.UPDATED_TARGET_NIC2_TEST_STATIC_IP
+    if ([string]::IsNullOrEmpty($NIC2_TEST_STATIC_IP)) {
+        $processor.Logger.LogTrace("UPDATED_TARGET_NIC2_TEST_STATIC_IP is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $paramsNIC2.Add("TestStaticIPAddress", $NIC2_TEST_STATIC_IP)
+    }
+
     $NIC2_Subnet = $csvItem.UPDATED_TARGET_NIC2_SUBNET_NAME
     if ([string]::IsNullOrEmpty($NIC2_Subnet)) {$processor.Logger.LogTrace("UPDATED_TARGET_NIC2_SUBNET_NAME is not mentioned for: '$($sourceMachineName)'")}
     else {
@@ -301,9 +351,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $params.Add("NicToUpdate", $NicMapping)
     }
     #endregion
-
-    
-
 
     # Start replication for a discovered VM in an Azure Migrate project 
     $processor.Logger.LogTrace( "Starting Update Job for source '$($sourceMachineName)'")
