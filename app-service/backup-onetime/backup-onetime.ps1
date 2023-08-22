@@ -1,3 +1,6 @@
+# This sample script creates a web app in App Service with its related resources, and then creates a one-time backup for it.
+# If needed, install the Azure PowerShell using the instruction found in the Azure PowerShell guide, and then run Connect-AzAccount to create a connection with Azure.
+
 $webappname="mywebapp$(Get-Random -Minimum 100000 -Maximum 999999)"
 $storagename="$($webappname)storage"
 $container="appbackup"
