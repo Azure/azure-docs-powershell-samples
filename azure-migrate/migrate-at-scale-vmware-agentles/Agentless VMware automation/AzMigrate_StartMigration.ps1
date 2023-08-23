@@ -66,10 +66,8 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
 
     $osUpgradeVersion = $csvItem.OS_UPGRADE_VERSION
     if([string]::IsNullOrEmpty($osUpgradeVersion)){
-        $processor.Logger.LogError("OS_UPGRADE_VERSION is not mentioned for: '$($sourceMachineName)'")
+        $processor.Logger.LogTrace("OS_UPGRADE_VERSION is not mentioned for: '$($sourceMachineName)'")
         $reportItem.AdditionalInformation = "OS_VERSION_UPGRADE is not mentioned for: '$($sourceMachineName)'"
-        $processor.Logger.LogError("HERE I AM")
-        $osUpgradeVersion = $ReplicatingServermachine.ProviderSpecificDetail.SupportedOsVersion[0]
     }
 
     #start the migration
