@@ -73,6 +73,14 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         }
         $params.Add("SqlServerLicenseType", $sqlServerLicenseType)
     }
+
+    $testNetworkId = $csvItem.TEST_NETWORK_ID
+    if ([string]::IsNullOrEmpty($testNetworkId)) {
+        $processor.Logger.LogTrace("TEST_NETWORK_ID is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $params.Add("TestNetworkId", $testNetworkId)
+    }
     
     #Code added to accommodate for Target Subscription if the replicated machine is suppose to land in a different Target subscription
     $targetSubscriptionID = $csvItem.TARGET_SUBSCRIPTION_ID
