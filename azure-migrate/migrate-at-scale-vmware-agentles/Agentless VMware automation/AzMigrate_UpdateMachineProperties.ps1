@@ -201,7 +201,9 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $diskMapping+= $paramsDisk3
     }
 
-    $params.Add("DiskToUpdate", $diskMapping)
+    if ($diskMapping.Count -gt 0) {
+        $params.Add("DiskToUpdate", $diskMapping)
+    }
 
     $targetMachineName = $csvItem.UPDATED_TARGET_MACHINE_NAME 
     if ([string]::IsNullOrEmpty($targetMachineName)) {
@@ -390,6 +392,8 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
 
     # Start replication for a discovered VM in an Azure Migrate project 
     $processor.Logger.LogTrace( "Starting Update Job for source '$($sourceMachineName)'")
+    #PRINT IN JSON
+    $processor.Logger.LogTrace( "Update Job Parameters: $(ConvertTo-Json $params)")
     $UpdateJob = Set-AzMigrateServerReplication @params
 
     if (-not $UpdateJob){
