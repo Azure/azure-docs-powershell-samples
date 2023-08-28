@@ -1,3 +1,6 @@
+# This sample script retrieves a previously completed backup from an existing web app and restores it to a web app in another subscription.
+# If needed, install the Azure PowerShell using the instruction found in the Azure PowerShell guide, and then run Connect-AzAccount to create a connection with Azure.
+
 $resourceGroupNameSub1 = "<replace-with-your-group-name>"
 $resourceGroupNameSub2 = "<replace-with-desired-new-group-name>"
 $webAppNameSub1 = "<replace-with-your-app-name>"
