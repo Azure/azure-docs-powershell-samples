@@ -303,7 +303,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     else {
         $paramsNIC1.Add("NicId", $UpdatedNIC1ID)
     }
-
     $NIC1_SelectionType = $csvItem.UPDATED_TARGET_NIC1_SELECTIONTYPE
     #Specifies whether the NIC to be updated will be the Primary, Secondary or not migrated ("DoNotCreate")
     if ([string]::IsNullOrEmpty($NIC1_SelectionType)) {
@@ -348,7 +347,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     else {
         $paramsNIC2.Add("NicId", $UpdatedNIC2ID)
     }
-
     $NIC2_SelectionType = $csvItem.UPDATED_TARGET_NIC2_SELECTIONTYPE
     #Specifies whether the NIC to be updated will be the Primary, Secondary or not migrated ("DoNotCreate")
     if ([string]::IsNullOrEmpty($NIC2_SelectionType)) {
