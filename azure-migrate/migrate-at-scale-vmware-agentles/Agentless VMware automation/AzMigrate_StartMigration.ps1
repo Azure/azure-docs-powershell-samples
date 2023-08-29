@@ -64,13 +64,28 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         return
     }
 
+    $osUpgradeVersion = $csvItem.OS_UPGRADE_VERSION
+
     #start the migration
     if ([string]::IsNullOrEmpty($TurnOff_SrcServer) -or ($TurnOff_SrcServer -eq 'N') -or ($TurnOff_SrcServer -eq 'No')){
         #we are defaulting to this if Turn off Source Server is not mentioned
-        $MigrateJob = Start-AzMigrateServerMigration -InputObject $ReplicatingServermachine
+        if([string]::IsNullOrEmpty($osUpgradeVersion)){
+            $processor.Logger.LogTrace("OS_UPGRADE_VERSION is not mentioned for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "OS_VERSION_UPGRADE is not mentioned for: '$($sourceMachineName)'"
+            $MigrateJob = Start-AzMigrateServerMigration -InputObject $ReplicatingServermachine
+        } else{
+            $MigrateJob = Start-AzMigrateServerMigration -InputObject $ReplicatingServermachine -OsUpgradeVersion $osUpgradeVersion
+        }
     }
     else {
-        $MigrateJob = Start-AzMigrateServerMigration -InputObject $ReplicatingServermachine -TurnOffSourceServer
+        if([string]::IsNullOrEmpty($osUpgradeVersion)){
+            $processor.Logger.LogTrace("OS_UPGRADE_VERSION is not mentioned for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "OS_VERSION_UPGRADE is not mentioned for: '$($sourceMachineName)'"
+            $MigrateJob = Start-AzMigrateServerMigration -InputObject $ReplicatingServermachine -TurnOffSourceServer
+        } 
+        else {
+            $MigrateJob = Start-AzMigrateServerMigration -InputObject $ReplicatingServermachine -TurnOffSourceServer -OsUpgradeVersion $osUpgradeVersion
+        }
     }
     
     if (-not $MigrateJob){
