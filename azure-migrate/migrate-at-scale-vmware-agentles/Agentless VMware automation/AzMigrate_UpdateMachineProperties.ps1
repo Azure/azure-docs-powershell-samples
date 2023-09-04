@@ -109,6 +109,106 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
             $params.Add("TargetResourceGroupID", $Target_RG.ResourceId)
         }
     }
+
+    $updateTagKey = $csvItem.UPDATED_TAG_KEY
+    $updateTagValue = $csvItem.UPDATED_TAG_VALUE
+    $updateTagOperation = $csvItem.UPDATED_TAG_OPERATION
+    $updateTagDict = @{}
+    if ([string]::IsNullOrEmpty($updateTagKey) -or [string]::IsNullOrEmpty($updateTagValue) -or [string]::IsNullOrEmpty($updateTagOperation)) {
+        $processor.Logger.LogTrace("UPDATED_TAG_KEY or UPDATED_TAG_VALUE or UPDATED_TAG_OPERATION is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $updateTagKeys = $updateTagKey.Split(",")
+        $updateTagValues = $updateTagValue.Split(",")
+        
+        if ($updateTagKeys.Count -ne $updateTagValues.Count) {
+            $processor.Logger.LogTrace("UPDATED_TAG_KEY and UPDATED_TAG_VALUE count is not same for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "UPDATED_TAG_KEY and UPDATED_TAG_VALUE count is not same for: '$($sourceMachineName)'"
+            return
+        }
+        else {
+            for ($i=0; $i -lt $updateTagKeys.Count; $i++) {
+                $updateTagDict.Add($updateTagKeys[$i], $updateTagValues[$i])
+            }
+            $params.Add("UpdateTag", $updateTagDict)
+            $params.Add("UpdateTagOperation", $updateTagOperation)
+        }
+    }
+
+    $updateVmTagKey = $csvItem.UPDATED_VMTAG_KEY
+    $updateVmTagValue = $csvItem.UPDATED_VMTAG_VALUE
+    $updateVmTagOperation = $csvItem.UPDATED_VMTAG_OPERATION
+    $updateVmTagDict = @{}
+    if ([string]::IsNullOrEmpty($updateVmTagKey) -or [string]::IsNullOrEmpty($updateVmTagValue) -or [string]::IsNullOrEmpty($updateVmTagOperation)) {
+        $processor.Logger.LogTrace("UPDATED_VM_TAG_KEY or UPDATED_VM_TAG_VALUE or UPDATED_VMTAG_OPERATION is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $updateVmTagKeys = $updateVmTagKey.Split(",")
+        $updateVmTagValues = $updateVmTagValue.Split(",")
+        
+        if ($updateVmTagKeys.Count -ne $updateVmTagValues.Count) {
+            $processor.Logger.LogTrace("UPDATED_VM_TAG_KEY and UPDATED_VM_TAG_VALUE count is not same for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "UPDATED_VM_TAG_KEY and UPDATED_VM_TAG_VALUE count is not same for: '$($sourceMachineName)'"
+            return
+        }
+        else {
+            for ($i=0; $i -lt $updateVmTagKeys.Count; $i++) {
+                $updateVmTagDict.Add($updateVmTagKeys[$i], $updateVmTagValues[$i])
+            }
+            $params.Add("UpdateVmTag", $updateVmTagDict)
+            $params.Add("UpdateVmTagOperation", $updateVmTagOperation)
+        }
+    }
+
+    $updateDiskTagKey = $csvItem.UPDATED_DISKTAG_KEY
+    $updateDiskTagValue = $csvItem.UPDATED_DISKTAG_VALUE
+    $updateDiskTagOperation = $csvItem.UPDATED_DISKTAG_OPERATION
+    $updateDiskTagDict = @{}
+    if ([string]::IsNullOrEmpty($updateDiskTagKey) -or [string]::IsNullOrEmpty($updateDiskTagValue) -or [string]::IsNullOrEmpty($updateDiskTagOperation)) {
+        $processor.Logger.LogTrace("UPDATED_DISKTAG_KEY or UPDATED_DISKTAG_VALUE or UPDATED_DISKTAG_OPERATION is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $updateDiskTagKeys = $updateDiskTagKey.Split(",")
+        $updateDiskTagValues = $updateDiskTagValue.Split(",")
+        
+        if ($updateDiskTagKeys.Count -ne $updateDiskTagValues.Count) {
+            $processor.Logger.LogTrace("UPDATED_DISKTAG_KEY and UPDATED_DISKTAG_VALUE count is not same for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "UPDATED_DISKTAG_KEY and UPDATED_DISKTAG_VALUE count is not same for: '$($sourceMachineName)'"
+            return
+        }
+        else {
+            for ($i=0; $i -lt $updateDiskTagKeys.Count; $i++) {
+                $updateDiskTagDict.Add($updateDiskTagKeys[$i], $updateDiskTagValues[$i])
+            }
+            $params.Add("UpdateDiskTag", $updateDiskTagDict)
+            $params.Add("UpdateDiskTagOperation", $updateDiskTagOperation)
+        }
+    }
+
+    $updateNicTagKey = $csvItem.UPDATED_NICTAG_KEY
+    $updateNicTagValue = $csvItem.UPDATED_NICTAG_VALUE
+    $updateNicTagOperation = $csvItem.UPDATED_NICTAG_OPERATION
+    $updateNicTagDict = @{}
+    if ([string]::IsNullOrEmpty($updateNicTagKey) -or [string]::IsNullOrEmpty($updateNicTagValue) -or [string]::IsNullOrEmpty($updateNicTagOperation)) {
+        $processor.Logger.LogTrace("UPDATED_NICTAG_KEY or UPDATED_NICTAG_VALUE or UPDATED_NICTAG_OPERATION is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $updateNicTagKeys = $updateNicTagKey.Split(",")
+        $updateNicTagValues = $updateNicTagValue.Split(",")
+        
+        if ($updateNicTagKeys.Count -ne $updateNicTagValues.Count) {
+            $processor.Logger.LogTrace("UPDATED_NICTAG_KEY and UPDATED_NICTAG_VALUE count is not same for: '$($sourceMachineName)'")
+            $reportItem.AdditionalInformation = "UPDATED_NICTAG_KEY and UPDATED_NICTAG_VALUE count is not same for: '$($sourceMachineName)'"
+            return
+        }
+        else {
+            for ($i=0; $i -lt $updateNicTagKeys.Count; $i++) {
+                $updateNicTagDict.Add($updateNicTagKeys[$i], $updateNicTagValues[$i])
+            }
+            $params.Add("UpdateNicTag", $updateNicTagDict)
+            $params.Add("UpdateNicTagOperation", $updateNicTagOperation)
+        }
+    }
     
 
     #Get the Target VirtualNetwork Name where we want to provision the VM in Azure
@@ -142,6 +242,76 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         }        
     } 
     #End Code for Target Subscription
+
+    $targetDiskName = $csvItem.UPDATED_TARGET_DISK_NAME
+    if ([string]::IsNullOrEmpty($targetDiskName)) {
+        $processor.Logger.LogTrace("UPDATED_TARGET_DISK_NAME is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $params.Add("TargetDiskName", $targetDiskName)
+    }
+
+    $diskMapping = @()
+    $paramsDisk1 = @{}
+    $osDiskId = $csvItem.OS_DISK_ID
+    $osDiskName = $csvItem.UPDATED_TARGET_OS_DISK_NAME
+
+    if ([string]::IsNullOrEmpty($osDiskId)) {
+        $processor.Logger.LogTrace("OS_DISK_ID is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "OS_DISK_ID is not mentioned for: '$($sourceMachineName)'"
+    }
+    else {
+        $paramsDisk1.Add("DiskId", $osDiskId)
+        $paramsDisk1.Add("IsOSDisk", $true)
+        if ([string]::IsNullOrEmpty($osDiskName)) {
+            $processor.Logger.LogTrace("UPDATED_TARGET_OS_DISK_NAME is not mentioned for: '$($sourceMachineName)'")
+        }
+        else {
+            $paramsDisk1.Add("TargetDiskName", $osDiskName)
+        }
+        $diskMapping+= $paramsDisk1
+    }
+
+    $paramsDisk2 = @{}
+    $dataDisk1Id = $csvItem.DATA_DISK1_ID
+    $dataDisk1Name = $csvItem.UPDATED_TARGET_DATA_DISK1_NAME
+    if ([string]::IsNullOrEmpty($dataDisk1Id)) {
+        $processor.Logger.LogTrace("DATA_DISK1_ID is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "DATA_DISK1_ID is not mentioned for: '$($sourceMachineName)'"
+    }
+    else {
+        $paramsDisk2.Add("DiskId", $dataDisk1Id)
+        $paramsDisk2.Add("IsOSDisk", $false)
+        if ([string]::IsNullOrEmpty($dataDisk1Name)) {
+            $processor.Logger.LogTrace("UPDATED_TARGET_DATA_DISK1_NAME is not mentioned for: '$($sourceMachineName)'")
+        }
+        else {
+            $paramsDisk2.Add("TargetDiskName", $dataDisk1Name)
+        }
+        $diskMapping+= $paramsDisk2
+    }
+
+    $paramsDisk3 = @{}
+    $dataDisk2Id = $csvItem.DATA_DISK2_ID
+    $dataDisk2Name = $csvItem.UPDATED_TARGET_DATA_DISK2_NAME
+    if ([string]::IsNullOrEmpty($dataDisk2Id)) {
+        $processor.Logger.LogTrace("DATA_DISK2_ID is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "DATA_DISK2_ID is not mentioned for: '$($sourceMachineName)'"
+    }
+    else {
+        $paramsDisk3.Add("DiskId", $dataDisk2Id)
+        $paramsDisk3.Add("IsOSDisk", $false)
+        if ([string]::IsNullOrEmpty($dataDisk2Name)) {
+            $processor.Logger.LogTrace("UPDATED_TARGET_DATA_DISK2_NAME is not mentioned for: '$($sourceMachineName)'")
+        }else {
+            $paramsDisk3.Add("TargetDiskName", $dataDisk2Name)
+        }
+        $diskMapping+= $paramsDisk3
+    }
+
+    if ($diskMapping.Count -gt 0) {
+        $params.Add("DiskToUpdate", $diskMapping)
+    }
 
     $targetMachineName = $csvItem.UPDATED_TARGET_MACHINE_NAME 
     if ([string]::IsNullOrEmpty($targetMachineName)) {
@@ -210,6 +380,15 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     else {
         $paramsNIC1.Add("NicId", $UpdatedNIC1ID)
     }
+
+    $nic1Name = $csvItem.UPDATED_TARGET_NIC1_NAME
+    if ([string]::IsNullOrEmpty($nic1Name)) {
+        $processor.Logger.LogTrace("UPDATED_TARGET_NIC1_NAME is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $paramsNIC1.Add("TargetNicName", $nic1Name)
+    }
+
     $NIC1_SelectionType = $csvItem.UPDATED_TARGET_NIC1_SELECTIONTYPE
     #Specifies whether the NIC to be updated will be the Primary, Secondary or not migrated ("DoNotCreate")
     if ([string]::IsNullOrEmpty($NIC1_SelectionType)) {
@@ -268,6 +447,15 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     else {
         $paramsNIC2.Add("NicId", $UpdatedNIC2ID)
     }
+
+    $nic2Name = $csvItem.UPDATED_TARGET_NIC2_NAME
+    if ([string]::IsNullOrEmpty($nic2Name)) {
+        $processor.Logger.LogTrace("UPDATED_TARGET_NIC2_NAME is not mentioned for: '$($sourceMachineName)'")
+    }
+    else {
+        $paramsNIC2.Add("TargetNicName", $nic2Name)
+    }
+
     $NIC2_SelectionType = $csvItem.UPDATED_TARGET_NIC2_SELECTIONTYPE
     #Specifies whether the NIC to be updated will be the Primary, Secondary or not migrated ("DoNotCreate")
     if ([string]::IsNullOrEmpty($NIC2_SelectionType)) {

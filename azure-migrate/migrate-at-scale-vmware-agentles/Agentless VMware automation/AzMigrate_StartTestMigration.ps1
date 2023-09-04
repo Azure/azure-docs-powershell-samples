@@ -186,7 +186,17 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     } 
     #End Code for Target Subscription
 
-    $TestMigrationJob = Start-AzMigrateTestMigration -InputObject $ReplicatingServermachine -TestNetworkID $Target_VNet.Id @params
+    $osUpgradeVersion = $csvItem.OS_UPGRADE_VERSION
+    
+    if([string]::IsNullOrEmpty($osUpgradeVersion)){
+        $processor.Logger.LogTrace("OS_UPGRADE_VERSION is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "OS_VERSION_UPGRADE is not mentioned for: '$($sourceMachineName)'"
+        $TestMigrationJob = Start-AzMigrateTestMigration -InputObject $ReplicatingServermachine -TestNetworkID $Target_VNet.Id
+    } 
+    else{
+        $TestMigrationJob = Start-AzMigrateTestMigration -InputObject $ReplicatingServermachine -TestNetworkID $Target_VNet.Id -OsUpgradeVersion $osUpgradeVersion
+    }
+
     if (-not $TestMigrationJob){
         $processor.Logger.LogError("Test Migration Job couldn't be initiated for the specified machine: '$($sourceMachineName)'")    
         $reportItem.AdditionalInformation = "Test Migration Job couldn't be initiated for the specified machine: '$($sourceMachineName)'"
