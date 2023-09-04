@@ -103,6 +103,25 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         }
     }
 
+    $testNetworkId = $csvItem.TEST_NETWORK_ID
+    if ([string]::IsNullOrEmpty($testNetworkId)) {
+        $processor.Logger.LogTrace("TEST_NETWORK_ID is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "TEST_NETWORK_ID is not mentioned for: '$($sourceMachineName)'"
+        return
+    }
+    else {
+        $params.Add("TestNetworkId", $testNetworkId)
+    }
+    
+    $testSubnetName = $csvItem.TEST_SUBNET_NAME
+    if ([string]::IsNullOrEmpty($testSubnetName)) {
+        $processor.Logger.LogTrace("TEST_SUBNET_NAME is not mentioned for: '$($sourceMachineName)'")
+        $params.Add("TestSubnetName", "default")
+    }
+    else {
+        $params.Add("TestSubnetName", $testSubnetName)
+    }
+
     $targetSubnetName = $csvItem.TARGET_SUBNET_NAME
     if ([string]::IsNullOrEmpty($targetSubnetName)) {
         #using default for subnet if not specified
