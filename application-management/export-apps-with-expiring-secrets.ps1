@@ -95,8 +95,7 @@ foreach ($App in $Applications) {
             $Username = '<<No Owner>>'
         }
 
-        $RemainingDaysCount = $EndDate - $Now |
-            Select-Object -ExpandProperty Days
+        $RemainingDaysCount = ($EndDate - $Now).Days
 
         if ($IncludeAlreadyExpired -eq 'No') {
             if ($RemainingDaysCount -le $DaysUntilExpiration -and $RemainingDaysCount -ge 0) {
@@ -150,8 +149,7 @@ foreach ($App in $Applications) {
             $Username = '<<No Owner>>'
         }
 
-        $RemainingDaysCount = $EndDate - $Now |
-            Select-Object -ExpandProperty Days
+        $RemainingDaysCount = ($EndDate - $Now).Days
 
         if ($IncludeAlreadyExpired -eq 'No') {
             if ($RemainingDaysCount -le $DaysUntilExpiration -and $RemainingDaysCount -ge 0) {
