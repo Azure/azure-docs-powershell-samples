@@ -147,7 +147,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     #Assumption is that if $UpdatedNIC1ID is not provided then probably it doesnt need to be added
     # we can also add the below code when we check this for the first time but it will be in a nested fashion so doing it here for simplicity 
     if (-not ([string]::IsNullOrEmpty($UpdatedNIC1ID) -and [string]::IsNullOrEmpty($ReplicatingServermachine.ProviderSpecificDetail.VMNic[0].NicId))) {
-        $Nic1Mapping = New-AzMigrateNicMapping @paramsNIC1
+        $Nic1Mapping = New-AzMigrateTestNicMapping @paramsNIC1
         if(-not $Nic1Mapping){
             $processor.Logger.LogTrace("Nic1Mapping is not initialized for: '$($sourceMachineName)'")
         }
@@ -158,7 +158,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     #Assumption is that if $UpdatedNIC2ID is not provided then probably it doesnt need to be added
     # we can also add the below code when we check this for the first time but it will be in a nested fashion so doing it here for simplicity 
     if (-not ([string]::IsNullOrEmpty($UpdatedNIC2ID) -and [string]::IsNullOrEmpty($ReplicatingServermachine.ProviderSpecificDetail.VMNic[1].NicId))) {
-        $Nic2Mapping = New-AzMigrateNicMapping @paramsNIC2
+        $Nic2Mapping = New-AzMigrateTestNicMapping @paramsNIC2
         if(-not $Nic2Mapping){
             $processor.Logger.LogTrace("Nic2Mapping is not initialized for: '$($sourceMachineName)'")
         }
