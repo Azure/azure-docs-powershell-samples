@@ -93,7 +93,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     # NIC parameters to pass to New-AzMigrateServerReplication
     $NicMapping = @()
     $paramsNIC1 = @{}    
-    $UpdatedNIC1ID = $csvItem.UPDATED_NIC1_ID
+    $UpdatedNIC1ID = $csvItem.TFO_NIC1_ID
     if ([string]::IsNullOrEmpty($UpdatedNIC1ID)) {
         $processor.Logger.LogTrace("UPDATED_NIC1_ID is not mentioned for: '$($sourceMachineName)'")
         if ([string]::IsNullOrEmpty($ReplicatingServermachine.ProviderSpecificDetail.VMNic[0].NicId))
@@ -109,18 +109,20 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $paramsNIC1.Add("NicId", $UpdatedNIC1ID)
     }  
 
-    $NIC1_TEST_SUBNET_NAME = $csvItem.UPDATED_TARGET_NIC1_TEST_SUBNET_NAME
+    $NIC1_TEST_SUBNET_NAME = $csvItem.TFO_NIC1_TEST_SUBNET_NAME
     if ([string]::IsNullOrEmpty($NIC1_TEST_SUBNET_NAME)) {
-        $processor.Logger.LogTrace("UPDATED_TARGET_NIC1_TEST_SUBNET_NAME is not mentioned for: '$($sourceMachineName)'")
+        $processor.Logger.LogTrace("TFO_NIC1_TEST_SUBNET_NAME is not mentioned for: '$($sourceMachineName)'")
     }
     else {
         $paramsNIC1.Add("TestNicSubnet", $NIC1_TEST_SUBNET_NAME)
     }
 
+    $processor.Logger.LogTrace("nic1test subnet name is: '$($NIC1_TEST_SUBNET_NAME)' and nic1id is: '$($UpdatedNIC1ID)'")
+
     # NIC parameters to pass to New-AzMigrateServerReplication
     $params = @{}
     $paramsNIC2 = @{}    
-    $UpdatedNIC2ID = $csvItem.UPDATED_NIC2_ID
+    $UpdatedNIC2ID = $csvItem.TFO_NIC2_ID
     if ([string]::IsNullOrEmpty($UpdatedNIC2ID)) {
         $processor.Logger.LogTrace("UPDATED_NIC2_ID is not mentioned for: '$($sourceMachineName)'")
         if ([string]::IsNullOrEmpty($ReplicatingServermachine.ProviderSpecificDetail.VMNic[1].NicId))
@@ -136,9 +138,9 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $paramsNIC2.Add("NicId", $UpdatedNIC2ID)
     }
 
-    $NIC2_TEST_SUBNET_NAME = $csvItem.UPDATED_TARGET_NIC2_TEST_SUBNET_NAME
+    $NIC2_TEST_SUBNET_NAME = $csvItem.TFO_NIC2_TEST_SUBNET_NAME
     if ([string]::IsNullOrEmpty($NIC2_TEST_SUBNET_NAME)) {
-        $processor.Logger.LogTrace("UPDATED_TARGET_NIC2_TEST_SUBNET_NAME is not mentioned for: '$($sourceMachineName)'")
+        $processor.Logger.LogTrace("TFO_NIC2_TEST_SUBNET_NAME is not mentioned for: '$($sourceMachineName)'")
     }
     else {
         $paramsNIC2.Add("TestNicSubnet", $NIC2_TEST_SUBNET_NAME)
@@ -146,7 +148,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
 
     #Assumption is that if $UpdatedNIC1ID is not provided then probably it doesnt need to be added
     # we can also add the below code when we check this for the first time but it will be in a nested fashion so doing it here for simplicity 
-    if (-not ([string]::IsNullOrEmpty($UpdatedNIC1ID) -and [string]::IsNullOrEmpty($ReplicatingServermachine.ProviderSpecificDetail.VMNic[0].NicId))) {
+    if (-not ([string]::IsNullOrEmpty($UpdatedNIC1ID) -and [string]::IsNullOrEmpty($NIC1_TEST_SUBNET_NAME) -and [string]::IsNullOrEmpty($ReplicatingServermachine.ProviderSpecificDetail.VMNic[0].NicId))) {
         $Nic1Mapping = New-AzMigrateTestNicMapping @paramsNIC1
         if(-not $Nic1Mapping){
             $processor.Logger.LogTrace("Nic1Mapping is not initialized for: '$($sourceMachineName)'")
@@ -157,7 +159,7 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     }
     #Assumption is that if $UpdatedNIC2ID is not provided then probably it doesnt need to be added
     # we can also add the below code when we check this for the first time but it will be in a nested fashion so doing it here for simplicity 
-    if (-not ([string]::IsNullOrEmpty($UpdatedNIC2ID) -and [string]::IsNullOrEmpty($ReplicatingServermachine.ProviderSpecificDetail.VMNic[1].NicId))) {
+    if (-not ([string]::IsNullOrEmpty($UpdatedNIC2ID) -and [string]::IsNullOrEmpty($NIC2_TEST_SUBNET_NAME) -and [string]::IsNullOrEmpty($ReplicatingServermachine.ProviderSpecificDetail.VMNic[1].NicId))) {
         $Nic2Mapping = New-AzMigrateTestNicMapping @paramsNIC2
         if(-not $Nic2Mapping){
             $processor.Logger.LogTrace("Nic2Mapping is not initialized for: '$($sourceMachineName)'")
@@ -167,10 +169,11 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         }
     }
 
+    
     if ($NicMapping.Count -gt 0) {
         $params.Add("NicToUpdate", $NicMapping)
     }
-    
+
     #Code added to accommodate for Target Subscription if the replicated machine is suppose to land in a different Target subscription
     #We are reverting to Azure Migrate Subscription
     if (-not([string]::IsNullOrEmpty($targetSubscriptionID))) {
@@ -191,10 +194,10 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     if([string]::IsNullOrEmpty($osUpgradeVersion)){
         $processor.Logger.LogTrace("OS_UPGRADE_VERSION is not mentioned for: '$($sourceMachineName)'")
         $reportItem.AdditionalInformation = "OS_VERSION_UPGRADE is not mentioned for: '$($sourceMachineName)'"
-        $TestMigrationJob = Start-AzMigrateTestMigration -InputObject $ReplicatingServermachine -TestNetworkID $Target_VNet.Id
+        $TestMigrationJob = Start-AzMigrateTestMigration -InputObject $ReplicatingServermachine -TestNetworkID $Target_VNet.Id @params
     } 
     else{
-        $TestMigrationJob = Start-AzMigrateTestMigration -InputObject $ReplicatingServermachine -TestNetworkID $Target_VNet.Id -OsUpgradeVersion $osUpgradeVersion
+        $TestMigrationJob = Start-AzMigrateTestMigration -InputObject $ReplicatingServermachine -TestNetworkID $Target_VNet.Id -OsUpgradeVersion $osUpgradeVersion @params
     }
 
     if (-not $TestMigrationJob){
