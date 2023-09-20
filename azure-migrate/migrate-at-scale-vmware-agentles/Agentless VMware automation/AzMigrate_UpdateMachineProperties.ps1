@@ -74,12 +74,20 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $params.Add("SqlServerLicenseType", $sqlServerLicenseType)
     }
 
-    $testNetworkId = $csvItem.TEST_NETWORK_ID
-    if ([string]::IsNullOrEmpty($testNetworkId)) {
-        $processor.Logger.LogTrace("TEST_NETWORK_ID is not mentioned for: '$($sourceMachineName)'")
+    $testVnetName = $csvItem.UPDATED_TEST_VNET_NAME
+    if ([string]::IsNullOrEmpty($testVnetName)) {
+        $processor.Logger.LogTrace("UPDATED_TEST_VNET_NAME is not mentioned for: '$($sourceMachineName)'")
     }
     else {
-        $params.Add("TestNetworkId", $testNetworkId)
+        $Target_VNet = Get-AzVirtualNetwork -Name $testVnetName
+        if (-not $Target_VNet) {
+            $processor.Logger.LogError("Updated VNET could not be retrieved for: '$($testVnetName)'")
+            $reportItem.AdditionalInformation = "Updated VNET could not be retrieved for: '$($testVnetName)'"
+            return
+        }
+        else {
+            $params.Add("TestNetworkId", $Target_VNet.Id)
+        }    
     }
     
     #Code added to accommodate for Target Subscription if the replicated machine is suppose to land in a different Target subscription
