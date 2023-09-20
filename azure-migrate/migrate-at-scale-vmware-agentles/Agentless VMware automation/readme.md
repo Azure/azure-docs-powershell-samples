@@ -102,19 +102,23 @@ UPDATED_TARGET_MACHINE_SIZE | If you want to update the SKU to be used by the mi
 UPDATED_AVAILABILITYZONE_NUMBER | If you want to update the availability zone to be used by the migrated VM in Azure, then specify the new availability zone to be used, else leave blank.
 UPDATED_AVAILABILITYSET_NAME | If you want to update the availability set to be used by the migrated VM in Azure, then specify the new availability set to be used, else leave blank.
 UPDATE_NIC1_ID | Specify the ID of the NIC to be updated. If left blank, then the script assumes the value to be the first NIC of the discovered VM. If you don't want to update the NIC of the VM, then leave all the fields containing NIC name blank. 
+TFO_NIC1_ID | Specify the ID of the NIC to be used for test failover (Test Migration). If left blank, then the script assumes the value to be the first NIC of the discovered VM. If you don't want to use a different NIC for test failover, then leave all the fields containing NIC name blank.
 UPDATED_TARGET_NIC1_NAME | Specify the name to be used for this NIC on the migrated VM. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC1_SELECTIONTYPE | Specify the value to be used for this NIC. Use "Primary","Secondary" or "DoNotCreate" to specify if this NIC should be the primary, secondary, or should not be created on the migrated VM. Only one NIC can be specified as the primary NIC for the VM. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC1_SUBNET_NAME | Specify the name of the subnet to use for the NIC on the migrated VM. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC1_IP | Specify the IPv4 address to be used by the NIC on the migrated VM if you want to use static IP. Use "auto" if you want to automatically assign the IP. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC1_TEST_IP | Specify the IPv4 address to be used by the NIC on the test migrated VM if you want to use static IP.
-UPDATED_TARGET_NIC1_TEST_SUBNET_NAME | Specify the name of the subnet to use for the NIC on the test migrated VM.
+UPDATED_TARGET_NIC1_TEST_SUBNET_NAME | Specify the name of the subnet to update the NIC on the test migrated VM.
+TFO_NIC1_TEST_SUBNET_NAME | Specify the name of the subnet to use for the NIC on the test migrated VM.
 UPDATE_NIC2_ID | Specify the ID of the NIC to be updated. If left blank, then the script assumes the value to be the second NIC of the discovered VM. If you don't want to update the NIC of the VM, then leave all the fields containing NIC name blank.
+TFO_NIC2_ID | Specify the ID of the NIC to be used for Test Failover (Test Migration). If left blank, then the script assumes the value to be the second NIC of the discovered VM. If you don't want to update the NIC of the VM, then leave all the fields containing NIC name blank.
 UPDATED_TARGET_NIC2_NAME | Specify the name to be used for this NIC on the migrated VM. Leave blank if you don't want to update. 
 UPDATED_TARGET_NIC2_SELECTIONTYPE | Specify the value to be used for this NIC. Use "Primary","Secondary" or "DoNotCreate" to specify if this NIC should be the primary, secondary, or should not be created on the migrated VM. Only one NIC can be specified as the primary NIC for the VM. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC2_SUBNET_NAME | Specify the name of the subnet to use for the NIC on the migrated VM. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC2_IP | Specify the IPv4 address to be used by the NIC on the migrated VM if you want to use static IP. Use "auto" if you want to automatically assign the IP. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC2_TEST_IP | Specify the IPv4 address to be used by the NIC on the test migrated VM if you want to use static IP.
-UPDATED_TARGET_NIC2_TEST_SUBNET_NAME | Specify the name of the subnet to use for the NIC on the test migrated VM.
+UPDATED_TARGET_NIC2_TEST_SUBNET_NAME | Specify the name of the subnet to update the NIC on the test migrated VM.
+TFO_NIC2_TEST_SUBNET_NAME | Specify the name of the subnet to use for the NIC on the test migrated VM.
 OK_TO_UPDATE | Use 'Y' to indicate whether the VM properties need to be updated when you run the AzMigrate_UpdateMachineProperties script. Use 'N' or leave blank otherwise.
 OK_TO_MIGRATE | Use 'Y' to indicate whether the VM should be migrated when you run the AzMigrate_StartMigration script. Use 'N' or leave blank if you don't want to migrate the VM. 
 OK_TO_USE_ASSESSMENT | Use 'Y' to indicate whether the VM should start replication using assessment recommendations when you run the AzMigrate_StartReplication script. This will override the TARGET_MACHINE_SIZE and TARGET_DISKTYPE values in the csv file. Use 'N' or leave blank if you don't want to use assessment recommendations.
