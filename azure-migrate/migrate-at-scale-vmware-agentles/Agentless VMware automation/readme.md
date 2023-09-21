@@ -62,8 +62,9 @@ VM_TAG_VALUE | Provide the value for the Virtual Machine Tag that needs to be ap
 DISK_TAG_KEY | Provide the name for the Disk Tag that needs to be applied for the VM to use in Azure. If there is more than one name, you can add multiple keys in the same column separated by comma. 
 DISK_TAG_VALUE | Provide the value for the Disk Tag that needs to be applied for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
 NIC_TAG_KEY | Provide the name for the NIC Tag that needs to be applied for the VM to use in Azure. If there is more than one name, you can add multiple keys in the same column separated by comma.
-TEST_NETWORK_ID | Provide the ID of the Azure Virtual Network that the test migrated VM should use.
 NIC_TAG_VALUE | Provide the value for the NIC Tag that needs to be applied for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
+TEST_VNET_NAME | Provide the name of the virtual network to be used for test failover.
+TEST_SUBNET_NAME | Provide the name of the subnet to be used for test failover.
 TARGET_SUBSCRIPTION_ID | Provide the ID of the Subscription where VM needs to be migrated to.
 TARGET_RESOURCE_GROUP_NAME | Provide the name of the Azure resource group to that the VM needs to be migrated to.
 TARGET_VNET_NAME| Provide the name of the Azure Virtual Network that the migrated VM should use.
@@ -79,6 +80,7 @@ AVAILABILITYZONE_NUMBER | Specify the availability zone number to be used for th
 AVAILABILITYSET_NAME | Specify the name of the availability set to be used for the migrated VM. You can leave this blank in case you don't want to use availability set.
 TURNOFF_SOURCESERVER | Specify 'Y' if you want to turn off source VM at the time of migration. Use 'N' otherwise. If left blank, then the script assumes the value as 'N'.
 TESTMIGRATE_VNET_NAME | Specify the name of the virtual network to be used for test migration.
+UPDATED_TEST_VNET_NAME | Specify the name of the virtual network to update the server that needs to be test migrated in Azure. 
 UPDATED_TAG_KEY | Provide the name for the tag that needs to be updated for the VM to use in Azure. If there is more than one name, you can add multiple names in the same column separated by comma. 
 UPDATED_TAG_VALUE | Provide the value for the tag that needs to be updated for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
 UPDATED_TAG_OPERATION | Specify the operation to be performed on the tag. Use "Merge" to mege the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
