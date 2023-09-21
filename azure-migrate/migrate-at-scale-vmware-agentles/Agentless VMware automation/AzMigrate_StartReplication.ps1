@@ -209,7 +209,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
     if([string]::IsNullOrEmpty($testVnetName)){
         $processor.Logger.LogTrace("TEST_VNET_NAME is not mentioned for: '$($sourceMachineName)'")
         $reportItem.AdditionalInformation = "TEST_VNET_NAME is not mentioned for: '$($sourceMachineName)'"
-        return
     }
     else {
         #Get the Test VirtualNetwork Name where we want to provision the VM in Azure

@@ -117,8 +117,6 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $paramsNIC1.Add("TestNicSubnet", $NIC1_TEST_SUBNET_NAME)
     }
 
-    $processor.Logger.LogTrace("nic1test subnet name is: '$($NIC1_TEST_SUBNET_NAME)' and nic1id is: '$($UpdatedNIC1ID)'")
-
     # NIC parameters to pass to New-AzMigrateServerReplication
     $params = @{}
     $paramsNIC2 = @{}    
