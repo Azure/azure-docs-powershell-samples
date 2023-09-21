@@ -79,14 +79,14 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         $processor.Logger.LogTrace("UPDATED_TEST_VNET_NAME is not mentioned for: '$($sourceMachineName)'")
     }
     else {
-        $Target_VNet = Get-AzVirtualNetwork -Name $testVnetName
-        if (-not $Target_VNet) {
+        $Test_VNet = Get-AzVirtualNetwork -Name $testVnetName
+        if (-not $Test_VNet) {
             $processor.Logger.LogError("Updated VNET could not be retrieved for: '$($testVnetName)'")
             $reportItem.AdditionalInformation = "Updated VNET could not be retrieved for: '$($testVnetName)'"
             return
         }
         else {
-            $params.Add("TestNetworkId", $Target_VNet.Id)
+            $params.Add("TestNetworkId", $Test_VNet.Id)
         }    
     }
     
