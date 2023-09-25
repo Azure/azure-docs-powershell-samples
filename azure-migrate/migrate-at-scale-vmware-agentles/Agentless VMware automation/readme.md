@@ -82,16 +82,16 @@ TURNOFF_SOURCESERVER | Specify 'Y' if you want to turn off source VM at the time
 TESTMIGRATE_VNET_NAME | Specify the name of the virtual network to be used for test migration.
 UPDATED_TAG_KEY | Provide the name for the tag that needs to be updated for the VM to use in Azure. If there are more than one name, you can add multiple names in the same column separated by comma. 
 UPDATED_TAG_VALUE | Provide the value for the tag that needs to be updated for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
-UPDATED_TAG_OPERATION | Specify the operation to be performed on the tag. Use "Merge" to mege the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
+UPDATED_TAG_OPERATION | Specify the operation to be performed on the tag. Use "Merge" to merge the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
 UPDATED_VM_TAG_KEY | Provide the name for the Virtual Machine Tag that needs to be updated for the VM to use in Azure. If there is more than one name, you can add multiple keys in the same column separated by comma.
 UPDATED_VM_TAG_VALUE | Provide the value for the Virtual Machine Tag that needs to be updated for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of keys and values should be same.)
 UPDATED_VM_TAG_OPERATION | Specify the operation to be performed on the Virtual Machine tag. Use "Merge" to merge the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
 UPDATED_DISK_TAG_KEY | Provide the name for the Disk Tag that needs to be updated for the VM to use in Azure. If there is more than one name, you can add multiple keys in the same column separated by comma.
 UPDATED_DISK_TAG_VALUE | Provide the value for the Disk Tag that needs to be updated for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
-UPDATED_DISK_TAG_OPERATION | Specify the operation to be performed on the Disk tag. Use "Merge" to mege the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
+UPDATED_DISK_TAG_OPERATION | Specify the operation to be performed on the Disk tag. Use "Merge" to merge the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
 UPDATED_NIC_TAG_KEY | Provide the name for the NIC Tag that needs to be updated for the VM to use in Azure. If there is more than one name, you can add multiple keys in the same column separated by comma.
 UPDATED_NIC_TAG_VALUE | Provide the value for the NIC Tag that needs to be updated for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
-UPDATED_NIC_TAG_OPERATION | Specify the operation to be performed on the NIC tag. Use "Merge" to mege the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
+UPDATED_NIC_TAG_OPERATION | Specify the operation to be performed on the NIC tag. Use "Merge" to merge the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
 UPDATED_TARGET_RESOURCE_GROUP_NAME | If you want to update the resource group to be used by the migrated VM in Azure, then specify the name of the Azure resource group, else leave blank. 
 UPDATED_TEST_VNET_NAME | If you want to update the Virtual Network to be used by the test migrated VM in Azure, then specify the name of the Azure Virtual Network, else leave blank. 
 UPDATED_TARGET_VNET_NAME | If you want to update the Virtual Network to be used by the migrated VM in Azure, then specify the name of the Azure Virtual Network, else leave blank.
