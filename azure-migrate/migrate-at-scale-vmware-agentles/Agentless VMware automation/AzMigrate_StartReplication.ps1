@@ -203,6 +203,34 @@ Function ProcessItemImpl($processor, $csvItem, $reportItem) {
         }
     }
 
+    $testVnetName = $csvItem.TEST_VNET_NAME
+    $testSubnetName = $csvItem.TEST_SUBNET_NAME
+
+    if([string]::IsNullOrEmpty($testVnetName)){
+        $processor.Logger.LogTrace("TEST_VNET_NAME is not mentioned for: '$($sourceMachineName)'")
+        $reportItem.AdditionalInformation = "TEST_VNET_NAME is not mentioned for: '$($sourceMachineName)'"
+    }
+    else {
+        #Get the Test VirtualNetwork Name where we want to provision the VM in Azure
+        $Test_VNet = Get-AzVirtualNetwork -Name $testVnetName
+        if (-not $Test_VNet) {
+            $processor.Logger.LogError("VNET could not be retrieved for: '$($testVnetName)'")
+            $reportItem.AdditionalInformation = "VNET could not be retrieved for: '$($testVnetName)'"
+            return
+        }
+        else {
+            $params.Add("TestNetworkId", $Test_VNet.Id)   
+            if([string]::IsNullOrEmpty($testSubnetName)){
+                $processor.Logger.LogTrace("TEST_SUBNET_NAME is not mentioned for: '$($sourceMachineName)'")
+                $reportItem.AdditionalInformation = "TEST_SUBNET_NAME is not mentioned for: '$($sourceMachineName)'"
+                return
+            } else {
+                $params.Add("TestSubnetName", $testSubnetName)
+            } 
+        }
+    }
+    
+
     $targetSubnetName = $csvItem.TARGET_SUBNET_NAME
     if ([string]::IsNullOrEmpty($targetSubnetName)) {
         #using default for subnet if not specified
