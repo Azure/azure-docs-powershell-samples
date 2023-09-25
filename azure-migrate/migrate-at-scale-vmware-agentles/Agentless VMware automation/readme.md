@@ -55,16 +55,16 @@ OS_UPGRADE_VERSION | Specify the OS version to be used for the VM to use in Azur
 AZMIGRATEASSESSMENT_NAME | Provide the name of assessment that needs to be leveraged for migration.
 AZMIGRATEGROUP_NAME | Provide the name of the group that was used for the Azure Migrate assessment.
 SQL_SERVER_LICENSE_TYPE | Provide the SQL Server License Type for the VM to use in Azure. Use "PAYG" for pay-as-you-go, "AHB" for Azure Hybrid Benefit, or "NoLicenseType" for no license type. If you use an assessment, then this value will be derived based on assessment recommendation.
-TAG_KEY | Provide the name for the tag that needs to be applied for the VM to use in Azure. If there is more than one name, you can add multiple names in the same column separated by comma. 
+TAG_KEY | Provide the name for the tag that needs to be applied for the VM,NICs, and Disks to use in Azure. If there is more than one name, you can add multiple names in the same column separated by comma. 
 TAG_VALUE | Provide the value for the tag that needs to be applid for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
 VM_TAG_KEY | Provide the name for the Virtual Machine Tag that needs to be applied for the VM to use in Azure. If there is more than one name, you can add multiple keys in the same column separated by comma.
 VM_TAG_VALUE | Provide the value for the Virtual Machine Tag that needs to be applied for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of keys and values should be same.)
-DISK_TAG_KEY | Provide the name for the Disk Tag that needs to be applied for the VM to use in Azure. If there is more than one name, you can add multiple keys in the same column separated by comma. 
-DISK_TAG_VALUE | Provide the value for the Disk Tag that needs to be applied for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
-NIC_TAG_KEY | Provide the name for the NIC Tag that needs to be applied for the VM to use in Azure. If there is more than one name, you can add multiple keys in the same column separated by comma.
-NIC_TAG_VALUE | Provide the value for the NIC Tag that needs to be applied for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
-TEST_VNET_NAME | Provide the name of the virtual network to be used for test failover.
-TEST_SUBNET_NAME | Provide the name of the subnet to be used for test failover.
+DISK_TAG_KEY | Provide the name for the Disk Tag that needs to be applied for the Disks attached to VM in Azure. If there is more than one name, you can add multiple keys in the same column separated by comma. 
+DISK_TAG_VALUE | Provide the value for the Disk Tag that needs to be applied for the Disks attached to VM in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
+NIC_TAG_KEY | Provide the name for the NIC Tag that needs to be applied for the NICs attached to VM in Azure. If there is more than one name, you can add multiple keys in the same column separated by comma.
+NIC_TAG_VALUE | Provide the value for the NIC Tag that needs to be applied for the NICs attached to VM in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
+TEST_VNET_NAME | Provide the name of the virtual network to be used for test migration.
+TEST_SUBNET_NAME | Provide the name of the subnet to be used for test migration.
 TARGET_SUBSCRIPTION_ID | Provide the ID of the Subscription where VM needs to be migrated to.
 TARGET_RESOURCE_GROUP_NAME | Provide the name of the Azure resource group to that the VM needs to be migrated to.
 TARGET_VNET_NAME| Provide the name of the Azure Virtual Network that the migrated VM should use.
@@ -80,13 +80,12 @@ AVAILABILITYZONE_NUMBER | Specify the availability zone number to be used for th
 AVAILABILITYSET_NAME | Specify the name of the availability set to be used for the migrated VM. You can leave this blank in case you don't want to use availability set.
 TURNOFF_SOURCESERVER | Specify 'Y' if you want to turn off source VM at the time of migration. Use 'N' otherwise. If left blank, then the script assumes the value as 'N'.
 TESTMIGRATE_VNET_NAME | Specify the name of the virtual network to be used for test migration.
-UPDATED_TEST_VNET_NAME | Specify the name of the virtual network to update the server that needs to be test migrated in Azure. 
-UPDATED_TAG_KEY | Provide the name for the tag that needs to be updated for the VM to use in Azure. If there is more than one name, you can add multiple names in the same column separated by comma. 
+UPDATED_TAG_KEY | Provide the name for the tag that needs to be updated for the VM to use in Azure. If there are more than one name, you can add multiple names in the same column separated by comma. 
 UPDATED_TAG_VALUE | Provide the value for the tag that needs to be updated for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
 UPDATED_TAG_OPERATION | Specify the operation to be performed on the tag. Use "Merge" to mege the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
 UPDATED_VM_TAG_KEY | Provide the name for the Virtual Machine Tag that needs to be updated for the VM to use in Azure. If there is more than one name, you can add multiple keys in the same column separated by comma.
 UPDATED_VM_TAG_VALUE | Provide the value for the Virtual Machine Tag that needs to be updated for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of keys and values should be same.)
-UPDATED_VM_TAG_OPERATION | Specify the operation to be performed on the Virtual Machine tag. Use "Merge" to mege the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
+UPDATED_VM_TAG_OPERATION | Specify the operation to be performed on the Virtual Machine tag. Use "Merge" to merge the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
 UPDATED_DISK_TAG_KEY | Provide the name for the Disk Tag that needs to be updated for the VM to use in Azure. If there is more than one name, you can add multiple keys in the same column separated by comma.
 UPDATED_DISK_TAG_VALUE | Provide the value for the Disk Tag that needs to be updated for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
 UPDATED_DISK_TAG_OPERATION | Specify the operation to be performed on the Disk tag. Use "Merge" to mege the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
@@ -94,9 +93,10 @@ UPDATED_NIC_TAG_KEY | Provide the name for the NIC Tag that needs to be updated 
 UPDATED_NIC_TAG_VALUE | Provide the value for the NIC Tag that needs to be updated for the VM to use in Azure. If there are more than one value, you can add multiple values in the same column separated by comma. (The number of names and values should be same.)
 UPDATED_NIC_TAG_OPERATION | Specify the operation to be performed on the NIC tag. Use "Merge" to mege the tag, "Delete" to delete the tag, or "Replace" to replace the tag.
 UPDATED_TARGET_RESOURCE_GROUP_NAME | If you want to update the resource group to be used by the migrated VM in Azure, then specify the name of the Azure resource group, else leave blank. 
+UPDATED_TEST_VNET_NAME | If you want to update the Virtual Network to be used by the test migrated VM in Azure, then specify the name of the Azure Virtual Network, else leave blank. 
 UPDATED_TARGET_VNET_NAME | If you want to update the Virtual Network to be used by the migrated VM in Azure, then specify the name of the Azure Virtual Network, else leave blank.
 UPDATED_TARGET_MACHINE_NAME | If you want to update the name to be used by the migrated VM in Azure, then specify the new name to be used, else leave blank.
-UPDATED_TARGET_DISK_NAME | If you want to update the name to be used by the migrated VM in Azure for the disk, then specify the new name to be used, else leave blank.
+UPDATED_TARGET_DISK_NAME | If you want to update the disk name to be used by the migrated VM in Azure for the disk, then specify the new name to be used, else leave blank.
 UPDATED_TARGET_OS_DISK_NAME | If you want to update the name to be used by the migrated VM in Azure for the OS disk, then specify the new name to be used, else leave blank.
 UPDATED_TARGET_DATA_DISK1_NAME | If you want to update the name to be used by the migrated VM in Azure for the data disk, then specify the new name to be used, else leave blank. (Only that Disk will be updated which is specified in the Data Disk1 ID.)
 UPDATED_TARGET_DATA_DISK2_NAME | If you want to update the name to be used by the migrated VM in Azure for the data disk, then specify the new name to be used, else leave blank. (Only that Disk will be updated which is specified in the Data Disk2 ID.)
@@ -104,22 +104,22 @@ UPDATED_TARGET_MACHINE_SIZE | If you want to update the SKU to be used by the mi
 UPDATED_AVAILABILITYZONE_NUMBER | If you want to update the availability zone to be used by the migrated VM in Azure, then specify the new availability zone to be used, else leave blank.
 UPDATED_AVAILABILITYSET_NAME | If you want to update the availability set to be used by the migrated VM in Azure, then specify the new availability set to be used, else leave blank.
 UPDATE_NIC1_ID | Specify the ID of the NIC to be updated. If left blank, then the script assumes the value to be the first NIC of the discovered VM. If you don't want to update the NIC of the VM, then leave all the fields containing NIC name blank. 
-TFO_NIC1_ID | Specify the ID of the NIC to be used for test failover (Test Migration). If left blank, then the script assumes the value to be the first NIC of the discovered VM. If you don't want to use a different NIC for test failover, then leave all the fields containing NIC name blank.
 UPDATED_TARGET_NIC1_NAME | Specify the name to be used for this NIC on the migrated VM. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC1_SELECTIONTYPE | Specify the value to be used for this NIC. Use "Primary","Secondary" or "DoNotCreate" to specify if this NIC should be the primary, secondary, or should not be created on the migrated VM. Only one NIC can be specified as the primary NIC for the VM. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC1_SUBNET_NAME | Specify the name of the subnet to use for the NIC on the migrated VM. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC1_IP | Specify the IPv4 address to be used by the NIC on the migrated VM if you want to use static IP. Use "auto" if you want to automatically assign the IP. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC1_TEST_IP | Specify the IPv4 address to be used by the NIC on the test migrated VM if you want to use static IP.
 UPDATED_TARGET_NIC1_TEST_SUBNET_NAME | Specify the name of the subnet to update the NIC on the test migrated VM.
-TFO_NIC1_TEST_SUBNET_NAME | Specify the name of the subnet to use for the NIC on the test migrated VM.
 UPDATE_NIC2_ID | Specify the ID of the NIC to be updated. If left blank, then the script assumes the value to be the second NIC of the discovered VM. If you don't want to update the NIC of the VM, then leave all the fields containing NIC name blank.
-TFO_NIC2_ID | Specify the ID of the NIC to be used for Test Failover (Test Migration). If left blank, then the script assumes the value to be the second NIC of the discovered VM. If you don't want to update the NIC of the VM, then leave all the fields containing NIC name blank.
 UPDATED_TARGET_NIC2_NAME | Specify the name to be used for this NIC on the migrated VM. Leave blank if you don't want to update. 
 UPDATED_TARGET_NIC2_SELECTIONTYPE | Specify the value to be used for this NIC. Use "Primary","Secondary" or "DoNotCreate" to specify if this NIC should be the primary, secondary, or should not be created on the migrated VM. Only one NIC can be specified as the primary NIC for the VM. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC2_SUBNET_NAME | Specify the name of the subnet to use for the NIC on the migrated VM. Leave blank if you don't want to update.
 UPDATED_TARGET_NIC2_IP | Specify the IPv4 address to be used by the NIC on the migrated VM if you want to use static IP. Use "auto" if you want to automatically assign the IP. Leave blank if you don't want to update.
-UPDATED_TARGET_NIC2_TEST_IP | Specify the IPv4 address to be used by the NIC on the test migrated VM if you want to use static IP.
+UPDATED_TARGET_NIC2_TEST_IP | Specify the IPv4 address to be used by the NIC on the test migrated VM if you want to use static IP. 
 UPDATED_TARGET_NIC2_TEST_SUBNET_NAME | Specify the name of the subnet to update the NIC on the test migrated VM.
+TFO_NIC1_ID | Specify the ID of the NIC to be used for Test Migration. If left blank, then the script assumes the value to be the first NIC of the discovered VM. If you don't want to use a different NIC for test migration, then leave all the fields containing NIC name blank.
+TFO_NIC1_TEST_SUBNET_NAME | Specify the name of the subnet to use for the NIC on the test migrated VM.
+TFO_NIC2_ID | Specify the ID of the NIC to be used for Test Migration. If left blank, then the script assumes the value to be the second NIC of the discovered VM. If you don't want to update the NIC of the VM, then leave all the fields containing NIC name blank.
 TFO_NIC2_TEST_SUBNET_NAME | Specify the name of the subnet to use for the NIC on the test migrated VM.
 OK_TO_UPDATE | Use 'Y' to indicate whether the VM properties need to be updated when you run the AzMigrate_UpdateMachineProperties script. Use 'N' or leave blank otherwise.
 OK_TO_MIGRATE | Use 'Y' to indicate whether the VM should be migrated when you run the AzMigrate_StartMigration script. Use 'N' or leave blank if you don't want to migrate the VM. 
