@@ -98,7 +98,8 @@ function Get-AzMigDiscoveredVMwareVMs {
     Param(
         [Parameter(Mandatory = $true)][string]$ResourceGroupName,
         [Parameter(Mandatory = $true)][string]$ProjectName,
-        [Parameter(Mandatory = $true)][string]$OutputCsvFile = "VMwareVMs.csv"
+        [Parameter(Mandatory = $true)][string]$OutputCsvFile = "VMwareVMs.csv",
+	    [Parameter()][string]$ApplianceName = $null
     )
 
     if(-not (Test-Path -IsValid -Path $OutputCsvFile)) {
@@ -160,8 +161,11 @@ function Get-AzMigDiscoveredVMwareVMs {
 
     $vmwareappliancemap = @{}
     #Discard non-VMware appliances
-
-    $appMap.GetEnumerator() | foreach {if($_.Value -match "VMwareSites") {$vmwareappliancemap[$_.Key] = $_.Value}}
+    #If Appliance name is passed get data only for that appliance
+    #If Appliance name is not passed , get data for all appliances in that project
+    if (-not $ApplianceName){
+	$appMap.GetEnumerator() | foreach {if($_.Value -match "VMwareSites") {$vmwareappliancemap[$_.Key] = $_.Value}}}else{
+	$appMap.GetEnumerator() | foreach {if($_.Value -match "VMwareSites" -and $_.Key -eq $ApplianceName) {$vmwareappliancemap[$_.Key] = $_.Value}}}
     Write-Debug $vmwareappliancemap.count
     if($vmwareappliancemap) {$vmwareappliancemap | Out-String | Write-Debug};
     if (-not $vmwareappliancemap.count) {throw "No VMware VMs discovered in project"};
