@@ -9,6 +9,11 @@ products:
 
 # Sample code for Azure PowerShell documentation
 
+> Warning: This repo is scheduled to be archived on November 15, 2023. New contributions are no
+> longer accepted. Please submit new Azure PowerShell documentation code sample contributions to the
+> [Azure-Samples/azure-docs-powershell-samples](https://github.com/Azure-Samples/azure-docs-powershell-samples)
+> repo.
+
 All code in this repository is non-production samples used in Microsoft's official Azure PowerShell
 documentation and is designed to be used by our customers for learning and experimentation purposes.
 
