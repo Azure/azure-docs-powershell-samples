@@ -3,6 +3,7 @@
 
 Set-Variable -Name AMH_APIVERSION -Value "?api-version=2018-09-01-preview" -Option Constant -Scope Script -Force
 Set-Variable -Name SDS_APIVERSION -Value "?api-version=2020-01-01" -Option Constant -Scope Script -Force
+Set-Variable -Name HyperVandServer_APIVERSION -Value "?api-version=2020-08-01-preview" -Option Constant -Scope Script -Force
 Set-Variable -Name SAS_APIVERSION -Value "?api-version=2019-10-01" -Option Constant -Scope Script -Force
 Set-Variable -Name RSV_APIVERSION -Value "?api-version=2018-07-10" -Option Constant -Scope Script -Force
 
@@ -156,16 +157,13 @@ function Get-AzMigDiscoveredVMwareVMs {
         throw "Server Discovery Solution missing Appliance Details. Invalid Solution."           
     }
 
-
-    
-
     $vmwareappliancemap = @{}
     #Discard non-VMware appliances
     #If Appliance name is passed get data only for that appliance
     #If Appliance name is not passed , get data for all appliances in that project
     if (-not $ApplianceName){
-	$appMap.GetEnumerator() | foreach {if($_.Value -match "VMwareSites") {$vmwareappliancemap[$_.Key] = $_.Value}}}else{
-	$appMap.GetEnumerator() | foreach {if($_.Value -match "VMwareSites" -and $_.Key -eq $ApplianceName) {$vmwareappliancemap[$_.Key] = $_.Value}}}
+	$appMap.GetEnumerator() | foreach {if($_.Value -match "VMwareSites|HyperVSites|ServerSites") {$vmwareappliancemap[$_.Key] = $_.Value}}}else{
+	$appMap.GetEnumerator() | foreach {if($_.Value -match "VMwareSites|HyperVSites|ServerSites" -and $_.Key -eq $ApplianceName) {$vmwareappliancemap[$_.Key] = $_.Value}}}
     Write-Debug $vmwareappliancemap.count
     if($vmwareappliancemap) {$vmwareappliancemap | Out-String | Write-Debug};
     if (-not $vmwareappliancemap.count) {throw "No VMware VMs discovered in project"};
@@ -176,7 +174,11 @@ function Get-AzMigDiscoveredVMwareVMs {
     foreach ($item in $vmwareappliancemap.GetEnumerator()) {
         $SiteId = $item.Value;
         Write-Debug "Get machines for Site $SiteId"
-        $requesturi = $Properties['baseurl'] + $SiteId + "/machines" + $SDS_APIVERSION + "&`$top=400"
+	if($SiteId -match "(/subscriptions/.*\/ServerSites/([^\/]*)\w{4}site)" -or $SiteId -match "(/subscriptions/.*\/HyperVSites/([^\/]*)\w{4}site)"){
+        $requesturi = $Properties['baseurl'] + $SiteId + "/machines" + $HyperVandServer_APIVERSION + "&`$top=400"}
+	if($SiteId -match "(/subscriptions/.*\/VmwareSites/([^\/]*)\w{4}site)" ){
+        $requesturi = $Properties['baseurl'] + $SiteId + "/machines" + $SDS_APIVERSION + "&`$top=400"}
+		
 		
 		#Write-Host $requesturi
 		
@@ -209,7 +211,6 @@ function Get-AzMigDiscoveredVMwareVMs {
         }
     }
 
-	
 	if ($DiscoveredMachines.count -gt 0) {
     
     $DiscoveredMachines | Select-Object -Property @{ expression={$_.properties.displayName}; label='VM display name'}, @{ expression={$_.properties.dependencymapping}; label='Current status'}, @{ expression={$_.id}; label='ARM ID'} | Export-Csv -NoTypeInformation -Path $OutputCsvFile 
@@ -254,9 +255,11 @@ function Set-AzMigDependencyMappingAgentless {
 
     if($Enable)
     { 
-        $ActionVerb = "Enabled"
+        $ActionVerb = "Enabled";
+		$EnableDependencyMapping = $true;
     } elseif ($Disable) {
-        $ActionVerb = "Disabled"
+        $ActionVerb = "Disabled";
+		$EnableDependencyMapping = $false;
     } else {
         throw "Error"
     }
@@ -283,7 +286,6 @@ function Set-AzMigDependencyMappingAgentless {
     $currentsite = $null
     foreach ($machine in $VMs) {
         if (-not ($machine -match "(/subscriptions/.*\/VMwareSites/([^\/]*)\w{4}site)")) {
-            Write-Debug "Skipping $machine"
             continue;     
         }
 
@@ -347,8 +349,86 @@ function Set-AzMigDependencyMappingAgentless {
 	   else {
 					throw "Could not update dependency mapping status for input VMs on appliance: $appliancename"
 		}
+		}
+
+    #Reset jsonpayload and loop through the same machines , this time for hyperV and server fabric
+    $jsonPayload.machines = @();
+
+    $currentsite = $null
+    foreach ($machine in $VMs) {
+        if (-not ($machine -match "(/subscriptions/.*\/HyperVSites/([^\/]*)\w{4}site)" -or $machine -match "(/subscriptions/.*\/ServerSites/([^\/]*)\w{4}site)" )) {
+            continue;     
+        }
+
+        $sitename = $Matches[1];
+        Write-Debug "Site: $sitename Machine: $machine";
+
+        if((-not $currentsite) -or ($sitename -eq $currentsite)) {
+            $currentsite = $sitename;
+            $tempobj= [PSCustomObject]@{
+                                        machineId = $machine
+                                        isDependencyMapToBeEnabled = $EnableDependencyMapping 
+                                       }
+            $jsonPayload.machines += $tempobj;
+            continue;
+        }
+
+        #different site. Send update request for previous site and start building request for the new site
+        if ($sitename -ne $currentsite) {
+            if ($jsonPayload.machines.count) {
+                $requestbody = $jsonPayload | ConvertTo-Json
+                $requestbody | Write-Debug
+                $requesturi = $Properties['baseurl'] + ${currentsite} + "/UpdateDependencyMapStatus" + $HyperVandServer_APIVERSION;
+                Write-Debug "request uri is : $requesturi"
+                $response = $null
+                $response = Invoke-RestMethod -Method Post -Headers $Properties['Headers'] -Body $requestbody  $requesturi -ContentType "application/json"
+                if ($response) {
+					$temp = $currentsite -match "\/([^\/]*)\w{4}site$" # Extract the appliance name
+					$appliancename = $Matches[1]
+					Write-Output "Updated dependency mapping status for input VMs on appliance: $appliancename"
+                }
+				else {
+					throw "Could not update dependency mapping status"
+				}
+            }
+
+            #Reset jsonpayload
+            $jsonPayload.machines = @();
+            $tempobj= [PSCustomObject]@{
+                                        machineId = $machine
+                                        isDependencyMapToBeEnabled = $EnableDependencyMapping 
+                                       }
+            $jsonPayload.machines += $tempobj;
+            $currentsite = $sitename #update current site name
+        }
     }
 
+
+    #Enable/Disable dependency for unprocessed sites
+    if ($jsonPayload.machines.count) {
+       $requestbody = $jsonPayload | ConvertTo-Json
+       $requestbody | Write-Debug
+       $requesturi = $Properties['baseurl'] + ${currentsite} + "/UpdateDependencyMapStatus" + $HyperVandServer_APIVERSION;
+       Write-Debug $requesturi
+       $response = $null
+       $response = Invoke-RestMethod -Method Post -Headers $Properties['Headers'] -Body $requestbody  $requesturi -ContentType "application/json"
+	   $temp = $currentsite -match "\/([^\/]*)\w{4}site$" # Extract the appliance name
+	   $appliancename = $Matches[1]
+       if ($response) {
+					Write-Output "Updating dependency mapping status for input VMs on appliance: $appliancename"
+       }
+	   else {
+					throw "Could not update dependency mapping status for input VMs on appliance: $appliancename"
+		}
+		}
+
+    # Pointing out all the incorrect ARM IDs
+    foreach ($machine in $VMs) {
+        if (-not ($machine -match "(/subscriptions/.*\/HyperVSites/([^\/]*)\w{4}site)" -or $machine -match "(/subscriptions/.*\/ServerSites/([^\/]*)\w{4}site)" -or $machine -match "(/subscriptions/.*\/VmwareSites/([^\/]*)\w{4}site)" )) {
+            Write-Output "Skipping the machine : $machine . Please check the ARM ID"    
+        }
+	}
+	
 }
 Export-ModuleMember -Function Set-AzMigDependencyMappingAgentless 
 
@@ -422,7 +502,13 @@ function Get-AzMigDependenciesAgentless {
 		return;
 	}
 	
-	$url = $Properties['baseurl'] + $VMWareSiteID + "/exportDependencies?api-version=2020-01-01-preview"
+	Write-Output $VMWareSiteID
+
+	if($VMWareSiteID -match "(/subscriptions/.*\/VmwareSites/([^\/]*)\w{4}site)"){
+	$url = $Properties['baseurl'] + $VMWareSiteID + "/exportDependencies?api-version=2020-01-01-preview" }
+
+	if($VMWareSiteID -match "(/subscriptions/.*\/HyperVSites/([^\/]*)\w{4}site)" -or $VMWareSiteID -match "(/subscriptions/.*\/ServerSites/([^\/]*)\w{4}site)"){
+	$url = $Properties['baseurl'] + $VMWareSiteID + "/exportDependencies?api-version=2020-08-01-preview" }
 	
 	$StartTime = Get-Date
 	
@@ -446,8 +532,11 @@ $jsonPayload = @"
 			throw "Could not retrieve the site for appliance $appliancename"
     }
 
-	
-	$url = $Properties['baseurl'] + $response.id + "?api-version=2020-01-01-preview"
+	if($VMWareSiteID -match "(/subscriptions/.*\/VmwareSites/([^\/]*)\w{4}site)"){	
+	$url = $Properties['baseurl'] + $response.id + "?api-version=2020-01-01-preview"}
+
+	if($VMWareSiteID -match "(/subscriptions/.*\/HyperVSites/([^\/]*)\w{4}site)" -or $VMWareSiteID -match "(/subscriptions/.*\/ServerSites/([^\/]*)\w{4}site)"){
+	$url = $Properties['baseurl'] + $response.id + "?api-version=2020-08-01-preview"}
 	
 	Write-Host "Please wait while the dependency data is downloaded..."
 	
