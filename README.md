@@ -9,60 +9,28 @@ products:
 
 # Sample code for Azure PowerShell documentation
 
-> Warning: This repo is scheduled to be archived on November 15, 2023. New contributions are no
-> longer accepted. Please submit new Azure PowerShell documentation code sample contributions to the
-> [Azure-Samples/azure-docs-powershell-samples](https://github.com/Azure-Samples/azure-docs-powershell-samples)
-> repo.
+The sample code in this repo for Azure PowerShell documentation is being transitioned to a new
+repository.
+
+> All future contributions and updates to sample code for Azure PowerShell documentation should be
+> directed to:
+> [github.com/Azure-Samples/azure-docs-powershell-samples](https://github.com/Azure-Samples/azure-docs-powershell-samples).
 
 All code in this repository is non-production samples used in Microsoft's official Azure PowerShell
 documentation and is designed to be used by our customers for learning and experimentation purposes.
 
-## Samples
+## Feedback
 
-Azure PowerShell samples for the following services and/or technologies are available in this repo.
-
-| Category |
-|------|
-| [API Management](https://github.com/Azure/azure-docs-powershell-samples/tree/master/api-management) |
-| [App Service](https://github.com/Azure/azure-docs-powershell-samples/tree/master/app-service) |
-| [Application Gateway](https://github.com/Azure/azure-docs-powershell-samples/tree/master/application-gateway)  |
-| [Application Management](https://github.com/Azure/azure-docs-powershell-samples/tree/master/application-management) |
-| [Application Proxy](https://github.com/Azure/azure-docs-powershell-samples/tree/master/application-management) |
-| [Azure Arc for Servers](https://github.com/Azure/azure-docs-powershell-samples/tree/master/azure-arc-for-servers) |
-| [Azure Migrate](https://github.com/Azure/azure-docs-powershell-samples/tree/master/azure-migrate) |
-| [Azure Portal](https://github.com/Azure/azure-docs-powershell-samples/tree/master/azure-portal) |
-| [Backup](https://github.com/Azure/azure-docs-powershell-samples/tree/master/backup) |
-| [Container Registry](https://github.com/Azure/azure-docs-powershell-samples/tree/master/container-registry) |
-| [Cosmos DB](https://github.com/Azure/azure-docs-powershell-samples/tree/master/cosmosdb) |
-| [Data Factory](https://github.com/Azure/azure-docs-powershell-samples/tree/master/data-factory) |
-| [DevTest Labs](https://github.com/Azure/azure-docs-powershell-samples/tree/master/devtest-lab) |
-| [Event Grid](https://github.com/Azure/azure-docs-powershell-samples/tree/master/event-grid) |
-| [Firewall](https://github.com/Azure/azure-docs-powershell-samples/tree/master/firewall) |
-| [HDInsight](https://github.com/Azure/azure-docs-powershell-samples/tree/master/hdinsight) |
-| [Load Balancer](https://github.com/Azure/azure-docs-powershell-samples/tree/master/load-balancer) |
-| [Log Analytics](https://github.com/Azure/azure-docs-powershell-samples/tree/master/log-analytics) |
-| [Maintenance Auto Scheduler](https://github.com/Azure/azure-docs-powershell-samples/tree/master/maintenance-auto-scheduler) |
-| [Managed Applications](https://github.com/Azure/azure-docs-powershell-samples/tree/master/managed-applications) |
-| [Network Watcher](https://github.com/Azure/azure-docs-powershell-samples/tree/master/network-watcher) |
-| [Notification Hubs](https://github.com/Azure/azure-docs-powershell-samples/tree/master/notification-hubs) |
-| [Service Fabric](https://github.com/Azure/azure-docs-powershell-samples/tree/master/service-fabric) |
-| [Site Recovery](https://github.com/Azure/azure-docs-powershell-samples/tree/master/site-recovery) |
-| [SQL Database](https://github.com/Azure/azure-docs-powershell-samples/tree/master/sql-database) |
-| [SQL Server on Virtual Machines](https://github.com/Azure/azure-docs-powershell-samples/tree/master/sql-virtual-machine) |
-| [Storage](https://github.com/Azure/azure-docs-powershell-samples/tree/master/storage) |
-| [Traffic Manager](https://github.com/Azure/azure-docs-powershell-samples/tree/master/traffic-manager) |
-| [Virtual Machine Scale Sets](https://github.com/Azure/azure-docs-powershell-samples/tree/master/virtual-machine-scale-sets) |
-| [Virtual Machines](https://github.com/Azure/azure-docs-powershell-samples/tree/master/virtual-machine) |
-| [Virtual Network](https://github.com/Azure/azure-docs-powershell-samples/tree/master/virtual-network) |
+If you have any questions or comments, log an issue in the
+[Azure-Samples/azure-docs-powershell-samples](https://github.com/Azure-Samples/azure-docs-powershell-samples/issues)
+repo.
 
 ## Contributing
 
-> Note: this repository is only for Azure PowerShell code samples that reside in Microsoft's
-> official Azure PowerShell documentation on [learn.microsoft.com](https://learn.microsoft.com/).
-
-We welcome public contributions into this repository via pull requests. Please note that before we
-can accept your pull request you must sign our
-[Contribution License Agreement](https://cla.microsoft.com/). This is a one-time requirement.
+New contributions to this repo are no longer accepted. Please submit new sample code contributions
+for Azure PowerShell documentation to the
+[Azure-Samples/azure-docs-powershell-samples](https://github.com/Azure-Samples/azure-docs-powershell-samples)
+repo.
 
 ## License
 
