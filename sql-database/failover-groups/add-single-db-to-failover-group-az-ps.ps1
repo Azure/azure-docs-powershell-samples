@@ -70,6 +70,7 @@ $drServer = New-AzSqlServer -ResourceGroupName $resourceGroupName `
       -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
 $drServer
 
+# <CreateFailoverGroup>
 
 # Create a failover group between the servers
 $failovergroup = Write-host "Creating a failover group between the primary and secondary server..."
@@ -93,6 +94,8 @@ Add-AzSqlDatabaseToFailoverGroup `
    -ServerName $serverName `
    -FailoverGroupName $failoverGroupName
 Write-host "Successfully added the database to the failover group..." 
+
+# </CreateFailoverGroup>
 
 # Check role of secondary replica
 Write-host "Confirming the secondary replica is secondary...." 
